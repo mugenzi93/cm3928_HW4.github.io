@@ -1,0 +1,33 @@
+---
+title: "My Website"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cerulean
+---
+
+# This is Clement's awesome Website
+
+![](images/clement.jpg)
+
+You can learn about me [here](Resume.html).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

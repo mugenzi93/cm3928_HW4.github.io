@@ -1,0 +1,38 @@
+name: "Yay internet!"
+output_dir: "."
+navbar:
+  title: "Home"
+  right:
+    - text: "Resume"
+      href: Resume.html
+    - text: Examples
+      menu:
+      - text: "Plotly"
+        href: plotly.html
+      - text: "Dashboard"
+        href: dashboard.html
+    - icon: fa-envelope fa-lg
+      href: mailto:<cm3928@cumc.columbia.edu.com>
+    - icon: fa-linkedin fa-lg
+      href: https://www.linkedin.com/in/clement-mugenzi-1076a4106/
+    - icon: fa-github fa-lg
+      href: http://github.com/mugenzi93/
+output:
+  html_document:
+    theme: journal
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
