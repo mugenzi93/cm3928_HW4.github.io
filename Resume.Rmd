@@ -6,7 +6,7 @@ output:
     toc_float: true
 ---
 
-My name is Clement and I am an inspiring Data Scientist !!!
+My name is Clement and I am an aspiring Data Scientist !!!
 
 My resume is [here](Documents/resume_2.pdf)
 
