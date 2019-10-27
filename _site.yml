@@ -19,7 +19,7 @@ navbar:
       href: http://github.com/mugenzi93/
 output:
   html_document:
-    theme: journal
+    theme: flatly
     
     
     
