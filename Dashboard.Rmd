@@ -1,0 +1,71 @@
+---
+title: "Dashboard"
+author: "Clement Mugenzi"
+date: "10/27/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(viridis)
+library(p8105.datasets)
+library(plotly)
+```
+
+
+```{r}
+set.seed(1)
+
+data("instacart")
+
+ 
+instacart = 
+  instacart %>% 
+  mutate(
+    order_dow = recode(order_dow, "0" = "Sunday", "1" = "Monday", 
+                       "2" = "Tuesday", "3" = "Wednesday", 
+                       "4" = "Thursday", "5" = "Friday", 
+                       "6" = "Saturday"), 
+    order_dow = factor(order_dow, levels = c("Monday", "Tuesday", 
+                                             "Wednesday", "Thursday", 
+                                             "Friday", "Saturday",
+                                             "Sunday"))) %>% 
+  select(aisle, department, product_name, order_hour_of_day, order_dow) %>% 
+  sample_n(500)
+  
+```
+
+
+
+```{r}
+instacart %>% 
+  filter(order_hour_of_day %in% 11:14) %>% 
+  mutate(text_label = str_c(product_name, order_dow)) %>% 
+  plot_ly(
+    x = ~aisle, y = ~department, type = "scatter", mode = "markers",
+    color = ~order_hour_of_day, text = ~text_label, alpha = 0.5)
+```
+
+
+
+
+
+```{r}
+instacart %>% 
+  count(order_dow) %>% 
+  mutate(fct_reorder(order_dow, n)) %>% 
+  plot_ly(x = ~order_dow, y = ~n, color = ~order_dow, type = "bar") %>% 
+  layout(xaxis = list(title = "Day", tickangle = -45),
+         yaxis = list(title = "Number of Orders per Day"),
+         margin = list(b = 100),
+         barmode = 'group')
+```
+
+
+```{r}
+common_aisle = 
+  instacart %>% 
+  filter(aisle == c("fresh vegetables", "fresh fruits", "packaged vegetables fruits",
+         "yogurt", "packaged cheese", "water seltzer sparkling water")) %>%
+  count(aisle, sort = TRUE)
+```
