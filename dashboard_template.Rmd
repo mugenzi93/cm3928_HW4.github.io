@@ -1,20 +1,22 @@
 ---
-title: "Dashboard"
-author: "Clement Mugenzi"
-date: "10/27/2019"
-output: html_document
+title: "Instacart Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
 ---
 
 ```{r setup, include=FALSE}
+library(flexdashboard)
 library(tidyverse)
 library(viridis)
 library(p8105.datasets)
 library(plotly)
 ```
 
-## Changing the Dataset to a usable Form
+Column {data-width=350}
+-----------------------------------------------------------------------
 
-I am using the instacart dataset, a platform which allows its clients to shop online from local stores.
 
 
 ```{r}
@@ -38,7 +40,9 @@ instacart =
   sample_n(500)
 ```
 
-## Scatterplot
+
+### Chart A
+
 
 ```{r}
 instacart %>% 
@@ -49,10 +53,10 @@ instacart %>%
     color = ~order_hour_of_day, text = ~text_label, alpha = 0.5)
 ```
 
-## Bar Plot
+Column {data-width=350}
+-----------------------------------------------------------------------
 
-The bar plot below shows the number of orders per day with Sunday being the day most people seem to do most online shopping. 
-
+### Chart B
 
 ```{r}
 instacart %>% 
@@ -65,8 +69,7 @@ instacart %>%
          barmode = 'group')
 ```
 
-
-## Boxplot
+### Chart C
 
 ```{r}
 common_aisle = 
@@ -76,9 +79,6 @@ common_aisle =
   count(aisle, sort = TRUE)
 ```
 
-
-The following boxlot showcases descriptive statistics for the selected aisles  and as to what time of day they most likely were frequented. Fresh vegetables and Packaged vegetables fruits are both equally spread out with range of 22 hours. 
-
 ```{r}
 inner_join(instacart, common_aisle, by = "aisle") %>% 
   mutate(aisle = fct_reorder(aisle, order_hour_of_day)) %>%
@@ -86,15 +86,6 @@ inner_join(instacart, common_aisle, by = "aisle") %>%
           colors = "Set2") %>% 
   layout(yaxis = list(title = "Hour of Day"))
 ```
-
-
-
-
-
-
-
-
-
 
 
 

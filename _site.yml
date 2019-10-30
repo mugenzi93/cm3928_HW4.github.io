@@ -7,8 +7,6 @@ navbar:
       href: Resume.html
     - text: Examples
       menu:
-      - text: "Plotly"
-        href: plotly.html
       - text: "Dashboard"
         href: dashboard.html
     - icon: fa-envelope fa-lg
