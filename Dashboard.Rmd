@@ -60,7 +60,7 @@ instacart %>%
   mutate(fct_reorder(order_dow, n)) %>% 
   plot_ly(x = ~order_dow, y = ~n, color = ~order_dow, type = "bar") %>% 
   layout(xaxis = list(title = "Day", tickangle = -45),
-         yaxis = list(title = "Number of Orders per Day"),
+         yaxis = list(title = "Number of Orders"),
          margin = list(b = 100),
          barmode = 'group')
 ```
@@ -77,7 +77,7 @@ common_aisle =
 ```
 
 
-The following boxlot showcases descriptive statistics for the selected aisles  and as to what time of day they most likely were frequented. Fresh vegetables and Packaged vegetables fruits are both equally spread out with range of 22 hours. 
+The following boxlot showcases descriptive statistics for the selected aisles and as to what time of day they most likely were frequented. Fresh vegetables and Packaged vegetables fruits are both equally spread out with range of 22 hours. 
 
 ```{r}
 inner_join(instacart, common_aisle, by = "aisle") %>% 

@@ -50,13 +50,16 @@ instacart %>%
   mutate(text_label = str_c(product_name, order_dow)) %>% 
   plot_ly(
     x = ~aisle, y = ~department, type = "scatter", mode = "markers",
-    color = ~order_hour_of_day, text = ~text_label, alpha = 0.5)
+    color = ~order_hour_of_day, text = ~text_label, alpha = 0.5) %>% 
+  layout(xaxis = list(title = "Aisle", tickangle = -45),
+         yaxis = list(title = "Department"),
+         margin = list(b = 100))
 ```
 
 Column {data-width=350}
 -----------------------------------------------------------------------
 
-### Chart B
+### Number of Orders per Day
 
 ```{r}
 instacart %>% 
@@ -64,12 +67,12 @@ instacart %>%
   mutate(fct_reorder(order_dow, n)) %>% 
   plot_ly(x = ~order_dow, y = ~n, color = ~order_dow, type = "bar") %>% 
   layout(xaxis = list(title = "Day", tickangle = -45),
-         yaxis = list(title = "Number of Orders per Day"),
+         yaxis = list(title = "Number of Orders"),
          margin = list(b = 100),
          barmode = 'group')
 ```
 
-### Chart C
+### Hour of Day selected Aisles are most Visited
 
 ```{r}
 common_aisle = 
