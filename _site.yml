@@ -7,8 +7,6 @@ navbar:
       href: Resume.html
     - text: Examples
       menu:
-      - text: "Dashboard"
-        href: dashboard.html
       - text: "FlexDashboard"
         href: dashboard_template.html
     - icon: fa-envelope fa-lg
