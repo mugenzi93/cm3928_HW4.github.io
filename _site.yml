@@ -9,13 +9,14 @@ navbar:
       menu:
       - text: "Dashboard"
         href: dashboard.html
+      - text: "FlexDashboard"
+        href: dashboard_template.html
     - icon: fa-envelope fa-lg
       href: mailto:<cm3928@cumc.columbia.edu.com>
     - icon: fa-linkedin fa-lg
       href: https://www.linkedin.com/in/clement-mugenzi-1076a4106/
     - icon: fa-github fa-lg
       href: http://github.com/mugenzi93/
-    - 
 output:
   html_document:
     theme: flatly
