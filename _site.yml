@@ -5,10 +5,10 @@ navbar:
   right:
     - text: "Resume"
       href: Resume.html
-    - text: Examples
+    - text: Projects
       menu:
-      - text: "FlexDashboard"
-        href: dashboard_template.html
+      - text: "Titanic"
+        href: Titanic.html
     - icon: fa-envelope fa-lg
       href: mailto:<cm3928@cumc.columbia.edu.com>
     - icon: fa-linkedin fa-lg
