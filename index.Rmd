@@ -7,8 +7,6 @@ output:
     theme: flatly
 ---
 
-# Welcome!
-
 ![](images/clement.jpg)
 
 
@@ -19,9 +17,6 @@ During my undergraduate education in chemistry at the University of Central Arka
 I am a proactive learner, always seeking out challenging opportunities with an ultimate purpose to grow personally and professionally. 
 
 I am also an aspiring data scientist, constantly looking to get involved in challenging projects in order to apply my analytical problem-solving skills and translate big picture ideas into tangible goals.
-
-
-You can learn more about me [here](Resume.html).
 
 
 
