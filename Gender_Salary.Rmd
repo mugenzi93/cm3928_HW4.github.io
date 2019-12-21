@@ -59,20 +59,26 @@ The dataset for analysis has 261 observations of 8 variables. The distributions 
 lawsuit_df =
   read_csv("Data/Lawsuit.csv") %>% 
   janitor::clean_names() %>%
+  rename("Department" = "dept", "Emphasis" = "clin", "Certification" = "cert",
+         "Title" = "rank", "Experience" = "exper", "Publication" = "prate",
+         "Salary (1994)" = "sal94", "Salary (1995)" = "sal95") %>%
   dplyr::mutate(
-    dept = factor(dept, levels = c("1", "2", "3",
+    Department = factor(Department, levels = c("1", "2", "3",
                                    "4", "5", "6")),
     gender = factor(gender, levels = c("1", "0")),
-    clin = factor(clin, levels = c("1", "0")),
-    cert = factor(cert, levels = c("1", "0")),
-    rank = factor(rank, levels = c("1", "2", "3"))) %>% 
+    Emphasis = factor(Emphasis, levels = c("1", "0")),
+    Certification = factor(Certification, levels = c("1", "0")),
+    Title = factor(Title, levels = c("1", "2", "3"))) %>% 
   mutate(
     gender = recode(gender, "1" = "Male", "0" = "Female"),
-    dept = recode(dept, "1" = "Biochemistry", "2" = "Physiology", "3" = "Genetics",
+    Department = recode(Department, "1" = "Biochemistry/Molecular Biology", 
+                        "2" = "Physiology", "3" = "Genetics",
                   "4" = "Pediatrics", "5" = "Medicine", "6" = "Surgery"),
-    clin = recode(clin, "1" = "clinical", "0" = "research"),
-    cert = recode(cert, "1" = "certified", "0" = "Not certified"),
-    rank = recode(rank, "1" = "assistant", "2" = "associate", "3" = "full")) %>%
+    Emphasis = recode(Emphasis, "1" = "Clinical", "0" = "Research"),
+    Certification = recode(Certification, "1" = "certified", 
+                           "0" = "Not certified"),
+    Title = recode(Title, "1" = "Assistant Professor", 
+                   "2" = "Associate Professor", "3" = "Full Professor")) %>%
   arrange(gender)
 ```
 
@@ -81,7 +87,7 @@ lawsuit_df =
 # Cleaning output
 tab1_controls = tableby.control(
                total = T,
-               test = F,
+               test = T,
                numeric.stats = c("meansd", "medianq1q3", "range"),
                cat.stats = "countpct",
                stats.labels = list(
@@ -90,8 +96,8 @@ tab1_controls = tableby.control(
                range = "Min - Max",
                countpct = "N (%)"))
 
-tab1 = tableby(gender ~ dept + clin + cert + prate +
-                  exper + rank + sal94 + sal95,
+tab1 = tableby(gender ~ Department + Emphasis + Certification + Publication +
+                  Experience + Title + `Salary (1994)` + `Salary (1995)`,
                 data = lawsuit_df, control = tab1_controls)
 summary(tab1, title = 'Descriptive Statistics', digits = 2, text = T)
 ```

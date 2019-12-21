@@ -357,25 +357,31 @@ $(document).ready(function () {
 <pre class="r"><code>lawsuit_df =
   read_csv(&quot;Data/Lawsuit.csv&quot;) %&gt;% 
   janitor::clean_names() %&gt;%
+  rename(&quot;Department&quot; = &quot;dept&quot;, &quot;Emphasis&quot; = &quot;clin&quot;, &quot;Certification&quot; = &quot;cert&quot;,
+         &quot;Title&quot; = &quot;rank&quot;, &quot;Experience&quot; = &quot;exper&quot;, &quot;Publication&quot; = &quot;prate&quot;,
+         &quot;Salary (1994)&quot; = &quot;sal94&quot;, &quot;Salary (1995)&quot; = &quot;sal95&quot;) %&gt;%
   dplyr::mutate(
-    dept = factor(dept, levels = c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;,
+    Department = factor(Department, levels = c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;,
                                    &quot;4&quot;, &quot;5&quot;, &quot;6&quot;)),
     gender = factor(gender, levels = c(&quot;1&quot;, &quot;0&quot;)),
-    clin = factor(clin, levels = c(&quot;1&quot;, &quot;0&quot;)),
-    cert = factor(cert, levels = c(&quot;1&quot;, &quot;0&quot;)),
-    rank = factor(rank, levels = c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;))) %&gt;% 
+    Emphasis = factor(Emphasis, levels = c(&quot;1&quot;, &quot;0&quot;)),
+    Certification = factor(Certification, levels = c(&quot;1&quot;, &quot;0&quot;)),
+    Title = factor(Title, levels = c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;))) %&gt;% 
   mutate(
     gender = recode(gender, &quot;1&quot; = &quot;Male&quot;, &quot;0&quot; = &quot;Female&quot;),
-    dept = recode(dept, &quot;1&quot; = &quot;Biochemistry&quot;, &quot;2&quot; = &quot;Physiology&quot;, &quot;3&quot; = &quot;Genetics&quot;,
+    Department = recode(Department, &quot;1&quot; = &quot;Biochemistry/Molecular Biology&quot;, 
+                        &quot;2&quot; = &quot;Physiology&quot;, &quot;3&quot; = &quot;Genetics&quot;,
                   &quot;4&quot; = &quot;Pediatrics&quot;, &quot;5&quot; = &quot;Medicine&quot;, &quot;6&quot; = &quot;Surgery&quot;),
-    clin = recode(clin, &quot;1&quot; = &quot;clinical&quot;, &quot;0&quot; = &quot;research&quot;),
-    cert = recode(cert, &quot;1&quot; = &quot;certified&quot;, &quot;0&quot; = &quot;Not certified&quot;),
-    rank = recode(rank, &quot;1&quot; = &quot;assistant&quot;, &quot;2&quot; = &quot;associate&quot;, &quot;3&quot; = &quot;full&quot;)) %&gt;%
+    Emphasis = recode(Emphasis, &quot;1&quot; = &quot;Clinical&quot;, &quot;0&quot; = &quot;Research&quot;),
+    Certification = recode(Certification, &quot;1&quot; = &quot;certified&quot;, 
+                           &quot;0&quot; = &quot;Not certified&quot;),
+    Title = recode(Title, &quot;1&quot; = &quot;Assistant Professor&quot;, 
+                   &quot;2&quot; = &quot;Associate Professor&quot;, &quot;3&quot; = &quot;Full Professor&quot;)) %&gt;%
   arrange(gender)</code></pre>
 <pre class="r"><code># Cleaning output
 tab1_controls = tableby.control(
                total = T,
-               test = F,
+               test = T,
                numeric.stats = c(&quot;meansd&quot;, &quot;medianq1q3&quot;, &quot;range&quot;),
                cat.stats = &quot;countpct&quot;,
                stats.labels = list(
@@ -384,8 +390,8 @@ tab1_controls = tableby.control(
                range = &quot;Min - Max&quot;,
                countpct = &quot;N (%)&quot;))
 
-tab1 = tableby(gender ~ dept + clin + cert + prate +
-                  exper + rank + sal94 + sal95,
+tab1 = tableby(gender ~ Department + Emphasis + Certification + Publication +
+                  Experience + Title + `Salary (1994)` + `Salary (1995)`,
                 data = lawsuit_df, control = tab1_controls)
 summary(tab1, title = &#39;Descriptive Statistics&#39;, digits = 2, text = T)</code></pre>
 <p><img src="images/Table1.jpg" /></p>
