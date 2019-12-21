@@ -6,7 +6,28 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(MASS)
+library(dplyr)
+library(tidyverse)
+library(knitr)
+library(broom)
+library(faraway)
+library(arsenal)
+library(caret)
+knitr::opts_chunk$set(
+	echo = TRUE,
+	warning = FALSE,
+	fig.width = 8, 
+  fig.height = 6,
+  out.width = "90%"
+)
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+theme_set(theme_minimal() + theme(legend.position = "right"))
 ```
 
 # Introduction
@@ -16,10 +37,66 @@ Income inequality between men and women has been a point of debate over the year
 Title VII of the Civil Rights Act of 1964 is a federal law that prohibits employers from discriminating against employees on the basis of sex, race, color, national origin and religion[3]. Also, the equal pay act of 1963 requires that men and women in the same workplace be given equal pay for equal work. However, the U.S education system is one area that is not immune to this income gap problem. Several factors determine one’s compensation in the education system. Despite these legitimate factors that determine compensation, there are many cases that have been published claiming that female professors are getting paid less compared to their male colleagues while bearing the same, if not superior, titles or accolades.
 The aim of this study is to examine the association between gender discrimination in setting salary within the Houston college of medicine where a female professor claimed, through a district court lawsuit, that there was evidence of discrimination against women in giving promotions and setting salaries. To support this, we built multiple regressionmodels using six predictor variables such as the subject's department, their area of expertise, whether or not they are board-certified, years of experience, and their position title. We tested for interactions and confounders that might be present between all the stated predictors and our main predictor of interest: the subject’s gender. Our response variables were the baseline salary in 1994 and the change in salary between 1994 and 1995.
 
+# Methods
+
+## Data Description
+
+* Dept: Academic departments at Houston College of medicine. Biochemistry, Physiology, Genetics, Pediatrics, Medicine, and Surgery
+* Gender: A dichotomous variable coded with dummy variables '1' for Male subjects and '0' for Female subjects
+* Clin: A dummy variable with 1 = Primarily clinnical emphasis and 0 = Primarily research emphasis.
+* Cert: 1 = Board certified and 0 = not certified
+* Prate: Publication rate 
+* Exper: years of experience since obtaining Medical Doctor degree.
+* Rank: 1 = Assistant professor, 2 = Associate professor, 3 = full professor
+* Sal94: Salary in academic year 1994
+* Sal05: Salary in academic year 1995.
+
+The dataset for analysis has 261 observations of 8 variables. The distributions of salary amount in 1994 and 1995 were originally skewed. A natural log transformation was applied to these two variables making them follow a nearly normal distribution (figure 1). Table 1 shows that the departments of Physiology, Genetics and Pediatrics had a significantly higher proportion of female faculties compared to the male, while the department of Surgery had a significantly lower proportion of female faculties. There was no significant difference in both clinical or research emphasis as well as certification between both genders. The results also presented that years after obtaining MD for females were shorter than that of males. By comparing the rank, which was also a proxy for productivity, the proportion of full professors among female faculties was much lesser than males.
+
+## Loading and Tidying the dataset
+
+```{r, message=FALSE}
+lawsuit_df =
+  read_csv("Data/Lawsuit.csv") %>% 
+  janitor::clean_names() %>%
+  dplyr::mutate(
+    dept = factor(dept, levels = c("1", "2", "3",
+                                   "4", "5", "6")),
+    gender = factor(gender, levels = c("1", "0")),
+    clin = factor(clin, levels = c("1", "0")),
+    cert = factor(cert, levels = c("1", "0")),
+    rank = factor(rank, levels = c("1", "2", "3"))) %>% 
+  mutate(
+    gender = recode(gender, "1" = "Male", "0" = "Female"),
+    dept = recode(dept, "1" = "Biochemistry", "2" = "Physiology", "3" = "Genetics",
+                  "4" = "Pediatrics", "5" = "Medicine", "6" = "Surgery"),
+    clin = recode(clin, "1" = "clinical", "0" = "research"),
+    cert = recode(cert, "1" = "certified", "0" = "Not certified"),
+    rank = recode(rank, "1" = "assistant", "2" = "associate", "3" = "full")) %>%
+  arrange(gender)
+```
 
 
+```{r, eval=FALSE}
+# Cleaning output
+tab1_controls = tableby.control(
+               total = T,
+               test = F,
+               numeric.stats = c("meansd", "medianq1q3", "range"),
+               cat.stats = "countpct",
+               stats.labels = list(
+               meansd = "Mean (SD)",
+               medianq1q3 = "Median (Q1, Q3)",
+               range = "Min - Max",
+               countpct = "N (%)"))
 
+tab1 = tableby(gender ~ dept + clin + cert + prate +
+                  exper + rank + sal94 + sal95,
+                data = lawsuit_df, control = tab1_controls)
+summary(tab1, title = 'Descriptive Statistics', digits = 2, text = T)
+```
 
+![](images/Table1.jpg)
 
 
 

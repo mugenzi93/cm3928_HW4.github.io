@@ -335,6 +335,62 @@ $(document).ready(function () {
 <p>Income inequality between men and women has been a point of debate over the years. To find our own answers, our team sought to examine the association between salary and gender at the Houston college of medicine. This was a cross-sectional study based on the salaries among faculties with varying expertise in the field of medicine. We created two regression models of baseline salary in 1994 and the increment of salary between 1994 and 1995, according to gender, department, years of experience, work emphasis, certification status, and rank. We found that gender was significantly associated with salary setting at baseline but that it was not a determining factor for the salary increase from between 1994 and 1995.</p>
 <p>Title VII of the Civil Rights Act of 1964 is a federal law that prohibits employers from discriminating against employees on the basis of sex, race, color, national origin and religion[3]. Also, the equal pay act of 1963 requires that men and women in the same workplace be given equal pay for equal work. However, the U.S education system is one area that is not immune to this income gap problem. Several factors determine one’s compensation in the education system. Despite these legitimate factors that determine compensation, there are many cases that have been published claiming that female professors are getting paid less compared to their male colleagues while bearing the same, if not superior, titles or accolades. The aim of this study is to examine the association between gender discrimination in setting salary within the Houston college of medicine where a female professor claimed, through a district court lawsuit, that there was evidence of discrimination against women in giving promotions and setting salaries. To support this, we built multiple regressionmodels using six predictor variables such as the subject’s department, their area of expertise, whether or not they are board-certified, years of experience, and their position title. We tested for interactions and confounders that might be present between all the stated predictors and our main predictor of interest: the subject’s gender. Our response variables were the baseline salary in 1994 and the change in salary between 1994 and 1995.</p>
 </div>
+<div id="methods" class="section level1">
+<h1>Methods</h1>
+<div id="data-description" class="section level2">
+<h2>Data Description</h2>
+<ul>
+<li>Dept: Academic departments at Houston College of medicine. Biochemistry, Physiology, Genetics, Pediatrics, Medicine, and Surgery</li>
+<li>Gender: A dichotomous variable coded with dummy variables ‘1’ for Male subjects and ‘0’ for Female subjects</li>
+<li>Clin: A dummy variable with 1 = Primarily clinnical emphasis and 0 = Primarily research emphasis.</li>
+<li>Cert: 1 = Board certified and 0 = not certified</li>
+<li>Prate: Publication rate</li>
+<li>Exper: years of experience since obtaining Medical Doctor degree.</li>
+<li>Rank: 1 = Assistant professor, 2 = Associate professor, 3 = full professor</li>
+<li>Sal94: Salary in academic year 1994</li>
+<li>Sal05: Salary in academic year 1995.</li>
+</ul>
+<p>The dataset for analysis has 261 observations of 8 variables. The distributions of salary amount in 1994 and 1995 were originally skewed. A natural log transformation was applied to these two variables making them follow a nearly normal distribution (figure 1). Table 1 shows that the departments of Physiology, Genetics and Pediatrics had a significantly higher proportion of female faculties compared to the male, while the department of Surgery had a significantly lower proportion of female faculties. There was no significant difference in both clinical or research emphasis as well as certification between both genders. The results also presented that years after obtaining MD for females were shorter than that of males. By comparing the rank, which was also a proxy for productivity, the proportion of full professors among female faculties was much lesser than males.</p>
+</div>
+<div id="loading-and-tidying-the-dataset" class="section level2">
+<h2>Loading and Tidying the dataset</h2>
+<pre class="r"><code>lawsuit_df =
+  read_csv(&quot;Data/Lawsuit.csv&quot;) %&gt;% 
+  janitor::clean_names() %&gt;%
+  dplyr::mutate(
+    dept = factor(dept, levels = c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;,
+                                   &quot;4&quot;, &quot;5&quot;, &quot;6&quot;)),
+    gender = factor(gender, levels = c(&quot;1&quot;, &quot;0&quot;)),
+    clin = factor(clin, levels = c(&quot;1&quot;, &quot;0&quot;)),
+    cert = factor(cert, levels = c(&quot;1&quot;, &quot;0&quot;)),
+    rank = factor(rank, levels = c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;))) %&gt;% 
+  mutate(
+    gender = recode(gender, &quot;1&quot; = &quot;Male&quot;, &quot;0&quot; = &quot;Female&quot;),
+    dept = recode(dept, &quot;1&quot; = &quot;Biochemistry&quot;, &quot;2&quot; = &quot;Physiology&quot;, &quot;3&quot; = &quot;Genetics&quot;,
+                  &quot;4&quot; = &quot;Pediatrics&quot;, &quot;5&quot; = &quot;Medicine&quot;, &quot;6&quot; = &quot;Surgery&quot;),
+    clin = recode(clin, &quot;1&quot; = &quot;clinical&quot;, &quot;0&quot; = &quot;research&quot;),
+    cert = recode(cert, &quot;1&quot; = &quot;certified&quot;, &quot;0&quot; = &quot;Not certified&quot;),
+    rank = recode(rank, &quot;1&quot; = &quot;assistant&quot;, &quot;2&quot; = &quot;associate&quot;, &quot;3&quot; = &quot;full&quot;)) %&gt;%
+  arrange(gender)</code></pre>
+<pre class="r"><code># Cleaning output
+tab1_controls = tableby.control(
+               total = T,
+               test = F,
+               numeric.stats = c(&quot;meansd&quot;, &quot;medianq1q3&quot;, &quot;range&quot;),
+               cat.stats = &quot;countpct&quot;,
+               stats.labels = list(
+               meansd = &quot;Mean (SD)&quot;,
+               medianq1q3 = &quot;Median (Q1, Q3)&quot;,
+               range = &quot;Min - Max&quot;,
+               countpct = &quot;N (%)&quot;))
+
+tab1 = tableby(gender ~ dept + clin + cert + prate +
+                  exper + rank + sal94 + sal95,
+                data = lawsuit_df, control = tab1_controls)
+summary(tab1, title = &#39;Descriptive Statistics&#39;, digits = 2, text = T)</code></pre>
+<p><img src="images/Table1.jpg" /></p>
+</div>
+</div>
 
 
 
