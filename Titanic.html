@@ -368,55 +368,31 @@ Titanic =
   knitr::kable()</code></pre>
 <table>
 <thead>
-<tr>
-<th style="text-align:left;">
-Variable
-</th>
-<th style="text-align:right;">
-Missing Values
-</th>
+<tr class="header">
+<th align="left">Variable</th>
+<th align="right">Missing Values</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td style="text-align:left;">
-cabin
-</td>
-<td style="text-align:right;">
-1014
-</td>
+<tr class="odd">
+<td align="left">cabin</td>
+<td align="right">1014</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-survived
-</td>
-<td style="text-align:right;">
-418
-</td>
+<tr class="even">
+<td align="left">survived</td>
+<td align="right">418</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-age
-</td>
-<td style="text-align:right;">
-263
-</td>
+<tr class="odd">
+<td align="left">age</td>
+<td align="right">263</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-embarked
-</td>
-<td style="text-align:right;">
-2
-</td>
+<tr class="even">
+<td align="left">embarked</td>
+<td align="right">2</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-fare
-</td>
-<td style="text-align:right;">
-1
-</td>
+<tr class="odd">
+<td align="left">fare</td>
+<td align="right">1</td>
 </tr>
 </tbody>
 </table>
@@ -429,12 +405,10 @@ fare
   Titanic %&gt;% 
   mutate(
     gender = recode(gender, &quot;male&quot; = &quot;Male&quot;, &quot;female&quot; = &quot;Female&quot;),
-    survived = recode(survived, &quot;0&quot; = &quot;died&quot;, &quot;1&quot; = &quot;survived&quot;),
     embarked = recode(embarked, &quot;C&quot; = &quot;Cherbourg&quot;, &quot;S&quot; = &quot;Southampton&quot;,
                       &quot;Q&quot; = &quot;Queenstown&quot;),
     pclass = recode(pclass, &quot;1&quot; = &quot;1st&quot;, &quot;2&quot; = &quot;2nd&quot;, &quot;3&quot; = &quot;3rd&quot;),
     gender = factor(gender, levels = c(&quot;Male&quot;, &quot;Female&quot;)),
-    survived = factor(survived, levels = c(&quot;died&quot;, &quot;survived&quot;)),
     embarked = factor(embarked, levels = c(&quot;Cherbourg&quot;, &quot;Southampton&quot;,
                                            &quot;Queenstown&quot;)),
     pclass = factor(pclass, levels = c(&quot;1st&quot;, &quot;2nd&quot;, &quot;3rd&quot;)))</code></pre>
@@ -482,183 +456,70 @@ table(titanic$gender, titanic$titles) %&gt;%
   knitr::kable()</code></pre>
 <table>
 <thead>
-<tr>
-<th style="text-align:left;">
-</th>
-<th style="text-align:right;">
-Capt
-</th>
-<th style="text-align:right;">
-Col
-</th>
-<th style="text-align:right;">
-Don
-</th>
-<th style="text-align:right;">
-Dona
-</th>
-<th style="text-align:right;">
-Dr
-</th>
-<th style="text-align:right;">
-Jonkheer
-</th>
-<th style="text-align:right;">
-Lady
-</th>
-<th style="text-align:right;">
-Major
-</th>
-<th style="text-align:right;">
-Master
-</th>
-<th style="text-align:right;">
-Miss
-</th>
-<th style="text-align:right;">
-Mlle
-</th>
-<th style="text-align:right;">
-Mme
-</th>
-<th style="text-align:right;">
-Mr
-</th>
-<th style="text-align:right;">
-Mrs
-</th>
-<th style="text-align:right;">
-Ms
-</th>
-<th style="text-align:right;">
-Rev
-</th>
-<th style="text-align:right;">
-Sir
-</th>
-<th style="text-align:right;">
-the Countess
-</th>
+<tr class="header">
+<th></th>
+<th align="right">Capt</th>
+<th align="right">Col</th>
+<th align="right">Don</th>
+<th align="right">Dona</th>
+<th align="right">Dr</th>
+<th align="right">Jonkheer</th>
+<th align="right">Lady</th>
+<th align="right">Major</th>
+<th align="right">Master</th>
+<th align="right">Miss</th>
+<th align="right">Mlle</th>
+<th align="right">Mme</th>
+<th align="right">Mr</th>
+<th align="right">Mrs</th>
+<th align="right">Ms</th>
+<th align="right">Rev</th>
+<th align="right">Sir</th>
+<th align="right">the Countess</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td style="text-align:left;">
-Male
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-4
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-7
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-61
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-757
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-8
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0
-</td>
+<tr class="odd">
+<td>Male</td>
+<td align="right">1</td>
+<td align="right">4</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">7</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">61</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">757</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">8</td>
+<td align="right">1</td>
+<td align="right">0</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Female
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-260
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-1
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-197
-</td>
-<td style="text-align:right;">
-2
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-1
-</td>
+<tr class="even">
+<td>Female</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">260</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">197</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
 </tr>
 </tbody>
 </table>
@@ -699,67 +560,31 @@ titanic %&gt;%
   knitr::kable()</code></pre>
 <table>
 <thead>
-<tr>
-<th style="text-align:left;">
-gender
-</th>
-<th style="text-align:right;">
-Master
-</th>
-<th style="text-align:right;">
-Miss
-</th>
-<th style="text-align:right;">
-Mr
-</th>
-<th style="text-align:right;">
-Mrs
-</th>
-<th style="text-align:right;">
-Rare Title
-</th>
+<tr class="header">
+<th align="left">gender</th>
+<th align="right">Master</th>
+<th align="right">Miss</th>
+<th align="right">Mr</th>
+<th align="right">Mrs</th>
+<th align="right">Rare Title</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td style="text-align:left;">
-Male
-</td>
-<td style="text-align:right;">
-61
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-757
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-25
-</td>
+<tr class="odd">
+<td align="left">Male</td>
+<td align="right">61</td>
+<td align="right">0</td>
+<td align="right">757</td>
+<td align="right">0</td>
+<td align="right">25</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Female
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-264
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-198
-</td>
-<td style="text-align:right;">
-4
-</td>
+<tr class="even">
+<td align="left">Female</td>
+<td align="right">0</td>
+<td align="right">264</td>
+<td align="right">0</td>
+<td align="right">198</td>
+<td align="right">4</td>
 </tr>
 </tbody>
 </table>
@@ -770,231 +595,103 @@ Female
   knitr::kable()</code></pre>
 <table>
 <thead>
-<tr>
-<th style="text-align:left;">
-gender
-</th>
-<th style="text-align:left;">
-pclass
-</th>
-<th style="text-align:left;">
-titles
-</th>
-<th style="text-align:right;">
-median_age
-</th>
+<tr class="header">
+<th align="left">gender</th>
+<th align="left">pclass</th>
+<th align="left">titles</th>
+<th align="right">median_age</th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td style="text-align:left;">
-Male
-</td>
-<td style="text-align:left;">
-1st
-</td>
-<td style="text-align:left;">
-Master
-</td>
-<td style="text-align:right;">
-6.0
-</td>
+<tr class="odd">
+<td align="left">Male</td>
+<td align="left">1st</td>
+<td align="left">Master</td>
+<td align="right">6.0</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Male
-</td>
-<td style="text-align:left;">
-1st
-</td>
-<td style="text-align:left;">
-Mr
-</td>
-<td style="text-align:right;">
-41.5
-</td>
+<tr class="even">
+<td align="left">Male</td>
+<td align="left">1st</td>
+<td align="left">Mr</td>
+<td align="right">41.5</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Male
-</td>
-<td style="text-align:left;">
-1st
-</td>
-<td style="text-align:left;">
-Rare Title
-</td>
-<td style="text-align:right;">
-49.5
-</td>
+<tr class="odd">
+<td align="left">Male</td>
+<td align="left">1st</td>
+<td align="left">Rare Title</td>
+<td align="right">49.5</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Male
-</td>
-<td style="text-align:left;">
-2nd
-</td>
-<td style="text-align:left;">
-Master
-</td>
-<td style="text-align:right;">
-2.0
-</td>
+<tr class="even">
+<td align="left">Male</td>
+<td align="left">2nd</td>
+<td align="left">Master</td>
+<td align="right">2.0</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Male
-</td>
-<td style="text-align:left;">
-2nd
-</td>
-<td style="text-align:left;">
-Mr
-</td>
-<td style="text-align:right;">
-30.0
-</td>
+<tr class="odd">
+<td align="left">Male</td>
+<td align="left">2nd</td>
+<td align="left">Mr</td>
+<td align="right">30.0</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Male
-</td>
-<td style="text-align:left;">
-2nd
-</td>
-<td style="text-align:left;">
-Rare Title
-</td>
-<td style="text-align:right;">
-41.5
-</td>
+<tr class="even">
+<td align="left">Male</td>
+<td align="left">2nd</td>
+<td align="left">Rare Title</td>
+<td align="right">41.5</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Male
-</td>
-<td style="text-align:left;">
-3rd
-</td>
-<td style="text-align:left;">
-Master
-</td>
-<td style="text-align:right;">
-6.0
-</td>
+<tr class="odd">
+<td align="left">Male</td>
+<td align="left">3rd</td>
+<td align="left">Master</td>
+<td align="right">6.0</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Male
-</td>
-<td style="text-align:left;">
-3rd
-</td>
-<td style="text-align:left;">
-Mr
-</td>
-<td style="text-align:right;">
-26.0
-</td>
+<tr class="even">
+<td align="left">Male</td>
+<td align="left">3rd</td>
+<td align="left">Mr</td>
+<td align="right">26.0</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Female
-</td>
-<td style="text-align:left;">
-1st
-</td>
-<td style="text-align:left;">
-Miss
-</td>
-<td style="text-align:right;">
-30.0
-</td>
+<tr class="odd">
+<td align="left">Female</td>
+<td align="left">1st</td>
+<td align="left">Miss</td>
+<td align="right">30.0</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Female
-</td>
-<td style="text-align:left;">
-1st
-</td>
-<td style="text-align:left;">
-Mrs
-</td>
-<td style="text-align:right;">
-45.0
-</td>
+<tr class="even">
+<td align="left">Female</td>
+<td align="left">1st</td>
+<td align="left">Mrs</td>
+<td align="right">45.0</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Female
-</td>
-<td style="text-align:left;">
-1st
-</td>
-<td style="text-align:left;">
-Rare Title
-</td>
-<td style="text-align:right;">
-43.5
-</td>
+<tr class="odd">
+<td align="left">Female</td>
+<td align="left">1st</td>
+<td align="left">Rare Title</td>
+<td align="right">43.5</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Female
-</td>
-<td style="text-align:left;">
-2nd
-</td>
-<td style="text-align:left;">
-Miss
-</td>
-<td style="text-align:right;">
-20.0
-</td>
+<tr class="even">
+<td align="left">Female</td>
+<td align="left">2nd</td>
+<td align="left">Miss</td>
+<td align="right">20.0</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Female
-</td>
-<td style="text-align:left;">
-2nd
-</td>
-<td style="text-align:left;">
-Mrs
-</td>
-<td style="text-align:right;">
-30.5
-</td>
+<tr class="odd">
+<td align="left">Female</td>
+<td align="left">2nd</td>
+<td align="left">Mrs</td>
+<td align="right">30.5</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Female
-</td>
-<td style="text-align:left;">
-3rd
-</td>
-<td style="text-align:left;">
-Miss
-</td>
-<td style="text-align:right;">
-18.0
-</td>
+<tr class="even">
+<td align="left">Female</td>
+<td align="left">3rd</td>
+<td align="left">Miss</td>
+<td align="right">18.0</td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Female
-</td>
-<td style="text-align:left;">
-3rd
-</td>
-<td style="text-align:left;">
-Mrs
-</td>
-<td style="text-align:right;">
-31.0
-</td>
+<tr class="odd">
+<td align="left">Female</td>
+<td align="left">3rd</td>
+<td align="left">Mrs</td>
+<td align="right">31.0</td>
 </tr>
 </tbody>
 </table>
@@ -1011,9 +708,9 @@ titanic$status[titanic$age &gt;= 18] = &quot;Adult&quot;
 # Show counts
 table(titanic$status, titanic$survived)</code></pre>
 <pre><code>##        
-##         died survived
-##   Adult  372      229
-##   Child   52       61</code></pre>
+##           0   1
+##   Adult 372 229
+##   Child  52  61</code></pre>
 <p>Next, let us create the <code>mother</code> variable.</p>
 <pre class="r"><code># Adding Mother variable
 titanic$mother = &#39;Not Mother&#39;
@@ -1024,15 +721,15 @@ titanic$mother[
 # Show counts
 table(titanic$mother, titanic$survived)</code></pre>
 <pre><code>##             
-##              died survived
-##   Not Mother  549      342</code></pre>
+##                0   1
+##   Not Mother 549 342</code></pre>
 <p>Now let us convert both variables created in factor variables</p>
 <pre class="r"><code>titanic = 
   titanic %&gt;% 
   mutate(
     status = factor(status, levels = c(&quot;Adult&quot;, &quot;Child&quot;)),
-    mother = factor(mother, levels = c(&quot;Not Mother&quot;, &quot;Mother&quot;))) %&gt;% 
-  select(-family)</code></pre>
+    mother = factor(mother, levels = c(&quot;Not Mother&quot;, &quot;Mother&quot;))) %&gt;%
+  select(-titles)</code></pre>
 </div>
 </div>
 <div id="missingness" class="section level1">
@@ -1113,14 +810,45 @@ test = titanic[892:1309,]</code></pre>
 set.seed(754)
 
 # Build the model (note: not all possible variables are used)
-rf_model = randomForest(survived ~ pclass + gender + age + sib_sp + parch +
+rf_model = randomForest(factor(survived) ~ pclass + gender + age + sib_sp + parch +
                           fare + embarked + famsize + mother, 
-                        data = train)
+                        data = train, mtry = 2, importance = TRUE)
                                              
-# Show model error
-plot(rf_model, ylim = c(0,0.36))
+rf_model</code></pre>
+<pre><code>## 
+## Call:
+##  randomForest(formula = factor(survived) ~ pclass + gender + age +      sib_sp + parch + fare + embarked + famsize + mother, data = train,      mtry = 2, importance = TRUE) 
+##                Type of random forest: classification
+##                      Number of trees: 500
+## No. of variables tried at each split: 2
+## 
+##         OOB estimate of  error rate: 18.07%
+## Confusion matrix:
+##     0   1 class.error
+## 0 502  47   0.0856102
+## 1 114 228   0.3333333</code></pre>
+<pre class="r"><code># Show model error
+plot(rf_model, ylim = c(0,0.40))
 legend(&#39;topright&#39;, colnames(rf_model$err.rate), col = 1:3, fill = 1:3)</code></pre>
-<p><img src="Titanic_files/figure-html/unnamed-chunk-23-1.png" width="90%" /></p>
+<p><img src="Titanic_files/figure-html/unnamed-chunk-24-1.png" width="90%" /></p>
+<p>In this figure, the test error is displayed as a function of number of trees. Each colored line correspond to <code>Out-of-Bag</code>, <code>died</code>, and <code>survived</code> error rates.</p>
+</div>
+<div id="variable-importance" class="section level2">
+<h2>Variable Importance</h2>
+</div>
+<div id="roc-curve" class="section level2">
+<h2>ROC Curve</h2>
+<pre class="r"><code>attach(train)
+roc(survived, rf_model$votes[,1], plot = TRUE, 
+    print.auc = TRUE, xlab = &quot;False Positive Percentage&quot;, 
+    ylab = &quot;True Postive Percentage&quot;, lwd = 4)</code></pre>
+<p><img src="Titanic_files/figure-html/unnamed-chunk-25-1.png" width="90%" /></p>
+<pre><code>## 
+## Call:
+## roc.default(response = survived, predictor = rf_model$votes[,     1], plot = TRUE, print.auc = TRUE, xlab = &quot;False Positive Percentage&quot;,     ylab = &quot;True Postive Percentage&quot;, lwd = 4)
+## 
+## Data: rf_model$votes[, 1] in 549 controls (survived 0) &gt; 342 cases (survived 1).
+## Area under the curve: 0.87</code></pre>
 </div>
 </div>
 
