@@ -42,15 +42,15 @@ The aim of this study is to examine the association between gender discriminatio
 
 ## Data Description
 
-* Dept: Academic departments at Houston College of medicine. Biochemistry, Physiology, Genetics, Pediatrics, Medicine, and Surgery
+* Deptartment: Academic departments at Houston College of medicine. Biochemistry, Physiology, Genetics, Pediatrics, Medicine, and Surgery
 * Gender: A dichotomous variable coded with dummy variables '1' for Male subjects and '0' for Female subjects
-* Clin: A dummy variable with 1 = Primarily clinnical emphasis and 0 = Primarily research emphasis.
-* Cert: 1 = Board certified and 0 = not certified
-* Prate: Publication rate 
-* Exper: years of experience since obtaining Medical Doctor degree.
-* Rank: 1 = Assistant professor, 2 = Associate professor, 3 = full professor
-* Sal94: Salary in academic year 1994
-* Sal05: Salary in academic year 1995.
+* Emphasis: A dummy variable with 1 = Primarily clinical emphasis and 0 = Primarily research emphasis.
+* Certification: 1 = Board certified and 0 = not certified
+* Publication: Publication rate 
+* Experience: years of experience since obtaining Medical Doctor degree.
+* Title: 1 = Assistant professor, 2 = Associate professor, 3 = full professor
+* Salary (1994): Salary in academic year 1994
+* Salary (1995): Salary in academic year 1995.
 
 **Loading and Tidying the dataset**
 
