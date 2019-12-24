@@ -137,6 +137,51 @@ p4 =
 gridExtra::grid.arrange(p3, p4, ncol = 2)
 ```
 
+The barplots below show the distribution of the 1994 salary against different predictor variables according to a subject's gender. For instance, the first figure shows that overall surgeons are paid more compared to other specializations and that male surgeons are paid more compared to female surgeons at the Houston College of Medicine. Additionally, male full professors get paid more compared to female full professors. I will further explore what might be the reason for this when I build my models.
+
+
+
+```{r}
+a = lawsuit_df %>%
+  ggplot(aes(x = gender, fill = Department, y = log_sal94), alpha = .6) +
+  geom_col(position = "dodge") +
+  ggsci:::scale_fill_lancet()+
+  theme_bw() +
+  labs(y = "salary in 1994",
+       title = "Salary vs Department") 
+
+
+b = lawsuit_df %>%
+  ggplot(aes(x = gender, fill = Emphasis, y = log_sal94),alpha = .6) +
+  geom_col(position = "dodge") +
+  ggsci:::scale_fill_lancet()+
+  theme_bw() +
+  labs(y = "salary in 1994",
+       title = "Salary vs Work Emphasis")
+
+gridExtra::grid.arrange(a, b, nrow = 2)
+
+c = lawsuit_df %>%
+  ggplot(aes(x = gender, fill = Certification, y = log_sal94),alpha = .6) +
+  geom_col(position = "dodge") +
+  ggsci:::scale_fill_lancet()+
+  theme_bw() +
+  labs(y = "salary in 1994",
+       title = "Salary vs Certification")
+
+d = lawsuit_df %>%
+  ggplot(aes(x = gender, fill = Title, y = log_sal94),alpha = .6) +
+  geom_col(position = "dodge") +
+  ggsci:::scale_fill_lancet()+
+  theme_bw() +
+  labs(y = "salary in 1994",
+       title = "Salary vs Rank")
+gridExtra::grid.arrange(c, d, nrow = 2)
+```
+
+
+
+
 
 Table 1 shows that the departments of Physiology, Genetics and Pediatrics had a significantly higher proportion of female faculties compared to the male, while the department of Surgery had a significantly lower proportion of female faculties. There was no significant difference in both clinical or research emphasis as well as certification between both genders. The results also presented that years after obtaining MD for females were shorter than that of males. By comparing the rank, which was also a proxy for productivity, the proportion of full professors among female faculties was much lesser than males.
 
