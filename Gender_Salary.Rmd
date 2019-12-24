@@ -87,16 +87,24 @@ The dataset for analysis has 261 observations of 8 variables. The distributions 
 p1 = 
   lawsuit_df %>% 
   ggplot(aes(x = `Salary (1994)`)) + 
-  geom_histogram(fill = "gray50") +
+  geom_histogram(aes(x = `Salary (1994)`, y = ..density..), alpha = .7) +
+  geom_density(aes(x = `Salary (1994)`)) +
+  theme(plot.title = element_text(hjust = .5)) +
   labs(
-    x = "Untransformed Salary (1994)")
+    x = "Untransformed Salary (1994)") +
+  theme_bw() +
+  ggsci::scale_fill_lancet()
 
 p2 = 
   lawsuit_df %>% 
   ggplot(aes(x = `Salary (1995)`)) + 
-  geom_histogram(fill = "gray50") +
+  geom_histogram(aes(x = `Salary (1995)`, y = ..density..), alpha = .7) +
+  geom_density(aes(x = `Salary (1995)`)) +
+  theme(plot.title = element_text(hjust = .5)) +
   labs(
-    x = "Untransformed Salary (1995)")
+    x = "Untransformed Salary (1995)") +
+  theme_bw() +
+  ggsci::scale_fill_lancet()
 
 gridExtra::grid.arrange(p1, p2, ncol = 2)
 
@@ -109,15 +117,23 @@ lawsuit_df =
 p3 = 
   lawsuit_df %>%
   ggplot(aes(x = log_sal94)) + 
-  geom_histogram(fill = "gray50") +
+  geom_histogram(aes(x = log_sal94, y = ..density..), alpha = .7) + 
+  geom_density(aes(x = log_sal94)) +
+  theme(plot.title = element_text(hjust = .5)) +
   labs(
-    x = "Log-Transformed Salary (1994)")
+    x = "Log-Transformed Salary (1994)") +
+  theme_bw() +
+  ggsci::scale_fill_lancet()
 p4 = 
   lawsuit_df %>%
   ggplot(aes(x = log_sal95)) + 
-  geom_histogram(fill = "gray50") +
+  geom_histogram(aes(x = log_sal95, y = ..density..), alpha = .7) + 
+  geom_density(aes(x = log_sal95)) +
+  theme(plot.title = element_text(hjust = .5)) +
   labs(
-    x = "Log-Transformed Salary (1995)")
+    x = "Log-Transformed Salary (1995)") +
+  theme_bw() +
+  ggsci::scale_fill_lancet()
 gridExtra::grid.arrange(p3, p4, ncol = 2)
 ```
 

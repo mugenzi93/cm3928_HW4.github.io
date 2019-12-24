@@ -379,16 +379,24 @@ $(document).ready(function () {
 <pre class="r"><code>p1 = 
   lawsuit_df %&gt;% 
   ggplot(aes(x = `Salary (1994)`)) + 
-  geom_histogram(fill = &quot;gray50&quot;) +
+  geom_histogram(aes(x = `Salary (1994)`, y = ..density..), alpha = .7) +
+  geom_density(aes(x = `Salary (1994)`)) +
+  theme(plot.title = element_text(hjust = .5)) +
   labs(
-    x = &quot;Untransformed Salary (1994)&quot;)
+    x = &quot;Untransformed Salary (1994)&quot;) +
+  theme_bw() +
+  ggsci::scale_fill_lancet()
 
 p2 = 
   lawsuit_df %&gt;% 
   ggplot(aes(x = `Salary (1995)`)) + 
-  geom_histogram(fill = &quot;gray50&quot;) +
+  geom_histogram(aes(x = `Salary (1995)`, y = ..density..), alpha = .7) +
+  geom_density(aes(x = `Salary (1995)`)) +
+  theme(plot.title = element_text(hjust = .5)) +
   labs(
-    x = &quot;Untransformed Salary (1995)&quot;)
+    x = &quot;Untransformed Salary (1995)&quot;) +
+  theme_bw() +
+  ggsci::scale_fill_lancet()
 
 gridExtra::grid.arrange(p1, p2, ncol = 2)</code></pre>
 <p><img src="Gender_Salary_files/figure-html/unnamed-chunk-2-1.png" width="90%" /></p>
@@ -401,15 +409,23 @@ gridExtra::grid.arrange(p1, p2, ncol = 2)</code></pre>
 p3 = 
   lawsuit_df %&gt;%
   ggplot(aes(x = log_sal94)) + 
-  geom_histogram(fill = &quot;gray50&quot;) +
+  geom_histogram(aes(x = log_sal94, y = ..density..), alpha = .7) + 
+  geom_density(aes(x = log_sal94)) +
+  theme(plot.title = element_text(hjust = .5)) +
   labs(
-    x = &quot;Log-Transformed Salary (1994)&quot;)
+    x = &quot;Log-Transformed Salary (1994)&quot;) +
+  theme_bw() +
+  ggsci::scale_fill_lancet()
 p4 = 
   lawsuit_df %&gt;%
   ggplot(aes(x = log_sal95)) + 
-  geom_histogram(fill = &quot;gray50&quot;) +
+  geom_histogram(aes(x = log_sal95, y = ..density..), alpha = .7) + 
+  geom_density(aes(x = log_sal95)) +
+  theme(plot.title = element_text(hjust = .5)) +
   labs(
-    x = &quot;Log-Transformed Salary (1995)&quot;)
+    x = &quot;Log-Transformed Salary (1995)&quot;) +
+  theme_bw() +
+  ggsci::scale_fill_lancet()
 gridExtra::grid.arrange(p3, p4, ncol = 2)</code></pre>
 <p><img src="Gender_Salary_files/figure-html/unnamed-chunk-2-2.png" width="90%" /></p>
 <p>Table 1 shows that the departments of Physiology, Genetics and Pediatrics had a significantly higher proportion of female faculties compared to the male, while the department of Surgery had a significantly lower proportion of female faculties. There was no significant difference in both clinical or research emphasis as well as certification between both genders. The results also presented that years after obtaining MD for females were shorter than that of males. By comparing the rank, which was also a proxy for productivity, the proportion of full professors among female faculties was much lesser than males.</p>
