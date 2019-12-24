@@ -14,6 +14,7 @@ library(broom)
 library(faraway)
 library(arsenal)
 library(caret)
+library(kableExtra)
 knitr::opts_chunk$set(
 	echo = TRUE,
 	warning = FALSE,
@@ -51,9 +52,7 @@ The aim of this study is to examine the association between gender discriminatio
 * Sal94: Salary in academic year 1994
 * Sal05: Salary in academic year 1995.
 
-The dataset for analysis has 261 observations of 8 variables. The distributions of salary amount in 1994 and 1995 were originally skewed. A natural log transformation was applied to these two variables making them follow a nearly normal distribution (figure 1). Table 1 shows that the departments of Physiology, Genetics and Pediatrics had a significantly higher proportion of female faculties compared to the male, while the department of Surgery had a significantly lower proportion of female faculties. There was no significant difference in both clinical or research emphasis as well as certification between both genders. The results also presented that years after obtaining MD for females were shorter than that of males. By comparing the rank, which was also a proxy for productivity, the proportion of full professors among female faculties was much lesser than males.
-
-## Loading and Tidying the dataset
+**Loading and Tidying the dataset**
 
 ```{r, message=FALSE}
 lawsuit_df =
@@ -82,6 +81,49 @@ lawsuit_df =
   arrange(gender)
 ```
 
+The dataset for analysis has 261 observations of 8 variables. The distributions of salary amount in 1994 and 1995 were originally skewed. A natural log transformation was applied to these two variables to exhibit a normal distribution.
+
+```{r, message=FALSE}
+p1 = 
+  lawsuit_df %>% 
+  ggplot(aes(x = `Salary (1994)`)) + 
+  geom_histogram(fill = "gray50") +
+  labs(
+    x = "Untransformed Salary (1994)")
+
+p2 = 
+  lawsuit_df %>% 
+  ggplot(aes(x = `Salary (1995)`)) + 
+  geom_histogram(fill = "gray50") +
+  labs(
+    x = "Untransformed Salary (1995)")
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)
+
+lawsuit_df = 
+  lawsuit_df %>% 
+  mutate(log_sal94 = log(`Salary (1994)`),
+         log_sal95 = log(`Salary (1995)`))
+
+
+p3 = 
+  lawsuit_df %>%
+  ggplot(aes(x = log_sal94)) + 
+  geom_histogram(fill = "gray50") +
+  labs(
+    x = "Log-Transformed Salary (1994)")
+p4 = 
+  lawsuit_df %>%
+  ggplot(aes(x = log_sal95)) + 
+  geom_histogram(fill = "gray50") +
+  labs(
+    x = "Log-Transformed Salary (1995)")
+gridExtra::grid.arrange(p3, p4, ncol = 2)
+```
+
+
+Table 1 shows that the departments of Physiology, Genetics and Pediatrics had a significantly higher proportion of female faculties compared to the male, while the department of Surgery had a significantly lower proportion of female faculties. There was no significant difference in both clinical or research emphasis as well as certification between both genders. The results also presented that years after obtaining MD for females were shorter than that of males. By comparing the rank, which was also a proxy for productivity, the proportion of full professors among female faculties was much lesser than males.
+
 
 ```{r, eval=FALSE}
 # Cleaning output
@@ -102,7 +144,13 @@ tab1 = tableby(gender ~ Department + Emphasis + Certification + Publication +
 summary(tab1, title = 'Descriptive Statistics', digits = 2, text = T)
 ```
 
+
+
 ![](images/Table1.jpg)
+
+## Model Building
+
+I built two models for the analysis of the association between gender and salary. For Model 1, the goal was to check whether there was gender discrimination in the baseline salary in 1994. Since the main outcome was the salary amount and the main variable of interest was gender, I first regressed the salary in 1994 with only `gender` to test the direct association, and then added the potential confounders one at a time to see if these potential confounders created a confounding effect. If the coefficient of `gender` changed directionality and/or there was an appreciable difference (10% in magnitude) after adding a new variable to the model, that variable would be regarded as a confounder. After checking all the potential confounders, interaction terms were added to the model for analyzing any interaction between gender and other factors. The second model generally followed the same path as the first model, However the main outcome in the second model was slightly different since it focused more on the salary increase from 1994 to 1995 rather than the baseline salary between both genders. The main outcome variable for both models were all log-transformed. There was one influential point in the dataset. I later decided to fit both models without that point after comparing the models fitted with and without that influential point. The significance level in our study was set to be 0.05.
 
 
 

@@ -350,10 +350,7 @@ $(document).ready(function () {
 <li>Sal94: Salary in academic year 1994</li>
 <li>Sal05: Salary in academic year 1995.</li>
 </ul>
-<p>The dataset for analysis has 261 observations of 8 variables. The distributions of salary amount in 1994 and 1995 were originally skewed. A natural log transformation was applied to these two variables making them follow a nearly normal distribution (figure 1). Table 1 shows that the departments of Physiology, Genetics and Pediatrics had a significantly higher proportion of female faculties compared to the male, while the department of Surgery had a significantly lower proportion of female faculties. There was no significant difference in both clinical or research emphasis as well as certification between both genders. The results also presented that years after obtaining MD for females were shorter than that of males. By comparing the rank, which was also a proxy for productivity, the proportion of full professors among female faculties was much lesser than males.</p>
-</div>
-<div id="loading-and-tidying-the-dataset" class="section level2">
-<h2>Loading and Tidying the dataset</h2>
+<p><strong>Loading and Tidying the dataset</strong></p>
 <pre class="r"><code>lawsuit_df =
   read_csv(&quot;Data/Lawsuit.csv&quot;) %&gt;% 
   janitor::clean_names() %&gt;%
@@ -378,6 +375,44 @@ $(document).ready(function () {
     Title = recode(Title, &quot;1&quot; = &quot;Assistant Professor&quot;, 
                    &quot;2&quot; = &quot;Associate Professor&quot;, &quot;3&quot; = &quot;Full Professor&quot;)) %&gt;%
   arrange(gender)</code></pre>
+<p>The dataset for analysis has 261 observations of 8 variables. The distributions of salary amount in 1994 and 1995 were originally skewed. A natural log transformation was applied to these two variables to exhibit a normal distribution.</p>
+<pre class="r"><code>p1 = 
+  lawsuit_df %&gt;% 
+  ggplot(aes(x = `Salary (1994)`)) + 
+  geom_histogram(fill = &quot;gray50&quot;) +
+  labs(
+    x = &quot;Untransformed Salary (1994)&quot;)
+
+p2 = 
+  lawsuit_df %&gt;% 
+  ggplot(aes(x = `Salary (1995)`)) + 
+  geom_histogram(fill = &quot;gray50&quot;) +
+  labs(
+    x = &quot;Untransformed Salary (1995)&quot;)
+
+gridExtra::grid.arrange(p1, p2, ncol = 2)</code></pre>
+<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-2-1.png" width="90%" /></p>
+<pre class="r"><code>lawsuit_df = 
+  lawsuit_df %&gt;% 
+  mutate(log_sal94 = log(`Salary (1994)`),
+         log_sal95 = log(`Salary (1995)`))
+
+
+p3 = 
+  lawsuit_df %&gt;%
+  ggplot(aes(x = log_sal94)) + 
+  geom_histogram(fill = &quot;gray50&quot;) +
+  labs(
+    x = &quot;Log-Transformed Salary (1994)&quot;)
+p4 = 
+  lawsuit_df %&gt;%
+  ggplot(aes(x = log_sal95)) + 
+  geom_histogram(fill = &quot;gray50&quot;) +
+  labs(
+    x = &quot;Log-Transformed Salary (1995)&quot;)
+gridExtra::grid.arrange(p3, p4, ncol = 2)</code></pre>
+<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-2-2.png" width="90%" /></p>
+<p>Table 1 shows that the departments of Physiology, Genetics and Pediatrics had a significantly higher proportion of female faculties compared to the male, while the department of Surgery had a significantly lower proportion of female faculties. There was no significant difference in both clinical or research emphasis as well as certification between both genders. The results also presented that years after obtaining MD for females were shorter than that of males. By comparing the rank, which was also a proxy for productivity, the proportion of full professors among female faculties was much lesser than males.</p>
 <pre class="r"><code># Cleaning output
 tab1_controls = tableby.control(
                total = T,
@@ -395,6 +430,10 @@ tab1 = tableby(gender ~ Department + Emphasis + Certification + Publication +
                 data = lawsuit_df, control = tab1_controls)
 summary(tab1, title = &#39;Descriptive Statistics&#39;, digits = 2, text = T)</code></pre>
 <p><img src="images/Table1.jpg" /></p>
+</div>
+<div id="model-building" class="section level2">
+<h2>Model Building</h2>
+<p>I built two models for the analysis of the association between gender and salary. For Model 1, the goal was to check whether there was gender discrimination in the baseline salary in 1994. Since the main outcome was the salary amount and the main variable of interest was gender, I first regressed the salary in 1994 with only <code>gender</code> to test the direct association, and then added the potential confounders one at a time to see if these potential confounders created a confounding effect. If the coefficient of <code>gender</code> changed directionality and/or there was an appreciable difference (10% in magnitude) after adding a new variable to the model, that variable would be regarded as a confounder. After checking all the potential confounders, interaction terms were added to the model for analyzing any interaction between gender and other factors. The second model generally followed the same path as the first model, However the main outcome in the second model was slightly different since it focused more on the salary increase from 1994 to 1995 rather than the baseline salary between both genders. The main outcome variable for both models were all log-transformed. There was one influential point in the dataset. I later decided to fit both models without that point after comparing the models fitted with and without that influential point. The significance level in our study was set to be 0.05.</p>
 </div>
 </div>
 
