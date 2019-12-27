@@ -7,7 +7,7 @@ navbar:
       href: Resume.html
     - text: Projects
       menu:
-      - text: "Titanic"
+      - text: "Titanic: A Classification Problem"
         href: Titanic.html
       - text: "Gender and Salary Setting: An Association Study"
         href: Gender_Salary.html

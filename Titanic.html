@@ -289,7 +289,7 @@ $(document).ready(function () {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="Titanic.html">Titanic</a>
+      <a href="Titanic.html">Titanic: A Classification Problem</a>
     </li>
     <li>
       <a href="Gender_Salary.html">Gender and Salary Setting: An Association Study</a>
@@ -695,16 +695,15 @@ titanic %&gt;%
 </tr>
 </tbody>
 </table>
-<p>The table above gives us a short summary of how we should go about replacing all the missing age values. And as expected, those passengers with title name <strong>Master</strong> or <strong>Mrs</strong> tend to be younger than those with title names <strong>Mrs</strong> or <strong>Mr.</strong> It also looks like there is an age variability among passenger class (Pclass) where older passengers seem tend to be in the more luxurious 1st class.</p>
+<p>The table above gives us a short summary of how we should go about replacing all the missing age values. And as expected, those passengers with title name <strong>Master</strong> or <strong>Miss</strong> tend to be younger than those with title names <strong>Mrs</strong> or <strong>Mr.</strong> It also looks like there is an age variability among passenger class (Pclass) where older passengers tend to be in the more luxurious 1st class.</p>
 </div>
 </div>
 <div id="creating-a-mother-and-status-variable" class="section level2">
 <h2>Creating a mother and status Variable</h2>
-<p>To make it more interesting, I am going to create a <code>mother</code> and <code>status</code> variable to see whether being a mother or child is associated to survival.</p>
+<p>To make it more interesting, I am going to create a <code>mother</code> and <code>status</code> variable to see whether being a mother or child is associated with survival.</p>
 <pre class="r"><code># Create the column status, and indicate whether child or adult
 titanic$status[titanic$age &lt; 18] = &quot;Child&quot;
 titanic$status[titanic$age &gt;= 18] = &quot;Adult&quot;
-
 # Show counts
 table(titanic$status, titanic$survived)</code></pre>
 <pre><code>##        
@@ -728,8 +727,10 @@ table(titanic$mother, titanic$survived)</code></pre>
   titanic %&gt;% 
   mutate(
     status = factor(status, levels = c(&quot;Adult&quot;, &quot;Child&quot;)),
-    mother = factor(mother, levels = c(&quot;Not Mother&quot;, &quot;Mother&quot;))) %&gt;%
-  select(-titles)</code></pre>
+    mother = factor(mother, levels = c(&quot;Not Mother&quot;, &quot;Mother&quot;)),
+    titles = factor(titles, levels = c(&quot;Mr&quot;, &quot;Mrs&quot;, &quot;Miss&quot;, &quot;Master&quot;,
+                                       &quot;Rare Title&quot;)),
+    status = factor(status, levels = c(&quot;Adult&quot;, &quot;Child&quot;)))</code></pre>
 </div>
 </div>
 <div id="missingness" class="section level1">
@@ -806,50 +807,92 @@ sum(is.na(titanic$fare))</code></pre>
 <pre class="r"><code>train = titanic[1:891,]
 test = titanic[892:1309,]</code></pre>
 <p>I will use the <code>RandomForest</code> algorithm to build the model by using the <code>Survival</code> variable in the <code>Train</code> dataset.</p>
+<div id="random-forest-model" class="section level3">
+<h3>Random Forest Model</h3>
 <pre class="r"><code># Set a random seed
 set.seed(754)
 
 # Build the model (note: not all possible variables are used)
 rf_model = randomForest(factor(survived) ~ pclass + gender + age + sib_sp + parch +
-                          fare + embarked + famsize + mother, 
-                        data = train, mtry = 2, importance = TRUE)
+                          fare + embarked + famsize + mother + titles,data = train,
+                        mtry = 2, importance = TRUE)
                                              
 rf_model</code></pre>
 <pre><code>## 
 ## Call:
-##  randomForest(formula = factor(survived) ~ pclass + gender + age +      sib_sp + parch + fare + embarked + famsize + mother, data = train,      mtry = 2, importance = TRUE) 
+##  randomForest(formula = factor(survived) ~ pclass + gender + age +      sib_sp + parch + fare + embarked + famsize + mother + titles,      data = train, mtry = 2, importance = TRUE) 
 ##                Type of random forest: classification
 ##                      Number of trees: 500
 ## No. of variables tried at each split: 2
 ## 
-##         OOB estimate of  error rate: 18.07%
+##         OOB estimate of  error rate: 16.84%
 ## Confusion matrix:
 ##     0   1 class.error
-## 0 502  47   0.0856102
-## 1 114 228   0.3333333</code></pre>
+## 0 501  48  0.08743169
+## 1 102 240  0.29824561</code></pre>
 <pre class="r"><code># Show model error
 plot(rf_model, ylim = c(0,0.40))
 legend(&#39;topright&#39;, colnames(rf_model$err.rate), col = 1:3, fill = 1:3)</code></pre>
 <p><img src="Titanic_files/figure-html/unnamed-chunk-24-1.png" width="90%" /></p>
-<p>In this figure, the test error is displayed as a function of number of trees. Each colored line correspond to <code>Out-of-Bag</code>, <code>died</code>, and <code>survived</code> error rates.</p>
+<p>In this figure, the test error is displayed as a function of the number of trees. Each colored line correspond to the error rates of <code>survived</code>, <code>Out-of-Bag</code>, and <code>Died</code> respectively.</p>
+</div>
 </div>
 <div id="variable-importance" class="section level2">
 <h2>Variable Importance</h2>
+<p>Let’s look at relative variable importance by plotting the mean decrease in Gini index calculated across all trees.</p>
+<pre class="r"><code># Get importance
+importance = importance(rf_model)
+varImportance = data.frame(Variables = row.names(importance), 
+                            Importance = round(importance[ ,&#39;MeanDecreaseGini&#39;],2))
+
+# Create a rank variable based on importance
+rankImportance = varImportance %&gt;%
+  mutate(Rank = paste0(&#39;#&#39;,dense_rank(desc(Importance))))
+
+# Use ggplot2 to visualize the relative importance of variables
+ggplot(rankImportance, aes(x = reorder(Variables, Importance), 
+    y = Importance, fill = Importance)) +
+  geom_bar(stat = &#39;identity&#39;) + 
+  geom_text(aes(x = Variables, y = 0.5, label = Rank),
+    hjust = 0, vjust = 0.55, size = 4, colour = &#39;red&#39;) +
+  labs(x = &#39;Variables&#39;) +
+  coord_flip() + 
+  theme_few()</code></pre>
+<p><img src="Titanic_files/figure-html/unnamed-chunk-25-1.png" width="90%" /></p>
+<p>This figure shows a graphical representation of the variable importance in the <code>titanic</code> data. We see the mean decrease in Gini index for each variable, relative to the largest. The variables with the largest mean decrease in Gini index are <code>titles</code>, <code>gender</code>, and <code>fare</code>.</p>
 </div>
-<div id="roc-curve" class="section level2">
-<h2>ROC Curve</h2>
+<div id="receiver-operating-characteristic-curve" class="section level2">
+<h2>Receiver Operating Characteristic Curve</h2>
 <pre class="r"><code>attach(train)
+par(pty = &quot;s&quot;)
 roc(survived, rf_model$votes[,1], plot = TRUE, 
     print.auc = TRUE, xlab = &quot;False Positive Percentage&quot;, 
     ylab = &quot;True Postive Percentage&quot;, lwd = 4)</code></pre>
-<p><img src="Titanic_files/figure-html/unnamed-chunk-25-1.png" width="90%" /></p>
+<p><img src="Titanic_files/figure-html/unnamed-chunk-26-1.png" width="90%" /></p>
 <pre><code>## 
 ## Call:
 ## roc.default(response = survived, predictor = rf_model$votes[,     1], plot = TRUE, print.auc = TRUE, xlab = &quot;False Positive Percentage&quot;,     ylab = &quot;True Postive Percentage&quot;, lwd = 4)
 ## 
 ## Data: rf_model$votes[, 1] in 549 controls (survived 0) &gt; 342 cases (survived 1).
-## Area under the curve: 0.87</code></pre>
+## Area under the curve: 0.8711</code></pre>
 </div>
+</div>
+<div id="prediction" class="section level1">
+<h1>Prediction</h1>
+<p>Last step in this project is to predict what the survival fate of the subjects in the test set would have been using the model built above.</p>
+<pre class="r"><code># Predict using the test set
+prediction = predict(rf_model, test)
+
+# Save the solution to a dataframe with two columns: PassengerId and Survived (predicted values)
+solution = data.frame(PassengerID = test$passenger_id, Survived = prediction)
+
+# Write the solution to file
+write.csv(solution, file = &#39;rf_modelPred.csv&#39;, row.names = F)</code></pre>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>In this classification problem, I deemed random forest to be the suitable tree-based methods to predict the survival fate of subjects in the test dataset. I approached this problem by conducting feature engineering to leverage original variables provided to me. I created the <code>titles</code> variable from the <code>name</code> variable, which was found to be the most important of all. This means a subject’s class, whether it be their marital status or age, was a determining factor for one’s survival fate. The model built has a 87% AUC, meaning that there is lower likelihood that the model will make type 1 or type 2 errors. Obviously this problem can be approcahed in different ways, different models could be used, and certainly different predictor variables could be created from the existing ones.</p>
+<p><strong>Note:</strong> Please check my github account for datasets used and the predicted dataset created from this project.</p>
 </div>
 
 
