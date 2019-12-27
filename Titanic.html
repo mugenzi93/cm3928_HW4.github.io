@@ -368,31 +368,55 @@ Titanic =
   knitr::kable()</code></pre>
 <table>
 <thead>
-<tr class="header">
-<th align="left">Variable</th>
-<th align="right">Missing Values</th>
+<tr>
+<th style="text-align:left;">
+Variable
+</th>
+<th style="text-align:right;">
+Missing Values
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">cabin</td>
-<td align="right">1014</td>
+<tr>
+<td style="text-align:left;">
+cabin
+</td>
+<td style="text-align:right;">
+1014
+</td>
 </tr>
-<tr class="even">
-<td align="left">survived</td>
-<td align="right">418</td>
+<tr>
+<td style="text-align:left;">
+survived
+</td>
+<td style="text-align:right;">
+418
+</td>
 </tr>
-<tr class="odd">
-<td align="left">age</td>
-<td align="right">263</td>
+<tr>
+<td style="text-align:left;">
+age
+</td>
+<td style="text-align:right;">
+263
+</td>
 </tr>
-<tr class="even">
-<td align="left">embarked</td>
-<td align="right">2</td>
+<tr>
+<td style="text-align:left;">
+embarked
+</td>
+<td style="text-align:right;">
+2
+</td>
 </tr>
-<tr class="odd">
-<td align="left">fare</td>
-<td align="right">1</td>
+<tr>
+<td style="text-align:left;">
+fare
+</td>
+<td style="text-align:right;">
+1
+</td>
 </tr>
 </tbody>
 </table>
@@ -456,70 +480,183 @@ table(titanic$gender, titanic$titles) %&gt;%
   knitr::kable()</code></pre>
 <table>
 <thead>
-<tr class="header">
-<th></th>
-<th align="right">Capt</th>
-<th align="right">Col</th>
-<th align="right">Don</th>
-<th align="right">Dona</th>
-<th align="right">Dr</th>
-<th align="right">Jonkheer</th>
-<th align="right">Lady</th>
-<th align="right">Major</th>
-<th align="right">Master</th>
-<th align="right">Miss</th>
-<th align="right">Mlle</th>
-<th align="right">Mme</th>
-<th align="right">Mr</th>
-<th align="right">Mrs</th>
-<th align="right">Ms</th>
-<th align="right">Rev</th>
-<th align="right">Sir</th>
-<th align="right">the Countess</th>
+<tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:right;">
+Capt
+</th>
+<th style="text-align:right;">
+Col
+</th>
+<th style="text-align:right;">
+Don
+</th>
+<th style="text-align:right;">
+Dona
+</th>
+<th style="text-align:right;">
+Dr
+</th>
+<th style="text-align:right;">
+Jonkheer
+</th>
+<th style="text-align:right;">
+Lady
+</th>
+<th style="text-align:right;">
+Major
+</th>
+<th style="text-align:right;">
+Master
+</th>
+<th style="text-align:right;">
+Miss
+</th>
+<th style="text-align:right;">
+Mlle
+</th>
+<th style="text-align:right;">
+Mme
+</th>
+<th style="text-align:right;">
+Mr
+</th>
+<th style="text-align:right;">
+Mrs
+</th>
+<th style="text-align:right;">
+Ms
+</th>
+<th style="text-align:right;">
+Rev
+</th>
+<th style="text-align:right;">
+Sir
+</th>
+<th style="text-align:right;">
+the Countess
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td>Male</td>
-<td align="right">1</td>
-<td align="right">4</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">7</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">2</td>
-<td align="right">61</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">757</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">8</td>
-<td align="right">1</td>
-<td align="right">0</td>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+61
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+757
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
 </tr>
-<tr class="even">
-<td>Female</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">260</td>
-<td align="right">2</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">197</td>
-<td align="right">2</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">1</td>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+260
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+197
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1
+</td>
 </tr>
 </tbody>
 </table>
@@ -560,31 +697,67 @@ titanic %&gt;%
   knitr::kable()</code></pre>
 <table>
 <thead>
-<tr class="header">
-<th align="left">gender</th>
-<th align="right">Master</th>
-<th align="right">Miss</th>
-<th align="right">Mr</th>
-<th align="right">Mrs</th>
-<th align="right">Rare Title</th>
+<tr>
+<th style="text-align:left;">
+gender
+</th>
+<th style="text-align:right;">
+Master
+</th>
+<th style="text-align:right;">
+Miss
+</th>
+<th style="text-align:right;">
+Mr
+</th>
+<th style="text-align:right;">
+Mrs
+</th>
+<th style="text-align:right;">
+Rare Title
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">Male</td>
-<td align="right">61</td>
-<td align="right">0</td>
-<td align="right">757</td>
-<td align="right">0</td>
-<td align="right">25</td>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:right;">
+61
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+757
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+25
+</td>
 </tr>
-<tr class="even">
-<td align="left">Female</td>
-<td align="right">0</td>
-<td align="right">264</td>
-<td align="right">0</td>
-<td align="right">198</td>
-<td align="right">4</td>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+264
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+198
+</td>
+<td style="text-align:right;">
+4
+</td>
 </tr>
 </tbody>
 </table>
@@ -595,103 +768,231 @@ titanic %&gt;%
   knitr::kable()</code></pre>
 <table>
 <thead>
-<tr class="header">
-<th align="left">gender</th>
-<th align="left">pclass</th>
-<th align="left">titles</th>
-<th align="right">median_age</th>
+<tr>
+<th style="text-align:left;">
+gender
+</th>
+<th style="text-align:left;">
+pclass
+</th>
+<th style="text-align:left;">
+titles
+</th>
+<th style="text-align:right;">
+median_age
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">Male</td>
-<td align="left">1st</td>
-<td align="left">Master</td>
-<td align="right">6.0</td>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+1st
+</td>
+<td style="text-align:left;">
+Master
+</td>
+<td style="text-align:right;">
+6.0
+</td>
 </tr>
-<tr class="even">
-<td align="left">Male</td>
-<td align="left">1st</td>
-<td align="left">Mr</td>
-<td align="right">41.5</td>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+1st
+</td>
+<td style="text-align:left;">
+Mr
+</td>
+<td style="text-align:right;">
+41.5
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Male</td>
-<td align="left">1st</td>
-<td align="left">Rare Title</td>
-<td align="right">49.5</td>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+1st
+</td>
+<td style="text-align:left;">
+Rare Title
+</td>
+<td style="text-align:right;">
+49.5
+</td>
 </tr>
-<tr class="even">
-<td align="left">Male</td>
-<td align="left">2nd</td>
-<td align="left">Master</td>
-<td align="right">2.0</td>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+2nd
+</td>
+<td style="text-align:left;">
+Master
+</td>
+<td style="text-align:right;">
+2.0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Male</td>
-<td align="left">2nd</td>
-<td align="left">Mr</td>
-<td align="right">30.0</td>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+2nd
+</td>
+<td style="text-align:left;">
+Mr
+</td>
+<td style="text-align:right;">
+30.0
+</td>
 </tr>
-<tr class="even">
-<td align="left">Male</td>
-<td align="left">2nd</td>
-<td align="left">Rare Title</td>
-<td align="right">41.5</td>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+2nd
+</td>
+<td style="text-align:left;">
+Rare Title
+</td>
+<td style="text-align:right;">
+41.5
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Male</td>
-<td align="left">3rd</td>
-<td align="left">Master</td>
-<td align="right">6.0</td>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+3rd
+</td>
+<td style="text-align:left;">
+Master
+</td>
+<td style="text-align:right;">
+6.0
+</td>
 </tr>
-<tr class="even">
-<td align="left">Male</td>
-<td align="left">3rd</td>
-<td align="left">Mr</td>
-<td align="right">26.0</td>
+<tr>
+<td style="text-align:left;">
+Male
+</td>
+<td style="text-align:left;">
+3rd
+</td>
+<td style="text-align:left;">
+Mr
+</td>
+<td style="text-align:right;">
+26.0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Female</td>
-<td align="left">1st</td>
-<td align="left">Miss</td>
-<td align="right">30.0</td>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+1st
+</td>
+<td style="text-align:left;">
+Miss
+</td>
+<td style="text-align:right;">
+30.0
+</td>
 </tr>
-<tr class="even">
-<td align="left">Female</td>
-<td align="left">1st</td>
-<td align="left">Mrs</td>
-<td align="right">45.0</td>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+1st
+</td>
+<td style="text-align:left;">
+Mrs
+</td>
+<td style="text-align:right;">
+45.0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Female</td>
-<td align="left">1st</td>
-<td align="left">Rare Title</td>
-<td align="right">43.5</td>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+1st
+</td>
+<td style="text-align:left;">
+Rare Title
+</td>
+<td style="text-align:right;">
+43.5
+</td>
 </tr>
-<tr class="even">
-<td align="left">Female</td>
-<td align="left">2nd</td>
-<td align="left">Miss</td>
-<td align="right">20.0</td>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+2nd
+</td>
+<td style="text-align:left;">
+Miss
+</td>
+<td style="text-align:right;">
+20.0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Female</td>
-<td align="left">2nd</td>
-<td align="left">Mrs</td>
-<td align="right">30.5</td>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+2nd
+</td>
+<td style="text-align:left;">
+Mrs
+</td>
+<td style="text-align:right;">
+30.5
+</td>
 </tr>
-<tr class="even">
-<td align="left">Female</td>
-<td align="left">3rd</td>
-<td align="left">Miss</td>
-<td align="right">18.0</td>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+3rd
+</td>
+<td style="text-align:left;">
+Miss
+</td>
+<td style="text-align:right;">
+18.0
+</td>
 </tr>
-<tr class="odd">
-<td align="left">Female</td>
-<td align="left">3rd</td>
-<td align="left">Mrs</td>
-<td align="right">31.0</td>
+<tr>
+<td style="text-align:left;">
+Female
+</td>
+<td style="text-align:left;">
+3rd
+</td>
+<td style="text-align:left;">
+Mrs
+</td>
+<td style="text-align:right;">
+31.0
+</td>
 </tr>
 </tbody>
 </table>

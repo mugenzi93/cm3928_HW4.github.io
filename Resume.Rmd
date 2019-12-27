@@ -6,6 +6,6 @@ output:
     toc_float: true
 ---
 
-My resume is [here](Documents/resume_2.pdf)
 
 
+<iframe src="Documents/resume_2.pdf" width="100%" height="1000px">
