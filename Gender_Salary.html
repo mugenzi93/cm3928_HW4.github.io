@@ -333,7 +333,7 @@ $(document).ready(function () {
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <p>Income inequality between men and women has been a point of debate over the years. To find our own answers, our team sought to examine the association between salary and gender at the Houston college of medicine. This was a cross-sectional study based on the salaries among faculties with varying expertise in the field of medicine. We created two regression models of baseline salary in 1994 and the increment of salary between 1994 and 1995, according to gender, department, years of experience, work emphasis, certification status, and rank. We found that gender was significantly associated with salary setting at baseline but that it was not a determining factor for the salary increase from between 1994 and 1995.</p>
-<p>Title VII of the Civil Rights Act of 1964 is a federal law that prohibits employers from discriminating against employees on the basis of sex, race, color, national origin and religion[3]. Also, the equal pay act of 1963 requires that men and women in the same workplace be given equal pay for equal work. However, the U.S education system is one area that is not immune to this income gap problem. Several factors determine one’s compensation in the education system. Despite these legitimate factors that determine compensation, there are many cases that have been published claiming that female professors are getting paid less compared to their male colleagues while bearing the same, if not superior, titles or accolades. The aim of this study is to examine the association between gender discrimination in setting salary within the Houston college of medicine where a female professor claimed, through a district court lawsuit, that there was evidence of discrimination against women in giving promotions and setting salaries. To support this, we built multiple regressionmodels using six predictor variables such as the subject’s department, their area of expertise, whether or not they are board-certified, years of experience, and their position title. We tested for interactions and confounders that might be present between all the stated predictors and our main predictor of interest: the subject’s gender. Our response variables were the baseline salary in 1994 and the change in salary between 1994 and 1995.</p>
+<p>Title VII of the Civil Rights Act of 1964 is a federal law that prohibits employers from discriminating against employees on the basis of sex, race, color, national origin and religion. Also, the equal pay act of 1963 requires that men and women in the same workplace be given equal pay for equal work. However, the U.S education system is one area that is not immune to this income gap problem. Several factors determine one’s compensation in the education system. Despite these legitimate factors that determine compensation, there are many cases that have been published claiming that female professors are getting paid less compared to their male colleagues while bearing the same, if not superior, titles or accolades. The aim of this study is to examine the association between gender discrimination in setting salary within the Houston college of medicine where a female professor claimed, through a district court lawsuit, that there was evidence of discrimination against women in giving promotions and setting salaries. To support this, we built multiple regressionmodels using six predictor variables such as the subject’s department, their area of expertise, whether or not they are board-certified, years of experience, and their position title. We tested for interactions and confounders that might be present between all the stated predictors and our main predictor of interest: the subject’s gender. Our response variables were the baseline salary in 1994 and the change in salary between 1994 and 1995.</p>
 </div>
 <div id="methods" class="section level1">
 <h1>Methods</h1>
@@ -366,7 +366,7 @@ $(document).ready(function () {
     Title = factor(Title, levels = c(&quot;1&quot;, &quot;2&quot;, &quot;3&quot;))) %&gt;% 
   mutate(
     gender = recode(gender, &quot;1&quot; = &quot;Male&quot;, &quot;0&quot; = &quot;Female&quot;),
-    Department = recode(Department, &quot;1&quot; = &quot;Biochemistry/Molecular Biology&quot;, 
+    Department = recode(Department, &quot;1&quot; = &quot;Biochemistry&quot;, 
                         &quot;2&quot; = &quot;Physiology&quot;, &quot;3&quot; = &quot;Genetics&quot;,
                   &quot;4&quot; = &quot;Pediatrics&quot;, &quot;5&quot; = &quot;Medicine&quot;, &quot;6&quot; = &quot;Surgery&quot;),
     Emphasis = recode(Emphasis, &quot;1&quot; = &quot;Clinical&quot;, &quot;0&quot; = &quot;Research&quot;),
@@ -399,11 +399,12 @@ p2 =
   ggsci::scale_fill_lancet()
 
 gridExtra::grid.arrange(p1, p2, ncol = 2)</code></pre>
-<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-2-1.png" width="90%" /></p>
+<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
 <pre class="r"><code>lawsuit_df = 
   lawsuit_df %&gt;% 
   mutate(log_sal94 = log(`Salary (1994)`),
-         log_sal95 = log(`Salary (1995)`))
+         log_sal95 = log(`Salary (1995)`),
+         sal_increase = log(`Salary (1995)` - `Salary (1994)`))
 
 
 p3 = 
@@ -427,44 +428,60 @@ p4 =
   theme_bw() +
   ggsci::scale_fill_lancet()
 gridExtra::grid.arrange(p3, p4, ncol = 2)</code></pre>
-<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-2-2.png" width="90%" /></p>
-<p>The barplots below show the distribution of the 1994 salary against different predictor variables according to a subject’s gender. For instance, the first figure shows that overall surgeons are paid more compared to other specializations and that male surgeons are paid more compared to female surgeons at the Houston College of Medicine. Additionally, male full professors get paid more compared to female full professors. I will further explore what might be the reason for this when I build my models.</p>
+<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
 <pre class="r"><code>a = lawsuit_df %&gt;%
   ggplot(aes(x = gender, fill = Department, y = log_sal94), alpha = .6) +
   geom_col(position = &quot;dodge&quot;) +
-  ggsci:::scale_fill_lancet()+
+  ggsci:::scale_fill_lancet() +
   theme_bw() +
   labs(y = &quot;salary in 1994&quot;,
        title = &quot;Salary vs Department&quot;) 
-
-
 b = lawsuit_df %&gt;%
   ggplot(aes(x = gender, fill = Emphasis, y = log_sal94),alpha = .6) +
   geom_col(position = &quot;dodge&quot;) +
-  ggsci:::scale_fill_lancet()+
+  ggsci:::scale_fill_lancet() +
   theme_bw() +
   labs(y = &quot;salary in 1994&quot;,
        title = &quot;Salary vs Work Emphasis&quot;)
-
 gridExtra::grid.arrange(a, b, nrow = 2)</code></pre>
-<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-3-1.png" width="90%" /></p>
+<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
 <pre class="r"><code>c = lawsuit_df %&gt;%
   ggplot(aes(x = gender, fill = Certification, y = log_sal94),alpha = .6) +
   geom_col(position = &quot;dodge&quot;) +
-  ggsci:::scale_fill_lancet()+
+  ggsci:::scale_fill_lancet() +
   theme_bw() +
   labs(y = &quot;salary in 1994&quot;,
        title = &quot;Salary vs Certification&quot;)
-
 d = lawsuit_df %&gt;%
   ggplot(aes(x = gender, fill = Title, y = log_sal94),alpha = .6) +
   geom_col(position = &quot;dodge&quot;) +
-  ggsci:::scale_fill_lancet()+
+  ggsci:::scale_fill_lancet() +
   theme_bw() +
   labs(y = &quot;salary in 1994&quot;,
        title = &quot;Salary vs Rank&quot;)
 gridExtra::grid.arrange(c, d, nrow = 2)</code></pre>
-<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-3-2.png" width="90%" /></p>
+<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<p>The barplots above show the distribution of the 1994 salary against different predictor variables according to a subject’s gender. For instance, the first figure shows that overall surgeons are paid more compared to other specializations and that male surgeons are paid more compared to female surgeons at the Houston College of Medicine. Additionally, male full professors get paid more compared to female full professors. I will further explore what might be the reason for this when I build my models.</p>
+<p><strong>Graphical Representation of potential interation between years of experience and salary adjusted for a subject’s gender:</strong></p>
+<p>Below I will graphically explore the years of experience variable in relation to both the 1994 salary and salary increase from 1994 to 1995. It is important to highlight that salary has a linear relationship with years of experience. It is also important to highlight that if the lines are not parallel, it is evidence that the relationship between years of experience and salary will be determined by a subject’s gender, further validating the hypothesis of a presence of gender discrimination when it comes to salary setting.</p>
+<pre class="r"><code>lawsuit_df %&gt;% 
+  ggplot(aes(x = Experience, y = log_sal94, color = gender)) + 
+  geom_point() + 
+  geom_smooth(method = &quot;lm&quot;, se = FALSE) + 
+  facet_grid(~Department) + 
+  theme_bw()</code></pre>
+<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>In the scatterplot above, all lines cross which means that in all six departments, when all other variables are fixed, years of experience will not be the sole factor in determining the 1994 salary, gender will too.</p>
+<pre class="r"><code>lawsuit_df %&gt;% 
+  ggplot(aes(x = Experience, y = sal_increase, color = gender)) + 
+  geom_point() + 
+  geom_smooth(method = &quot;lm&quot;, se = FALSE) + 
+  facet_grid(~Department) + 
+  theme_bw()</code></pre>
+<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p>As the previous scatterplot, the effect of years of experience toward salary increase will be modified by a subject’s gender, except in the <code>Pediatrics</code> department where there is not evidence of gender being a effect modifier of the relationship between years of experience and salary increase.</p>
+<div id="table-1." class="section level3">
+<h3>Table 1.</h3>
 <p>Table 1 shows that the departments of Physiology, Genetics and Pediatrics had a significantly higher proportion of female faculties compared to the male, while the department of Surgery had a significantly lower proportion of female faculties. There was no significant difference in both clinical or research emphasis as well as certification between both genders. The results also presented that years after obtaining MD for females were shorter than that of males. By comparing the rank, which was also a proxy for productivity, the proportion of full professors among female faculties was much lesser than males.</p>
 <pre class="r"><code># Cleaning output
 tab1_controls = tableby.control(
@@ -483,6 +500,7 @@ tab1 = tableby(gender ~ Department + Emphasis + Certification + Publication +
                 data = lawsuit_df, control = tab1_controls)
 summary(tab1, title = &#39;Descriptive Statistics&#39;, digits = 2, text = T)</code></pre>
 <p><img src="images/Table1.jpg" /></p>
+</div>
 </div>
 <div id="model-building" class="section level2">
 <h2>Model Building</h2>
