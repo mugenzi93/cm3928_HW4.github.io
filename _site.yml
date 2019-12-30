@@ -17,6 +17,8 @@ navbar:
       href: https://www.linkedin.com/in/clement-mugenzi-1076a4106/
     - icon: fa-github fa-lg
       href: http://github.com/mugenzi93/
+    - icon: fa-twitter fa-lg
+      href: https://twitter.com/ClementMug
 output:
   html_document:
     theme: flatly

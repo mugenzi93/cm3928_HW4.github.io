@@ -314,6 +314,12 @@ $(document).ready(function () {
      
   </a>
 </li>
+<li>
+  <a href="https://twitter.com/ClementMug">
+    <span class="fa fa-twitter fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
@@ -404,7 +410,7 @@ gridExtra::grid.arrange(p1, p2, ncol = 2)</code></pre>
   lawsuit_df %&gt;% 
   mutate(log_sal94 = log(`Salary (1994)`),
          log_sal95 = log(`Salary (1995)`),
-         sal_increase = log(`Salary (1995)` - `Salary (1994)`))
+         sal_increase = log(`Salary (1995)` - `Salary (1994)`)) %&gt;% view()
 
 
 p3 = 
@@ -505,6 +511,12 @@ summary(tab1, title = &#39;Descriptive Statistics&#39;, digits = 2, text = T)</c
 <div id="model-building" class="section level2">
 <h2>Model Building</h2>
 <p>I built two models for the analysis of the association between gender and salary. For Model 1, the goal was to check whether there was gender discrimination in the baseline salary in 1994. Since the main outcome was the salary amount and the main variable of interest was gender, I first regressed the salary in 1994 with only <code>gender</code> to test the direct association, and then added the potential confounders one at a time to see if these potential confounders created a confounding effect. If the coefficient of <code>gender</code> changed directionality and/or there was an appreciable difference (10% in magnitude) after adding a new variable to the model, that variable would be regarded as a confounder. After checking all the potential confounders, interaction terms were added to the model for analyzing any interaction between gender and other factors. The second model generally followed the same path as the first model, However the main outcome in the second model was slightly different since it focused more on the salary increase from 1994 to 1995 rather than the baseline salary between both genders. The main outcome variable for both models were all log-transformed. There was one influential point in the dataset. I later decided to fit both models without the influential point after comparing the models fitted with and without it. The significance level in our study was set to be 0.05.</p>
+<div id="model-1" class="section level3">
+<h3>Model 1</h3>
+</div>
+<div id="model-2" class="section level3">
+<h3>Model 2</h3>
+</div>
 </div>
 </div>
 
