@@ -2,11 +2,7 @@
 title: "Association between Gender and Salary Setting at the Houston College of Medicine"
 author: "Clement Mugenzi"
 date: "12/20/2019"
-output: 
-  html_document:
-    toc: TRUE
-    toc_float: TRUE
-    code_folding: hide
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -234,7 +230,7 @@ Model 1 accounted for the association between gender and baseline salary in 1994
 
 **Checking for confounders:**
 
-```{r, message=FALSE}
+```{r, eval=FALSE}
 # fit
 attach(lawsuit_df)
 #based model
@@ -287,7 +283,7 @@ summary(lm(log_sal94 ~ gender + Department + Emphasis + Certification +
 
 **Model 1 and 2 fitted with influential point:**
 
-```{r, message=FALSE}
+```{r, message=FALSE, echo=FALSE, eval=FALSE}
 # test interaction between gender and other varibales
 output_model = vector()
 output_add_var = vector()
@@ -336,15 +332,16 @@ The influential point indicated that a male faculty with only 2 years of working
 
 **Diagnostics for model 1 with the influential point:**
 
-```{r}
+```{r, echo=FALSE, eval=FALSE}
 par(mfrow = c(2,2))
 plot(interact.fit_1)
 ```
 
+![](images/diagn1.jpg)
 
 **Model 1 and 2 fitted without the influential point:**
 
-```{r}
+```{r, echo=FALSE, eval=FALSE}
 lawsuit_df = lawsuit_df[-113,]
 
 # test interaction between gender and other varibales
@@ -396,12 +393,12 @@ However, considering the salary increase between 1994 and 1995 based on Model 2,
 
 **Diagnostics for model 1 without the influential point:**
 
-```{r}
+```{r, echo=FALSE, eval=FALSE}
 par(mfrow = c(2,2))
 plot(interact.fit_3)
 ```
 
-
+![](images/diagn2.jpg)
 
 For further analysis, Model 1 was stratified by each of the included confounders. While being stratified by the departments, the results showed that males were more likely to receive higher baseline salaries than females in the Department of Physiology and Medicine. The gender difference still existed after adjusting for other confounders except for experienced years. While adjusting for experienced years, I found that there was no significant difference in baseline salary between both genders.
 
