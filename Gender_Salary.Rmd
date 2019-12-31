@@ -98,7 +98,7 @@ lawsuit_df =
   lawsuit_df %>% 
   mutate(log_sal94 = log(`Salary (1994)`),
          log_sal95 = log(`Salary (1995)`),
-         sal_increase = log(`Salary (1995)` - `Salary (1994)`)) %>% view()
+         sal_increase = log(`Salary (1995)` - `Salary (1994)`))
 
 
 p3 = 
@@ -222,20 +222,118 @@ summary(tab1, title = 'Descriptive Statistics', digits = 2, text = T)
 
 ## Model Building
 
-I built two models for the analysis of the association between gender and salary. For Model 1, the goal was to check whether there was gender discrimination in the baseline salary in 1994. Since the main outcome was the salary amount and the main variable of interest was gender, I first regressed the salary in 1994 with only `gender` to test the direct association, and then added the potential confounders one at a time to see if these potential confounders created a confounding effect. If the coefficient of `gender` changed directionality and/or there was an appreciable difference (10% in magnitude) after adding a new variable to the model, that variable would be regarded as a confounder. After checking all the potential confounders, interaction terms were added to the model for analyzing any interaction between gender and other factors. The second model generally followed the same path as the first model, However the main outcome in the second model was slightly different since it focused more on the salary increase from 1994 to 1995 rather than the baseline salary between both genders. The main outcome variable for both models were all log-transformed. There was one influential point in the dataset. I later decided to fit both models without the influential point after comparing the models fitted with and without it. The significance level in our study was set to be 0.05.
+I built two models for the analysis of the association between gender and salary. For Model 1, the goal was to check whether there was gender discrimination in the baseline salary in 1994. Since the main outcome was the salary amount and the main variable of interest was gender, I first regressed the salary in 1994 with only `gender` to test the direct association, and then added the potential confounders one at a time to see if these variables created a confounding effect. If the coefficient of `gender` changed directionality and/or there was a significant difference (10% in magnitude) after adding a new variable to the model, that variable would be considered a confounder. After checking all the potential confounders, interaction terms were added to the model for analyzing any interaction between gender and other factors. The second model generally followed the same structure as the first, However the main outcome in the second model was slightly different since it focused more on the salary increase from 1994 to 1995 rather than the baseline salary between both genders. The main response variable for both models were all log-transformed. There was one influential point in the dataset. I later decided to fit both models without the influential point after comparing the models fitted with and without it. The significance level in this study was set at **0.05**.
 
-### Model 1
+### Model Information
+
+Model 1 accounted for the association between gender and baseline salary in 1994, adjusting for the department, work emphasis, certification, years since obtaining MD (years if experience) and Title. Model 2 accounted for the association between gender and salary increase in 1995, adjusting for the same variables. While there was no interaction effect in Model 2, Model 1 considered the interaction between gender and years of experience. Model diagnostics showed that both of the final models met the assumptions of multilinear regression and there was one influential point in the data.
+
+**Checking for confounders:**
+
+```{r}
+# fit
+attach(lawsuit_df)
+#based model
+fit.base = lm(log_sal94 ~ gender)
+summary(fit.base)
+
+# see if there is any confounder
+output_model = vector()
+output_add_var = vector()
+
+for (i in 2:7 ) {
+  var = names(lawsuit_df)[i] # ensure correct var names
+  formula = as.formula(str_c("log_sal94 ~ gender +", var))
+  print(str_c("log_sal94 ~ gender +", var))
+  output_model = append(output_model, str_c("log_sal94 ~ gender +", var))
+  output_add_var = append(output_add_var, var)
+  }
+
+confounder_check = tibble(model = output_model,
+                             add_var = output_add_var)
+
+regression = function(formula){
+  formula = as.formula(formula)
+  fit = lm(formula , data = lawsuit_df)
+  return(as.tibble(broom::tidy(fit)))
+}
+
+confounder_check = 
+  confounder_check %>%
+  mutate(reg = map(confounder_check$model,regression)) %>%
+  unnest() %>%
+  filter(p.value < .05) %>%
+  filter(term == "genderMale") %>%
+  mutate(confounder = ifelse(abs((estimate - 0.38624)/0.38326) > 0.1, "confounder","not confounder" )) %>%
+  dplyr::select(-term)
+
+
+
+confounder_check %>% kable(format = "latex", booktabs = T, caption = "Potential Confounders") %>%
+  kable_styling(latex_options = c("striped", "hold_position"),
+                full_width = F)
+# all are confounders
+
+#
+summary(lm(log_sal94 ~ gender + Department + Emphasis + Certification + 
+             Publication + Experience + Title, data = lawsuit_df))
+
+```
+
+
+**Model 1 and 2 fitted with influential point:**
+
+```{r}
+# test interaction between gender and other varibales
+output_model = vector()
+output_add_var = vector()
+
+for (i in 2:6 ) {
+  var = names(lawsuit_df)[i] # ensure correct var names
+  formula = as.formula(str_c("log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + Title +","gender*", var))
+  print(str_c("log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender *", var))
+  output_model = append(output_model, str_c("log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + Title + gender *", var))
+  output_add_var = append(output_add_var, var)
+}
+
+inter_check = 
+  tibble(model = output_model,
+       inter_with = output_add_var) %>%
+  mutate(reg = map(model,regression)) %>%
+  unnest() %>%
+  filter(p.value < .05) %>%
+  filter(str_detect(term, ":"))
+inter_check
+
+
+summary(lm(log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender * Emphasis + gender * Experience , data = lawsuit_df))
+
+interact.fit_1 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Experience + gender * Emphasis + gender * Experience , data = lawsuit_df)
+summary(interact.fit_1)
+interact.fit_2 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender * Emphasis + gender * Experience, 
+                    data = lawsuit_df)
+summary(interact.fit_2)
+
+anova(interact.fit_1,interact.fit_2) 
+# anova shows that smaller model(without publication) is superior (interact.fit_1)
+# however, publication is a confounder, we still should include that variable 
+#the resulting model is as below:
+summary(interact.fit_2)
+summary(interact.fit_1)
+
+#final model
+interact.fit_1 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Experience + Title +  gender * Experience, data = lawsuit_df)
+summary(interact.fit_1)
+```
+
+
+The influential point indicated that a male faculty with only 2 years of working experience had an extremely high salary compared to others. I fitted two models both with and without the point and eventually dropped that point to fit the final model. For collinearity, since most of the variables were categorical, it was acceptable that the VIF of those variables became higher.
 
 
 
 
 
 
-
-
-
-
-### Model 2
 
 
 
