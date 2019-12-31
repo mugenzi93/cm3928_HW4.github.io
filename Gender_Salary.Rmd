@@ -2,7 +2,11 @@
 title: "Association between Gender and Salary Setting at the Houston College of Medicine"
 author: "Clement Mugenzi"
 date: "12/20/2019"
-output: html_document
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
