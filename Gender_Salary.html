@@ -289,10 +289,10 @@ $(document).ready(function () {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="Titanic.html">Titanic: A Classification Problem</a>
+      <a href="Titanic.html">Titanic</a>
     </li>
     <li>
-      <a href="Gender_Salary.html">Gender and Salary Setting: An Association Study</a>
+      <a href="Gender_Salary.html">Gender and Salary Setting</a>
     </li>
   </ul>
 </li>
@@ -850,7 +850,256 @@ summary(interact.fit_1)</code></pre>
 ## Residual standard error: 0.1315 on 248 degrees of freedom
 ## Multiple R-squared:  0.9361, Adjusted R-squared:  0.9331 
 ## F-statistic:   303 on 12 and 248 DF,  p-value: &lt; 2.2e-16</code></pre>
-<p>The influential point indicated that a male faculty with only 2 years of working experience had an extremely high salary compared to others. I fitted two models both with and without the point and eventually dropped that point to fit the final model. For collinearity, since most of the variables were categorical, it was acceptable that the VIF of those variables became higher.</p>
+<p><img src="images/with.jpg" /></p>
+<p>The influential point indicated that a male faculty with only 2 years of working experience had an extremely high salary compared to others. I fitted another model without this influential point and below is the diagnostics showing the influntial point (113).</p>
+<p><strong>Diagnostics for model 1 with the influential point:</strong></p>
+<pre class="r"><code>par(mfrow = c(2,2))
+plot(interact.fit_1)</code></pre>
+<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><strong>Model 1 and 2 fitted without the influential point:</strong></p>
+<pre class="r"><code>lawsuit_df = lawsuit_df[-113,]
+
+# test interaction between gender and other varibales
+output_model = vector()
+output_add_var = vector()
+
+for (i in 2:6 ) {
+  var = names(lawsuit_df)[i] # ensure correct var names
+  formula = as.formula(str_c(&quot;log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + Title +&quot;,&quot;gender*&quot;, var))
+  print(str_c(&quot;log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender *&quot;, var))
+  output_model = append(output_model, str_c(&quot;log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + Title + gender *&quot;, var))
+  output_add_var = append(output_add_var, var)
+}</code></pre>
+<pre><code>## [1] &quot;log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender *Department&quot;
+## [1] &quot;log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender *gender&quot;
+## [1] &quot;log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender *Emphasis&quot;
+## [1] &quot;log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender *Certification&quot;
+## [1] &quot;log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender *Publication&quot;</code></pre>
+<pre class="r"><code>inter_check = 
+  tibble(model = output_model,
+       inter_with = output_add_var) %&gt;%
+  mutate(reg = map(model,regression)) %&gt;%
+  unnest() %&gt;%
+  filter(p.value &lt; .05) %&gt;%
+  filter(str_detect(term, &quot;:&quot;))</code></pre>
+<pre><code>## Warning: `cols` is now required.
+## Please use `cols = c(reg)`</code></pre>
+<pre class="r"><code>inter_check</code></pre>
+<pre><code>## # A tibble: 0 x 7
+## # … with 7 variables: model &lt;chr&gt;, inter_with &lt;chr&gt;, term &lt;chr&gt;,
+## #   estimate &lt;dbl&gt;, std.error &lt;dbl&gt;, statistic &lt;dbl&gt;, p.value &lt;dbl&gt;</code></pre>
+<pre class="r"><code>summary(lm(log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender * Emphasis + gender * Experience , data = lawsuit_df))</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = log_sal94 ~ gender + Department + Emphasis + Certification + 
+##     Publication + Experience + gender * Emphasis + gender * Experience, 
+##     data = lawsuit_df)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.34969 -0.08757  0.00075  0.09526  0.36916 
+## 
+## Coefficients:
+##                                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                   11.544270   0.101397 113.852  &lt; 2e-16 ***
+## genderFemale                  -0.144751   0.038400  -3.770 0.000205 ***
+## DepartmentPhysiology          -0.149529   0.029483  -5.072 7.75e-07 ***
+## DepartmentGenetics             0.184410   0.039797   4.634 5.82e-06 ***
+## DepartmentPediatrics           0.135673   0.054178   2.504 0.012918 *  
+## DepartmentMedicine             0.464773   0.045903  10.125  &lt; 2e-16 ***
+## DepartmentSurgery              0.836661   0.062622  13.360  &lt; 2e-16 ***
+## EmphasisResearch              -0.117065   0.043985  -2.661 0.008291 ** 
+## CertificationNot certified    -0.197868   0.021493  -9.206  &lt; 2e-16 ***
+## Publication                   -0.026609   0.017514  -1.519 0.129961    
+## Experience                     0.024223   0.001672  14.488  &lt; 2e-16 ***
+## genderFemale:EmphasisResearch -0.103603   0.036408  -2.846 0.004805 ** 
+## genderFemale:Experience        0.016173   0.003613   4.476 1.16e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1346 on 247 degrees of freedom
+## Multiple R-squared:  0.933,  Adjusted R-squared:  0.9297 
+## F-statistic: 286.5 on 12 and 247 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>interact.fit_3 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Experience + gender * Emphasis + gender * Experience , data = lawsuit_df)
+summary(interact.fit_3)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = log_sal94 ~ gender + Department + Emphasis + Certification + 
+##     Experience + gender * Emphasis + gender * Experience, data = lawsuit_df)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.35513 -0.08520  0.00255  0.09249  0.36542 
+## 
+## Coefficients:
+##                                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                   11.401585   0.038331 297.453  &lt; 2e-16 ***
+## genderFemale                  -0.151707   0.038226  -3.969 9.47e-05 ***
+## DepartmentPhysiology          -0.149353   0.029561  -5.052 8.47e-07 ***
+## DepartmentGenetics             0.205524   0.037390   5.497 9.59e-08 ***
+## DepartmentPediatrics           0.196966   0.036258   5.432 1.33e-07 ***
+## DepartmentMedicine             0.517393   0.030206  17.129  &lt; 2e-16 ***
+## DepartmentSurgery              0.914196   0.036389  25.123  &lt; 2e-16 ***
+## EmphasisResearch              -0.168112   0.028462  -5.906 1.15e-08 ***
+## CertificationNot certified    -0.196665   0.021535  -9.132  &lt; 2e-16 ***
+## Experience                     0.023977   0.001668  14.371  &lt; 2e-16 ***
+## genderFemale:EmphasisResearch -0.108598   0.036355  -2.987   0.0031 ** 
+## genderFemale:Experience        0.016266   0.003622   4.490 1.09e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.135 on 248 degrees of freedom
+## Multiple R-squared:  0.9323, Adjusted R-squared:  0.9293 
+## F-statistic: 310.7 on 11 and 248 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>interact.fit_4 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender * Emphasis + gender * Experience, 
+                    data = lawsuit_df)
+summary(interact.fit_4)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = log_sal94 ~ gender + Department + Emphasis + Certification + 
+##     Publication + Experience + gender * Emphasis + gender * Experience, 
+##     data = lawsuit_df)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.34969 -0.08757  0.00075  0.09526  0.36916 
+## 
+## Coefficients:
+##                                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                   11.544270   0.101397 113.852  &lt; 2e-16 ***
+## genderFemale                  -0.144751   0.038400  -3.770 0.000205 ***
+## DepartmentPhysiology          -0.149529   0.029483  -5.072 7.75e-07 ***
+## DepartmentGenetics             0.184410   0.039797   4.634 5.82e-06 ***
+## DepartmentPediatrics           0.135673   0.054178   2.504 0.012918 *  
+## DepartmentMedicine             0.464773   0.045903  10.125  &lt; 2e-16 ***
+## DepartmentSurgery              0.836661   0.062622  13.360  &lt; 2e-16 ***
+## EmphasisResearch              -0.117065   0.043985  -2.661 0.008291 ** 
+## CertificationNot certified    -0.197868   0.021493  -9.206  &lt; 2e-16 ***
+## Publication                   -0.026609   0.017514  -1.519 0.129961    
+## Experience                     0.024223   0.001672  14.488  &lt; 2e-16 ***
+## genderFemale:EmphasisResearch -0.103603   0.036408  -2.846 0.004805 ** 
+## genderFemale:Experience        0.016173   0.003613   4.476 1.16e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1346 on 247 degrees of freedom
+## Multiple R-squared:  0.933,  Adjusted R-squared:  0.9297 
+## F-statistic: 286.5 on 12 and 247 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>anova(interact.fit_3,interact.fit_4) </code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: log_sal94 ~ gender + Department + Emphasis + Certification + 
+##     Experience + gender * Emphasis + gender * Experience
+## Model 2: log_sal94 ~ gender + Department + Emphasis + Certification + 
+##     Publication + Experience + gender * Emphasis + gender * Experience
+##   Res.Df    RSS Df Sum of Sq      F Pr(&gt;F)
+## 1    248 4.5178                           
+## 2    247 4.4760  1   0.04183 2.3083   0.13</code></pre>
+<pre class="r"><code># anova shows that smaller model(without publication) is superior (interact.fit_1)
+# however, publication is a confounder, we still should include that variable 
+#the resulting model is as below:
+summary(interact.fit_4)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = log_sal94 ~ gender + Department + Emphasis + Certification + 
+##     Publication + Experience + gender * Emphasis + gender * Experience, 
+##     data = lawsuit_df)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.34969 -0.08757  0.00075  0.09526  0.36916 
+## 
+## Coefficients:
+##                                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                   11.544270   0.101397 113.852  &lt; 2e-16 ***
+## genderFemale                  -0.144751   0.038400  -3.770 0.000205 ***
+## DepartmentPhysiology          -0.149529   0.029483  -5.072 7.75e-07 ***
+## DepartmentGenetics             0.184410   0.039797   4.634 5.82e-06 ***
+## DepartmentPediatrics           0.135673   0.054178   2.504 0.012918 *  
+## DepartmentMedicine             0.464773   0.045903  10.125  &lt; 2e-16 ***
+## DepartmentSurgery              0.836661   0.062622  13.360  &lt; 2e-16 ***
+## EmphasisResearch              -0.117065   0.043985  -2.661 0.008291 ** 
+## CertificationNot certified    -0.197868   0.021493  -9.206  &lt; 2e-16 ***
+## Publication                   -0.026609   0.017514  -1.519 0.129961    
+## Experience                     0.024223   0.001672  14.488  &lt; 2e-16 ***
+## genderFemale:EmphasisResearch -0.103603   0.036408  -2.846 0.004805 ** 
+## genderFemale:Experience        0.016173   0.003613   4.476 1.16e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1346 on 247 degrees of freedom
+## Multiple R-squared:  0.933,  Adjusted R-squared:  0.9297 
+## F-statistic: 286.5 on 12 and 247 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>summary(interact.fit_3)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = log_sal94 ~ gender + Department + Emphasis + Certification + 
+##     Experience + gender * Emphasis + gender * Experience, data = lawsuit_df)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.35513 -0.08520  0.00255  0.09249  0.36542 
+## 
+## Coefficients:
+##                                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                   11.401585   0.038331 297.453  &lt; 2e-16 ***
+## genderFemale                  -0.151707   0.038226  -3.969 9.47e-05 ***
+## DepartmentPhysiology          -0.149353   0.029561  -5.052 8.47e-07 ***
+## DepartmentGenetics             0.205524   0.037390   5.497 9.59e-08 ***
+## DepartmentPediatrics           0.196966   0.036258   5.432 1.33e-07 ***
+## DepartmentMedicine             0.517393   0.030206  17.129  &lt; 2e-16 ***
+## DepartmentSurgery              0.914196   0.036389  25.123  &lt; 2e-16 ***
+## EmphasisResearch              -0.168112   0.028462  -5.906 1.15e-08 ***
+## CertificationNot certified    -0.196665   0.021535  -9.132  &lt; 2e-16 ***
+## Experience                     0.023977   0.001668  14.371  &lt; 2e-16 ***
+## genderFemale:EmphasisResearch -0.108598   0.036355  -2.987   0.0031 ** 
+## genderFemale:Experience        0.016266   0.003622   4.490 1.09e-05 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.135 on 248 degrees of freedom
+## Multiple R-squared:  0.9323, Adjusted R-squared:  0.9293 
+## F-statistic: 310.7 on 11 and 248 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>#final model
+interact.fit_3 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Experience + Title +  gender * Experience, data = lawsuit_df)
+summary(interact.fit_3)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = log_sal94 ~ gender + Department + Emphasis + Certification + 
+##     Experience + Title + gender * Experience, data = lawsuit_df)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -0.32706 -0.07187 -0.01347  0.07846  0.28275 
+## 
+## Coefficients:
+##                             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)                11.377558   0.033648 338.135  &lt; 2e-16 ***
+## genderFemale               -0.099172   0.033717  -2.941  0.00358 ** 
+## DepartmentPhysiology       -0.173140   0.026090  -6.636 2.02e-10 ***
+## DepartmentGenetics          0.185038   0.032493   5.695 3.50e-08 ***
+## DepartmentPediatrics        0.195409   0.032146   6.079 4.56e-09 ***
+## DepartmentMedicine          0.520220   0.026576  19.575  &lt; 2e-16 ***
+## DepartmentSurgery           0.920340   0.031733  29.003  &lt; 2e-16 ***
+## EmphasisResearch           -0.222586   0.019610 -11.350  &lt; 2e-16 ***
+## CertificationNot certified -0.201139   0.019143 -10.507  &lt; 2e-16 ***
+## Experience                  0.016858   0.001681  10.026  &lt; 2e-16 ***
+## TitleAssociate Professor    0.130208   0.021515   6.052 5.28e-09 ***
+## TitleFull Professor         0.215747   0.023702   9.102  &lt; 2e-16 ***
+## genderFemale:Experience     0.009631   0.003258   2.957  0.00341 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.1189 on 247 degrees of freedom
+## Multiple R-squared:  0.9477, Adjusted R-squared:  0.9452 
+## F-statistic:   373 on 12 and 247 DF,  p-value: &lt; 2.2e-16</code></pre>
+<p><img src="images/without.jpg" /></p>
+<p>However, considering the salary increase between 1994 and 1995 based on Model 2, gender only had a slight influence on the difference in the increment. Surprisingly, even though males had a higher baseline salary, females tend to receive a larger salary increase compared to male subjects. There was a relatively smaller association between males and the salary increase, which implied that gender equality in the income growth was almost achieved in 1995, though the inequality still existed at the baseline level of salary of 1994.</p>
+<p><strong>Diagnostics for model 1 without the influential point:</strong></p>
+<pre class="r"><code>par(mfrow = c(2,2))
+plot(interact.fit_3)</code></pre>
+<p><img src="Gender_Salary_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>For further analysis, Model 1 was stratified by each of the included confounders. While being stratified by the departments, the results showed that males were more likely to receive higher baseline salaries than females in the Department of Physiology and Medicine. The gender difference still existed after adjusting for other confounders except for experienced years. While adjusting for experienced years, I found that there was no significant difference in baseline salary between both genders.</p>
 </div>
 </div>
 </div>

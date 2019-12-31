@@ -7,9 +7,9 @@ navbar:
       href: Resume.html
     - text: Projects
       menu:
-      - text: "Titanic: A Classification Problem"
+      - text: "Titanic"
         href: Titanic.html
-      - text: "Gender and Salary Setting: An Association Study"
+      - text: "Gender and Salary Setting"
         href: Gender_Salary.html
     - icon: fa-envelope fa-lg
       href: mailto:<cm3928@cumc.columbia.edu.com>

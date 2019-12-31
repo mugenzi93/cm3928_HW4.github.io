@@ -230,7 +230,7 @@ Model 1 accounted for the association between gender and baseline salary in 1994
 
 **Checking for confounders:**
 
-```{r}
+```{r, message=FALSE}
 # fit
 attach(lawsuit_df)
 #based model
@@ -283,7 +283,7 @@ summary(lm(log_sal94 ~ gender + Department + Emphasis + Certification +
 
 **Model 1 and 2 fitted with influential point:**
 
-```{r}
+```{r, message=FALSE}
 # test interaction between gender and other varibales
 output_model = vector()
 output_add_var = vector()
@@ -326,20 +326,80 @@ interact.fit_1 = lm(log_sal94 ~ gender + Department + Emphasis + Certification +
 summary(interact.fit_1)
 ```
 
+![](images/with.jpg)
 
-The influential point indicated that a male faculty with only 2 years of working experience had an extremely high salary compared to others. I fitted two models both with and without the point and eventually dropped that point to fit the final model. For collinearity, since most of the variables were categorical, it was acceptable that the VIF of those variables became higher.
+The influential point indicated that a male faculty with only 2 years of working experience had an extremely high salary compared to others. I fitted another model without this influential point and below is the diagnostics showing the influntial point (113).
 
+**Diagnostics for model 1 with the influential point:**
 
-
-
-
-
-
-
-
-
+```{r}
+par(mfrow = c(2,2))
+plot(interact.fit_1)
+```
 
 
+**Model 1 and 2 fitted without the influential point:**
+
+```{r}
+lawsuit_df = lawsuit_df[-113,]
+
+# test interaction between gender and other varibales
+output_model = vector()
+output_add_var = vector()
+
+for (i in 2:6 ) {
+  var = names(lawsuit_df)[i] # ensure correct var names
+  formula = as.formula(str_c("log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + Title +","gender*", var))
+  print(str_c("log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender *", var))
+  output_model = append(output_model, str_c("log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + Title + gender *", var))
+  output_add_var = append(output_add_var, var)
+}
+
+inter_check = 
+  tibble(model = output_model,
+       inter_with = output_add_var) %>%
+  mutate(reg = map(model,regression)) %>%
+  unnest() %>%
+  filter(p.value < .05) %>%
+  filter(str_detect(term, ":"))
+inter_check
+
+
+summary(lm(log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender * Emphasis + gender * Experience , data = lawsuit_df))
+
+interact.fit_3 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Experience + gender * Emphasis + gender * Experience , data = lawsuit_df)
+summary(interact.fit_3)
+interact.fit_4 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender * Emphasis + gender * Experience, 
+                    data = lawsuit_df)
+summary(interact.fit_4)
+
+anova(interact.fit_3,interact.fit_4) 
+# anova shows that smaller model(without publication) is superior (interact.fit_1)
+# however, publication is a confounder, we still should include that variable 
+#the resulting model is as below:
+summary(interact.fit_4)
+summary(interact.fit_3)
+
+#final model
+interact.fit_3 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Experience + Title +  gender * Experience, data = lawsuit_df)
+summary(interact.fit_3)
+```
+
+
+![](images/without.jpg)
+
+However, considering the salary increase between 1994 and 1995 based on Model 2, gender only had a slight influence on the difference in the increment. Surprisingly, even though males had a higher baseline salary, females tend to receive a larger salary increase compared to male subjects. There was a relatively smaller association between males and the salary increase, which implied that gender equality in the income growth was almost achieved in 1995, though the inequality still existed at the baseline level of salary of 1994.
+
+**Diagnostics for model 1 without the influential point:**
+
+```{r}
+par(mfrow = c(2,2))
+plot(interact.fit_3)
+```
+
+
+
+For further analysis, Model 1 was stratified by each of the included confounders. While being stratified by the departments, the results showed that males were more likely to receive higher baseline salaries than females in the Department of Physiology and Medicine. The gender difference still existed after adjusting for other confounders except for experienced years. While adjusting for experienced years, I found that there was no significant difference in baseline salary between both genders.
 
 
 
