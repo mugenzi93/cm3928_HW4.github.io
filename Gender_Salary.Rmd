@@ -231,6 +231,9 @@ Model 1 accounted for the association between gender and baseline salary in 1994
 **Checking for confounders:**
 
 ```{r, eval=FALSE}
+
+# For Model 1 wih 1994 salary
+
 # fit
 attach(lawsuit_df)
 #based model
@@ -278,12 +281,52 @@ confounder_check %>% kable(format = "latex", booktabs = T, caption = "Potential 
 summary(lm(log_sal94 ~ gender + Department + Emphasis + Certification + 
              Publication + Experience + Title, data = lawsuit_df))
 
+# For Model 2 with salary increase from 1994 to 1995.
+
+# fit
+attach(lawsuit_df)
+#based model
+fit.base = lm(sal_increase ~ gender)
+summary(fit.base)
+
+# see if there is any confounder
+output_model = vector()
+output_add_var = vector()
+
+for (i in 2:7 ) {
+  var = names(lawsuit_df)[i] # ensure correct var names
+  formula = as.formula(str_c("sal_increase ~ gender +", var))
+  print(str_c("sal_increase ~ gender +", var))
+  output_model = append(output_model, str_c("sal_increase ~ gender +", var))
+  output_add_var = append(output_add_var, var)
+  }
+
+confounder_check = tibble(model = output_model,
+                             add_var = output_add_var)
+
+regression = function(formula){
+  formula = as.formula(formula)
+  fit = lm(formula , data = lawsuit_df)
+  return(as.tibble(broom::tidy(fit)))
+}
+
+confounder_check = 
+  confounder_check %>%
+  mutate(reg = map(confounder_check$model,regression)) %>%
+  unnest() %>%
+  filter(p.value < .05) %>%
+  filter(term == "genderMale") %>%
+  mutate(confounder = ifelse(abs((estimate - 0.36527)/0.36527) > 0.1, "confounder","not confounder" )) %>%
+  dplyr::select(-term)
 ```
 
 
 **Model 1 and 2 fitted with influential point:**
 
 ```{r, message=FALSE, echo=FALSE, eval=FALSE}
+
+# Model 1 (with influential point)
+
 # test interaction between gender and other varibales
 output_model = vector()
 output_add_var = vector()
@@ -324,6 +367,11 @@ summary(interact.fit_1)
 #final model
 interact.fit_1 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Experience + Title +  gender * Experience, data = lawsuit_df)
 summary(interact.fit_1)
+
+# Model 2 (with influential point)
+
+summary(lm(sal_increase ~ gender + Department + Emphasis + Certification + 
+             Experience + Title, data = lawsuit_df))
 ```
 
 ![](images/with.jpg)
@@ -342,14 +390,17 @@ plot(interact.fit_1)
 **Model 1 and 2 fitted without the influential point:**
 
 ```{r, echo=FALSE, eval=FALSE}
-lawsuit_df = lawsuit_df[-113,]
+
+# Model 1 (without influential point)
+
+lawsuit_df1 = lawsuit_df[-113,]
 
 # test interaction between gender and other varibales
 output_model = vector()
 output_add_var = vector()
 
 for (i in 2:6 ) {
-  var = names(lawsuit_df)[i] # ensure correct var names
+  var = names(lawsuit_df1)[i] # ensure correct var names
   formula = as.formula(str_c("log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + Title +","gender*", var))
   print(str_c("log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender *", var))
   output_model = append(output_model, str_c("log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + Title + gender *", var))
@@ -366,12 +417,12 @@ inter_check =
 inter_check
 
 
-summary(lm(log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender * Emphasis + gender * Experience , data = lawsuit_df))
+summary(lm(log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender * Emphasis + gender * Experience , data = lawsuit_df1))
 
-interact.fit_3 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Experience + gender * Emphasis + gender * Experience , data = lawsuit_df)
+interact.fit_3 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Experience + gender * Emphasis + gender * Experience , data = lawsuit_df1)
 summary(interact.fit_3)
 interact.fit_4 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Publication + Experience + gender * Emphasis + gender * Experience, 
-                    data = lawsuit_df)
+                    data = lawsuit_df1)
 summary(interact.fit_4)
 
 anova(interact.fit_3,interact.fit_4) 
@@ -382,8 +433,38 @@ summary(interact.fit_4)
 summary(interact.fit_3)
 
 #final model
-interact.fit_3 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Experience + Title +  gender * Experience, data = lawsuit_df)
+interact.fit_3 = lm(log_sal94 ~ gender + Department + Emphasis + Certification + Experience + Title +  gender * Experience, data = lawsuit_df1)
 summary(interact.fit_3)
+
+# Model 2 (without influential point)
+
+# test interaction between gender and other varibales
+output_model = vector()
+output_add_var = vector()
+
+for (i in 2:6 ) {
+  var = names(lawsuit_df1)[i] # ensure correct var names
+  formula = as.formula(str_c("sal_increase ~ gender + Department + Emphasis + 
+                             Certification + Experience + Title","gender*", var))
+  print(str_c("sal_increase ~ gender + Department + Emphasis + certification + 
+              Experience + Title + gender *", var))
+  output_model = append(output_model, str_c("sal_increase ~ gender + Department + 
+                                            Emphasis + Certification + 
+                                            Experience + Title + gender *", var))
+  output_add_var = append(output_add_var, var)
+}
+
+inter_check = 
+  tibble(model = output_model,
+       inter_with = output_add_var) %>%
+  mutate(reg = map(model,regression)) %>%
+  unnest() %>%
+  filter(p.value < .05) #  no significant interaction terms
+
+# the resulting model is :
+fit.increment = lm(sal_increase ~ gender + Department + Emphasis + Certification + 
+                     Experience + Title, data = lawsuit_df1)
+summary(fit.increment)
 ```
 
 
@@ -402,10 +483,19 @@ plot(interact.fit_3)
 
 For further analysis, Model 1 was stratified by each of the included confounders. While being stratified by the departments, the results showed that males were more likely to receive higher baseline salaries than females in the Department of Physiology and Medicine. The gender difference still existed after adjusting for other confounders except for experienced years. While adjusting for experienced years, I found that there was no significant difference in baseline salary between both genders.
 
+# Discussion
+
+There is a popular belief that there is a significant pay gap between male and female, and this study partially supports this theory. Our data indicate that gender has a relatively strong association with the baseline payment of salary. In addition, its interaction with the number of years of experience also contributes to different wage payments. However, our final model of the increment in salary reveals that, except for gender, all the other variables are independently and strongly associated with the increment in salary between 1994 and 1995. This finding suggests that there is no gender pay gap in the wage increase. Prior studies show that women tend not to self-promote or negotiate salary[2]. Moreover, both our data and AAMC specialty data suggest that women often find more career opportunities in lower-paying specialties. These might explain why there is a general pay gap in gender but no discrepancies in the increment of the salary.
+Unlike gender itself, the reason behind the interaction between gender and the number of years of experience is less intuitive. Our data shows that women who work in the college of Medicine compared to men tend to have fewer years of experience in the field. According to a study of 776 subjects that compared women and men medical doctors concluded that women tended to be younger on average[1]. In addition, men listed substantial pay as their number two priority, whereas women ranked optimal collegiality and control of personal time above pay since the study found women were less likely to pursue leadership positions. Moreover, according to a JAMA Internal Medicine Study, many women cut down on work hours once they had children[4]. Even though our sample data failed to record the ages of subjects, these discoveries explained that women do not prioritize salary, and prefer a more flexible schedule due to family reasons, and therefore resulted in fewer years of experience and therefore lower wages.
+
+The major strengths of this study came mostly from the use of multiple regression models to explain the association between gender and salary. Both model 1 and 2 yielded high adjusted R-squared, 94% and 81% respectively, meaning a high percentage of variations in the response salary variable can be explained by the variation in the predictor variables. Additionally, the simplicity of multiple linear regression allows us to easily interpret the relationship between predictor and outcome variables.
+
+There are several limitations. First, our study was restricted to faculties in the Houston college of medicine. The dynamics of employees of other institutions or organizations may be quite different. Second, our research data did not include the age and race of subjects. Therefore, our results may not be generalizable to schools with a different distribution of age and race. Finally, we cannot exclude the possibility that the association we observed is due to a certain sociological environment that the school is embedded in. If, for example, the school is in a community where sexism is common and embedded in their subconsciousness and the environment they grew up in, our result, therefore, cannot be generalized to other communities.
 
 
+# Conclusion
 
-
+In this cross-sectional study that involved 261 medical professors, we found that gender was significantly associated with a salary at the baseline level (1994) but that a professor’s salary increase from 1994 to 1995 was not dependent on gender. Therefore, the claim made by the Houston college of medicine professor that there exists gender discrimination in setting salary was in part supported by our first model and refuted by the second model when it comes to a salary increase of both genders from 1994 to 1995.
 
 
 
