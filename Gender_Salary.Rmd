@@ -481,7 +481,7 @@ plot(interact.fit_3)
 
 ![](images/diagn2.jpg)
 
-For further analysis, Model 1 was stratified by each of the included confounders. While being stratified by the departments, the results showed that males were more likely to receive higher baseline salaries than females in the Department of Physiology and Medicine. The gender difference still existed after adjusting for other confounders except for experienced years. While adjusting for experienced years, I found that there was no significant difference in baseline salary between both genders.
+For further analysis, Model 1 was stratified by each of the included confounders. While being stratified by the departments, the results showed that males were more likely to receive higher baseline salaries than females in the Department of Physiology and Medicine. The gender difference still existed after adjusting for other confounders except for experienced subjects. While adjusting for experienced subjects, I found that there was no significant difference in baseline salary between both genders.
 
 # Discussion
 
