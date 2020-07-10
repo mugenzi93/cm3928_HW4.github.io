@@ -1,0 +1,10 @@
+---
+title: "GreenTaxi"
+author: "Clement Mugenzi"
+date: "7/10/2020"
+output: html_document
+---
+
+
+
+<iframe src="Documents/GreenTaxi.pdf" width="100%" height="1000px">
