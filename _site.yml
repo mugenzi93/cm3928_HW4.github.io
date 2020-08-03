@@ -11,7 +11,7 @@ navbar:
         href: Titanic.html
       - text: "Green Taxi - Percentage Tip"
         href: GreenTaxi.html
-      - text: "COPD - Progession of sLTP/QES"
+      - text: "COPD - Progression of sLTP/QES"
         href: COPD_Analysis.html
     - icon: fa-envelope fa-lg
       href: mailto:<cm3928@cumc.columbia.edu>
