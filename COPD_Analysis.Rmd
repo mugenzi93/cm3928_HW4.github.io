@@ -31,12 +31,10 @@ library(sqldf)
 library(patchwork)
 library(dplyr)
 library(nnet)
-library(ggalluvial)
 library(caret)
 library(glmnet)
 library(networkD3)
 library(MASS)
-library(alluvial)
 library(mda)
 ```
 

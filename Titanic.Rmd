@@ -76,7 +76,7 @@ The code chunk below summarises how many missing values we have per column.
     group_by(key, is.missing) %>%
     summarise(num.missing = n()) %>%
     filter(is.missing == T) %>%
-    select(-is.missing) %>%
+    dplyr::select(-is.missing) %>%
     arrange(desc(num.missing)) %>%
     rename("Missing Values" = "num.missing", "Variable" = "key") %>% 
   knitr::kable()
@@ -344,7 +344,7 @@ I will split the `Titanic` dataset back to the `Train` and `Test` datasets.
 
 ```{r}
 titanic = titanic %>%
-  select(-c("name", "ticket", "family", "lastname", "cabin"))
+  dplyr::select(-c("name", "ticket", "family", "lastname", "cabin"))
 
 # I thought of using caret but it is not possible in this situation due
 # to missing values in the test dataset

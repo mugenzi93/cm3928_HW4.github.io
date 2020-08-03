@@ -294,6 +294,9 @@ $(document).ready(function () {
     <li>
       <a href="GreenTaxi.html">Green Taxi - Percentage Tip</a>
     </li>
+    <li>
+      <a href="COPD_Analysis.html">COPD - Progession of sLTP/QES</a>
+    </li>
   </ul>
 </li>
 <li>
@@ -368,7 +371,7 @@ Titanic =
     group_by(key, is.missing) %&gt;%
     summarise(num.missing = n()) %&gt;%
     filter(is.missing == T) %&gt;%
-    select(-is.missing) %&gt;%
+    dplyr::select(-is.missing) %&gt;%
     arrange(desc(num.missing)) %&gt;%
     rename(&quot;Missing Values&quot; = &quot;num.missing&quot;, &quot;Variable&quot; = &quot;key&quot;) %&gt;% 
   knitr::kable()</code></pre>
@@ -795,7 +798,7 @@ sum(is.na(titanic$fare))</code></pre>
 <h2>Splitting the Dataset for model building</h2>
 <p>I will split the <code>Titanic</code> dataset back to the <code>Train</code> and <code>Test</code> datasets.</p>
 <pre class="r"><code>titanic = titanic %&gt;%
-  select(-c(&quot;name&quot;, &quot;ticket&quot;, &quot;family&quot;, &quot;lastname&quot;, &quot;cabin&quot;))
+  dplyr::select(-c(&quot;name&quot;, &quot;ticket&quot;, &quot;family&quot;, &quot;lastname&quot;, &quot;cabin&quot;))
 
 # I thought of using caret but it is not possible in this situation due
 # to missing values in the test dataset
@@ -880,20 +883,20 @@ gbm.fit = train(x = train_df, y = train_data$survival,
 summary(gbm.fit$finalModel, las = 2, cex.names = 0.6)</code></pre>
 <p><img src="Titanic_files/figure-html/unnamed-chunk-23-1.png" width="90%" /></p>
 <pre><code>##               var    rel.inf
-## titles     titles 32.5331088
-## fare         fare 23.0147193
-## age           age 16.2632021
-## pclass     pclass 11.5699964
-## gender     gender  5.4637444
-## famsize   famsize  5.4270800
-## embarked embarked  2.7462332
-## sib_sp     sib_sp  1.8469697
-## parch       parch  0.8537137
-## mother     mother  0.2812324</code></pre>
+## fare         fare 26.4241303
+## titles     titles 25.4678791
+## age           age 21.7888522
+## pclass     pclass  9.5651710
+## gender     gender  5.3610895
+## famsize   famsize  4.4214087
+## embarked embarked  3.2072278
+## sib_sp     sib_sp  2.2974005
+## parch       parch  1.0988943
+## mother     mother  0.3679465</code></pre>
 <pre class="r"><code># looking at the tuning results
 gbm.fit$bestTune</code></pre>
 <pre><code>##    n.trees interaction.depth shrinkage n.minobsinnode
-## 20    5000                 4     0.003              1</code></pre>
+## 28    5000                 8     0.003              1</code></pre>
 <pre class="r"><code># plot the performance of the training models
 plot(gbm.fit)</code></pre>
 <p><img src="Titanic_files/figure-html/unnamed-chunk-23-2.png" width="90%" /></p>
