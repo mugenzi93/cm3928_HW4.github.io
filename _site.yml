@@ -5,14 +5,16 @@ navbar:
   right:
     - text: "Resume"
       href: Resume.html
+    - text: Research
+      menu:
+      - text: "COPD - Progression of sLTP/QES"
+        href: COPD_Analysis.html
     - text: Projects
       menu:
       - text: "Titanic"
         href: Titanic.html
       - text: "Green Taxi - Percentage Tip"
         href: GreenTaxi.html
-      - text: "COPD - Progression of sLTP/QES"
-        href: COPD_Analysis.html
     - icon: fa-envelope fa-lg
       href: mailto:<cm3928@cumc.columbia.edu>
     - icon: fa-linkedin fa-lg
