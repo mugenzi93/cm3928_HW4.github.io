@@ -892,20 +892,20 @@ gbm.fit = train(x = train_df, y = train_data$survival,
 summary(gbm.fit$finalModel, las = 2, cex.names = 0.6)</code></pre>
 <p><img src="Titanic_files/figure-html/unnamed-chunk-23-1.png" width="90%" /></p>
 <pre><code>##               var    rel.inf
-## titles     titles 30.1662280
-## fare         fare 24.5788455
-## age           age 17.9681781
-## pclass     pclass 10.8938278
-## gender     gender  5.2236731
-## famsize   famsize  5.1607995
-## embarked embarked  3.0272209
-## sib_sp     sib_sp  1.7797782
-## parch       parch  0.8801522
-## mother     mother  0.3212967</code></pre>
+## fare         fare 26.5616014
+## titles     titles 26.2109654
+## age           age 21.1721060
+## pclass     pclass  9.6887440
+## gender     gender  5.1036894
+## famsize   famsize  4.6415573
+## embarked embarked  3.2555406
+## sib_sp     sib_sp  1.9696483
+## parch       parch  1.0180282
+## mother     mother  0.3781194</code></pre>
 <pre class="r"><code># looking at the tuning results
 gbm.fit$bestTune</code></pre>
 <pre><code>##    n.trees interaction.depth shrinkage n.minobsinnode
-## 33    4000                 4     0.005              1</code></pre>
+## 36    5000                 5     0.005              1</code></pre>
 <pre class="r"><code># plot the performance of the training models
 plot(gbm.fit)</code></pre>
 <p><img src="Titanic_files/figure-html/unnamed-chunk-23-2.png" width="90%" /></p>

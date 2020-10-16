@@ -10,9 +10,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Clement Mugenzi" />
 
+<meta name="date" content="2020-10-16" />
 
-<title>Clement Mugenzi</title>
+<title>COPD_Analysis</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,12 +22,13 @@
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
-<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
-<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
-<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.3/htmlwidgets.js"></script>
+<script src="site_libs/d3-4.5.0/d3.min.js"></script>
+<script src="site_libs/sankey-1/sankey.js"></script>
+<script src="site_libs/sankeyNetwork-binding-0.4/sankeyNetwork.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -253,63 +256,6 @@ $(document).ready(function () {
 
 
 
-<style type="text/css">
-
-#TOC {
-  margin: 25px 0px 20px 0px;
-}
-@media (max-width: 768px) {
-#TOC {
-  position: relative;
-  width: 100%;
-}
-}
-
-
-.toc-content {
-  padding-left: 30px;
-  padding-right: 40px;
-}
-
-div.main-container {
-  max-width: 1200px;
-}
-
-div.tocify {
-  width: 20%;
-  max-width: 260px;
-  max-height: 85%;
-}
-
-@media (min-width: 768px) and (max-width: 991px) {
-  div.tocify {
-    width: 25%;
-  }
-}
-
-@media (max-width: 767px) {
-  div.tocify {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-.tocify ul, .tocify li {
-  line-height: 20px;
-}
-
-.tocify-subheader .tocify-item {
-  font-size: 0.90em;
-}
-
-.tocify .list-group-item {
-  border-radius: 0px;
-}
-
-
-</style>
-
-
 
 </head>
 
@@ -317,16 +263,6 @@ div.tocify {
 
 
 <div class="container-fluid main-container">
-
-
-<!-- setup 3col/9col grid for toc_float and main content  -->
-<div class="row-fluid">
-<div class="col-xs-12 col-sm-4 col-md-3">
-<div id="TOC" class="tocify">
-</div>
-</div>
-
-<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -409,29 +345,28 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Clement Mugenzi</h1>
+<h1 class="title toc-ignore">COPD_Analysis</h1>
+<h4 class="author">Clement Mugenzi</h4>
+<h4 class="date">10/16/2020</h4>
 
 </div>
 
 
-<p><img src="images/clement.jpg" /></p>
-<p>I am an ambitious and dynamic scientist, working on a masters degree in Biostatistics at Columbia Mailman School of Public Health.</p>
-<p>During my undergraduate education in chemistry at the University of Central Arkansas, I served in different professional and research roles. As a result, I have a wide range of experience working at academic institutions, small companies (start ups), and research labs.</p>
-<p>During the summer of 2020, I was previleged to work with <a href="https://www.bme.columbia.edu/faculty/andrew-laine">Andrew Laine, PhD</a> and <a href="https://www.imperial.ac.uk/people/e.angelini">Elsa Angelini, PhD</a> in their research lab: <a href="https://hbil.bme.columbia.edu/">Heffner Biomedical Imaging Lab</a>. My goal in this research was to analyze segmented Computed Tomography (CT) images from COPD patients to:</p>
+<p>This plot explore the longitudinal progression of emphysema subtypes (sLTPs/QES) over time - from either baseline or any other QES form to after 5 or 6 years later and so on. The dataset is comprised of CT scans from COPD patients.</p>
+<p>Different patients have different proportions on emphysema, so that is why also different pixels (corresponding to the number of observations) were recorded - What I call multiple measures. In other words, different patients had different number of QES pixels labeled for their lungs.</p>
+<p><strong>Data Description:</strong></p>
 <ul>
-<li><p>Create informative visualization plots showing transitions of emphysema subtypes from baseline to follow up.</p></li>
-<li><p>Quantify the amount of emphysema pixels present and study the association of emphysema subtypes from baseline to follow up using a Logistic regression model.</p></li>
-<li><p>Use unsupervised learning methods such as Multivariate Adaptive Regression Splines (MARS) and Extreme Gradient Boosting (XGBoost) models to predict the percentage emphysema pixels we would expect at follow up.</p></li>
+<li><p><strong>IDNO:</strong> Patient ID Number</p></li>
+<li><p><strong>X,Y,Z:</strong> Pixel coordinates</p></li>
+<li><p><strong>sLTP(COPD1);NE = -1:</strong> Baseline Spatially-Informed Lung Texture Patterns, where -1 means ‘No Emphysema’ and where sLTPs span a 1-10 range.</p></li>
+<li><p><strong>sLTP(COPD2);NE = -1:</strong> Spatially-Informed Lung Texture Patterns at follow up.</p></li>
+<li><p><strong>Key Definitions: NE = No Emphyesema</strong></p></li>
 </ul>
-<p><strong>Side Note:</strong></p>
-<p>I am a proactive learner, always seeking out challenging opportunities with an ultimate purpose to grow personally and professionally.</p>
-<p>I am also an aspiring data scientist, constantly looking to get involved in challenging projects in order to apply my analytical problem-solving skills and translate big picture ideas into tangible goals.</p>
-<p>Do not hesitate to reach out via email or cell phone for possible collaboration on machine learning projects.</p>
+<div id="htmlwidget-f37610d900f8c514719e" style="width:672px;height:480px;" class="sankeyNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f37610d900f8c514719e">{"x":{"links":{"source":[0,0,0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,6,6,6,6,6,6],"target":[7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12],"value":[30,14724,51960,74111,42498,25493,7549,1545,57,15,13,24,6369,61096,6169,2319,943,3627,760,30522,121251,21694,1955,1366,52,14499,34015,48456,8377,4253,19,4945,4113,13346,14098,4513,19,9464,991,3153,3994,17811]},"nodes":{"name":["NE","Vanishing","Apical","Diffuse","Senile","oCPFE","rCPFE","Vanishing ","Apical ","Diffuse ","Senile ","oCPFE ","rCPFE "],"group":["NE","Vanishing","Apical","Diffuse","Senile","oCPFE","rCPFE","Vanishing ","Apical ","Diffuse ","Senile ","oCPFE ","rCPFE "]},"options":{"NodeID":"name","NodeGroup":"name","LinkGroup":{"name":["NE","Vanishing","Apical","Diffuse","Senile","oCPFE","rCPFE","Vanishing ","Apical ","Diffuse ","Senile ","oCPFE ","rCPFE "]},"colourScale":"d3.scaleOrdinal() .range([\"#FDE725FF\",\"#B4DE2CFF\",\"#6DCD59FF\",\"#35B779FF\",\"#1F9E89FF\",\"#26828EFF\",\"#31688EFF\"])","fontSize":12,"fontFamily":null,"nodeWidth":40,"nodePadding":20,"units":"","margin":{"top":null,"right":null,"bottom":null,"left":null},"iterations":32,"sinksRight":false}},"evals":[],"jsHooks":[]}</script>
 
 
 
-</div>
-</div>
 
 </div>
 
@@ -464,32 +399,6 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
-<script>
-$(document).ready(function ()  {
-
-    // move toc-ignore selectors from section div to header
-    $('div.section.toc-ignore')
-        .removeClass('toc-ignore')
-        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
-
-    // establish options
-    var options = {
-      selectors: "h1,h2,h3",
-      theme: "bootstrap3",
-      context: '.toc-content',
-      hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
-      },
-      ignoreSelector: ".toc-ignore",
-      scrollTo: 0
-    };
-    options.showAndHide = true;
-    options.smoothScroll = true;
-
-    // tocify
-    var toc = $("#TOC").tocify(options).data("toc-tocify");
-});
-</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

@@ -1,0 +1,113 @@
+---
+title: "COPD_Analysis"
+author: "Clement Mugenzi"
+date: "10/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+
+
+```{r, include=FALSE}
+library(tidyverse)
+library(data.table)
+library(ggplot2)
+library(dplyr)
+library(ggalluvial)
+library(pROC)
+library(networkD3)
+library(patchwork)
+```
+
+This plot explore the longitudinal progression of emphysema subtypes (sLTPs/QES) over time - from either baseline or any other QES form to after 5 or 6 years later and so on. The dataset is comprised of CT scans from COPD patients.
+
+Different patients have different proportions on emphysema, so that is why also different pixels (corresponding to the number of observations) were recorded - What I call multiple measures. In other words, different patients had different number of QES pixels labeled for their lungs.
+
+**Data Description:**
+
+* **IDNO:** Patient ID Number
+
+* **X,Y,Z:** Pixel coordinates
+
+* **sLTP(COPD1);NE = -1:** Baseline Spatially-Informed Lung Texture Patterns, where -1 means 'No Emphysema' and where sLTPs span a 1-10 range.
+
+* **sLTP(COPD2);NE = -1:** Spatially-Informed Lung Texture Patterns at follow up.
+
+* **Key Definitions: NE = No Emphyesema**
+
+
+
+```{r}
+# importing the dataset
+sankey_df = read.csv("Data/data_sankey.csv")
+sankey_df = sankey_df %>% 
+  select(-X) %>% 
+  mutate(
+    source = as.character(source),
+    target = as.character(target),
+    value = as.numeric(value)
+  )
+sankey_df$target <- paste(sankey_df$target, " ", sep="")
+
+# From these flows we need to create a node data frame: it lists every entities involved in the flow
+nodes = data.frame(name=c(as.character(sankey_df$source), as.character(sankey_df$target)) %>% unique())
+ 
+# With networkD3, connection must be provided using id, not using real name like in the links dataframe.. So we need to reformat it.
+sankey_df$IDsource=match(sankey_df$source, nodes$name)-1 
+sankey_df$IDtarget=match(sankey_df$target, nodes$name)-1
+
+# prepare colour scale
+ColourScal ='d3.scaleOrdinal() .range(["#FDE725FF","#B4DE2CFF","#6DCD59FF","#35B779FF","#1F9E89FF","#26828EFF","#31688EFF"])'
+
+# Make the Network
+sankeyNetwork(Links = sankey_df, Nodes = nodes,
+                     Source = "IDsource", Target = "IDtarget",
+                     Value = "value", NodeID = "name", iterations = 32, 
+              sinksRight=FALSE, colourScale=ColourScal, 
+              nodeWidth=40, fontSize=12, nodePadding = 20, LinkGroup = nodes)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
