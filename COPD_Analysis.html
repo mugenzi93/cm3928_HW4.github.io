@@ -351,30 +351,6 @@ $(document).ready(function () {
 </div>
 
 
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ─────────────</code></pre>
-<pre><code>## ✔ ggplot2 3.2.1     ✔ purrr   0.3.2
-## ✔ tibble  2.1.3     ✔ dplyr   0.8.3
-## ✔ tidyr   1.0.0     ✔ stringr 1.4.0
-## ✔ readr   1.3.1     ✔ forcats 0.4.0</code></pre>
-<pre><code>## ── Conflicts ──────────────────────
-## ✖ dplyr::filter()                     masks stats::filter()
-## ✖ dplyr::lag()                        masks stats::lag()
-## ✖ .GlobalEnv::scale_colour_discrete() masks ggplot2::scale_colour_discrete()
-## ✖ .GlobalEnv::scale_fill_discrete()   masks ggplot2::scale_fill_discrete()</code></pre>
-<pre class="r"><code>library(data.table)</code></pre>
-<pre><code>## 
-## Attaching package: &#39;data.table&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:dplyr&#39;:
-## 
-##     between, first, last</code></pre>
-<pre><code>## The following object is masked from &#39;package:purrr&#39;:
-## 
-##     transpose</code></pre>
-<pre class="r"><code>library(ggplot2)
-library(knitr)
-library(dplyr)
-library(networkD3)</code></pre>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <p>This document explore the longitudinal progression of emphysema subtypes (sLTPs/QES) over time - from either baseline or any other QES form to after 5 or 6 years later and so on. The dataset is comprised of CT scans from COPD patients.</p>
@@ -387,63 +363,8 @@ library(networkD3)</code></pre>
 <li><p><strong>sLTP(COPD2);NE = -1:</strong> Spatially-Informed Lung Texture Patterns at follow up.</p></li>
 <li><p><strong>Key Definitions: NE = No Emphyesema</strong></p></li>
 </ul>
-<pre class="r"><code>copd_df = fread(&quot;spatial-temporal_mesa_copd.csv&quot;, data.table = F) %&gt;%
-  janitor::clean_names() %&gt;%
-  dplyr::select(-v8,-dice) %&gt;%
-  rename(sLTP_baseline = s_ltp_copd1_ne_1,
-         sLTP_follow_up = s_ltp_copd2_ne_1) %&gt;%
-  mutate(
-    sLTP_baseline = factor(sLTP_baseline, levels = c(&quot;3&quot;,&quot;5&quot;,&quot;9&quot;,&quot;4&quot;,
-                                                     &quot;6&quot;,&quot;7&quot;,&quot;-1&quot;,&quot;8&quot;,&quot;10&quot;,&quot;1&quot;,&quot;2&quot;)),
-    sLTP_follow_up = factor(sLTP_follow_up, levels = c(&quot;3&quot;,&quot;5&quot;,&quot;9&quot;,&quot;4&quot;,
-                                                     &quot;6&quot;,&quot;7&quot;,&quot;8&quot;,&quot;10&quot;,&quot;1&quot;,&quot;2&quot;)),
-    qes_baseline = recode(sLTP_baseline, &quot;1&quot; = &quot;Vanishing&quot;, &quot;2&quot; = &quot;Vanishing&quot;,&quot;-1&quot; = &quot;NE&quot;, 
-                          &quot;4&quot; = &quot;Diffuse&quot;, &quot;6&quot; = &quot;Diffuse&quot;, &quot;7&quot; = &quot;Senile&quot;,
-                          &quot;3&quot; = &quot;Apical&quot;, &quot;5&quot; = &quot;Apical&quot;, &quot;9&quot; = &quot;Apical&quot;,
-                          &quot;8&quot; = &quot;oCPFE&quot;, &quot;10&quot; = &quot;rCPFE&quot;),
-    qes_follow_up = recode(sLTP_follow_up, &quot;1&quot; = &quot;Vanishing&quot;, &quot;2&quot; = &quot;Vanishing&quot;,&quot;-1&quot; = &quot;NE&quot;, 
-                           &quot;4&quot; = &quot;Diffuse&quot;, &quot;6&quot; = &quot;Diffuse&quot;, &quot;7&quot; = &quot;Senile&quot;,
-                          &quot;3&quot; = &quot;Apical&quot;, &quot;5&quot; = &quot;Apical&quot;, &quot;9&quot; = &quot;Apical&quot;,
-                          &quot;8&quot; = &quot;oCPFE&quot;, &quot;10&quot; = &quot;rCPFE&quot;),
-    qes_baseline = factor(qes_baseline, levels = c(&quot;Apical&quot;,&quot;Diffuse&quot;,&quot;NE&quot;,&quot;Senile&quot;,&quot;oCPFE&quot;,&quot;rCPFE&quot;, &quot;Vanishing&quot;)),
-    qes_follow_up = factor(qes_follow_up, levels = c(&quot;Apical&quot;,&quot;Diffuse&quot;,&quot;Senile&quot;,&quot;oCPFE&quot;,&quot;rCPFE&quot;,&quot;Vanishing&quot;))
-  )</code></pre>
-<pre><code>## Warning in fread(&quot;spatial-temporal_mesa_copd.csv&quot;, data.table = F):
-## Detected 8 column names but the data has 7 columns. Filling rows
-## automatically. Set fill=TRUE explicitly to avoid this warning.</code></pre>
-<pre class="r"><code># the dataset we want
-copd_wewant = copd_df %&gt;%
-  filter(!(qes_baseline != &quot;NE&quot; &amp; qes_follow_up == &quot;NE&quot;))</code></pre>
 <div id="sankey-diagram---sltp-transitions" class="section level2">
 <h2>Sankey Diagram - sLTP Transitions</h2>
-<pre class="r"><code># transforming the dataset
-data_sankey_sltp = copd_wewant %&gt;%
-  filter(sLTP_follow_up != &quot;-1&quot;) %&gt;%
-  dplyr::select(idno,sLTP_baseline,sLTP_follow_up) %&gt;%
-  group_by(sLTP_baseline,sLTP_follow_up) %&gt;%
-  summarize(Freq = n(),.groups = &quot;drop&quot;) %&gt;%
-  dplyr::select(sLTP_baseline,sLTP_follow_up, Freq) %&gt;%
-  rename(source = sLTP_baseline, target = sLTP_follow_up, value = Freq)
-
-data_sankey_sltp$target &lt;- paste(data_sankey_sltp$target, &quot; &quot;, sep = &quot;&quot;)
-
-# defining the nodes
-nodes_sltp = data.frame(name = c(as.character(data_sankey_sltp$source), as.character(data_sankey_sltp$target)) %&gt;% unique())
-
-# With networkD3, connection must be provided using id, not using real name like in the links dataframe.. So we need to reformat it.
-data_sankey_sltp$IDsource = match(data_sankey_sltp$source, nodes_sltp$name) - 1
-data_sankey_sltp$IDtarget = match(data_sankey_sltp$target, nodes_sltp$name) - 1
-
-# prepare colour scale
-ColourScal1 = &#39;d3.scaleOrdinal() .range([&quot;#FFFF00&quot;,&quot;#006400&quot;,&quot;#FF00FF&quot;,&quot;#7FFF00&quot;,
-&quot;#00FFFF&quot;,&quot;#0000FF&quot;,&quot;#FFE4E1&quot;,&quot;#800080&quot;,&quot;#DC143C&quot;,&quot;#FF0000&quot;,&quot;#808080&quot;])&#39;
-
-# Make the Network
-sankeyNetwork(Links = data_sankey_sltp, Nodes = nodes_sltp,
-                     Source = &quot;IDsource&quot;, Target = &quot;IDtarget&quot;, colourScale = ColourScal1,
-                     Value = &quot;value&quot;, NodeID = &quot;name&quot;, iterations = 0,
-                     sinksRight = F, nodeWidth = 40, fontSize = 13, nodePadding = 20)</code></pre>
-<pre><code>## Links is a tbl_df. Converting to a plain data frame.</code></pre>
 <div id="htmlwidget-f37610d900f8c514719e" style="width:672px;height:480px;" class="sankeyNetwork html-widget"></div>
 <script type="application/json" data-for="htmlwidget-f37610d900f8c514719e">{"x":{"links":{"source":[0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,10,10,10,10,10,10,10,10,10,10],"target":[11,12,13,14,15,16,17,18,19,20,11,12,13,14,15,16,17,18,19,20,11,12,13,14,15,16,17,18,20,11,12,13,14,15,16,17,18,19,20,11,12,13,14,15,16,17,18,20,11,12,13,14,15,16,17,18,20,11,12,13,14,15,16,17,18,20,11,12,13,14,15,16,17,18,20,11,12,13,14,15,16,17,18,20,11,12,13,17,18,19,20,11,12,13,14,15,16,17,18,19,20],"value":[10843,1640,903,561,182,99,47,161,40,4757,8988,8166,1932,1644,1080,356,149,285,11,1344,5780,6717,16127,556,2146,1864,747,3181,217,4406,6424,577,35464,17699,1946,285,185,7,519,3519,11058,4538,19492,48596,19748,1670,1181,234,843,4946,8710,5951,28064,48456,8377,4253,52,608,3121,10995,10209,41751,74111,42498,25493,30,166,696,4083,737,3376,13346,14098,4513,19,488,690,8286,92,899,3153,3994,17811,19,18,1,3,1,1,1391,393,1264,118,141,44,13,15,12,23,427,5338]},"nodes":{"name":["3","5","9","4","6","7","-1","8","10","1","2","3 ","5 ","9 ","4 ","6 ","7 ","8 ","10 ","1 ","2 "],"group":["3","5","9","4","6","7","-1","8","10","1","2","3 ","5 ","9 ","4 ","6 ","7 ","8 ","10 ","1 ","2 "]},"options":{"NodeID":"name","NodeGroup":"name","LinkGroup":null,"colourScale":"d3.scaleOrdinal() .range([\"#FFFF00\",\"#006400\",\"#FF00FF\",\"#7FFF00\",\n\"#00FFFF\",\"#0000FF\",\"#FFE4E1\",\"#800080\",\"#DC143C\",\"#FF0000\",\"#808080\"])","fontSize":13,"fontFamily":null,"nodeWidth":40,"nodePadding":20,"units":"","margin":{"top":null,"right":null,"bottom":null,"left":null},"iterations":0,"sinksRight":false}},"evals":[],"jsHooks":[]}</script>
 <p>The <strong>Sankey Diagram</strong> above showcases how sLTP at baseline transitioned to follow up. The thicker the line the more frequent transitions appearing in the data.</p>
@@ -452,48 +373,9 @@ sankeyNetwork(Links = data_sankey_sltp, Nodes = nodes_sltp,
 <div id="the-sankey-diagram---qes-transitions" class="section level2">
 <h2>The Sankey Diagram - QES Transitions</h2>
 <p>In this plot and because of clarity reasons, I ignored the transition from No Emphysema at baseline to No Emohysema at follow up and only included transitions from either NE or any QES (Baseline) to any of the QES at follow up.</p>
-<pre class="r"><code># transforming the dataset
-data_sankey = copd_wewant %&gt;%
-  filter(qes_follow_up != &quot;NE&quot;) %&gt;% 
-  dplyr::select(idno,qes_baseline,qes_follow_up) %&gt;% 
-  group_by(qes_baseline,qes_follow_up) %&gt;%
-  summarize(Freq = n(),.groups = &quot;drop&quot;) %&gt;%
-  dplyr::select(qes_baseline,qes_follow_up, Freq) %&gt;%
-  rename(source = qes_baseline, target = qes_follow_up, value = Freq)
-
-data_sankey$target &lt;- paste(data_sankey$target, &quot; &quot;, sep = &quot;&quot;)
-
-# defining the nodes
-nodes = data.frame(name = c(as.character(data_sankey$source), as.character(data_sankey$target)) %&gt;% unique())
-
-# With networkD3, connection must be provided using id, not using real name like in the links dataframe.. So we need to reformat it.
-data_sankey$IDsource = match(data_sankey$source, nodes$name) - 1
-data_sankey$IDtarget = match(data_sankey$target, nodes$name) - 1
-
-# prepare colour scale
-ColourScal = &#39;d3.scaleOrdinal() .range([&quot;#FFFF00&quot;,&quot;#7FFF00&quot;,&quot;#FFE4E1&quot;,
-&quot;#0000FF&quot;,&quot;#800080&quot;,&quot;#FF69B4&quot;,&quot;#FF0000&quot;])&#39;
-
-
-# Make the Network
-sankeyNetwork(Links = data_sankey, Nodes = nodes,
-                     Source = &quot;IDsource&quot;, Target = &quot;IDtarget&quot;, colourScale = ColourScal,
-                     Value = &quot;value&quot;, NodeID = &quot;name&quot;, iterations = 0,
-                     sinksRight = F, nodeWidth = 40, fontSize = 13, nodePadding = 20)</code></pre>
-<pre><code>## Links is a tbl_df. Converting to a plain data frame.</code></pre>
 <div id="htmlwidget-9e4ac1d898d456e6bc69" style="width:672px;height:480px;" class="sankeyNetwork html-widget"></div>
 <script type="application/json" data-for="htmlwidget-9e4ac1d898d456e6bc69">{"x":{"links":{"source":[0,0,0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,6,6,6,6,6,6],"target":[7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12],"value":[61096,6169,2319,943,3627,6369,30522,121251,21694,1955,1366,760,14724,51960,74111,42498,25493,30,14499,34015,48456,8377,4253,52,4945,4113,13346,14098,4513,19,9464,991,3153,3994,17811,19,1545,57,15,13,24,7549]},"nodes":{"name":["Apical","Diffuse","NE","Senile","oCPFE","rCPFE","Vanishing","Apical ","Diffuse ","Senile ","oCPFE ","rCPFE ","Vanishing "],"group":["Apical","Diffuse","NE","Senile","oCPFE","rCPFE","Vanishing","Apical ","Diffuse ","Senile ","oCPFE ","rCPFE ","Vanishing "]},"options":{"NodeID":"name","NodeGroup":"name","LinkGroup":null,"colourScale":"d3.scaleOrdinal() .range([\"#FFFF00\",\"#7FFF00\",\"#FFE4E1\",\n\"#0000FF\",\"#800080\",\"#FF69B4\",\"#FF0000\"])","fontSize":13,"fontFamily":null,"nodeWidth":40,"nodePadding":20,"units":"","margin":{"top":null,"right":null,"bottom":null,"left":null},"iterations":0,"sinksRight":false}},"evals":[],"jsHooks":[]}</script>
 <p>The <strong>Sankey Diagram</strong> above showcases how QES at baseline transitioned to follow up. The thicker the line the more frequent transitions appearing in the data.</p>
-<pre class="r"><code># average number of x,y,z per subject
-avg_3d = copd_wewant %&gt;%
-  group_by(idno) %&gt;%
-  summarise(
-    avg_x = round(mean(x)),
-    avg_y = round(mean(y)),
-    avg_z = round(mean(z))
-  )
-
-write.csv(avg_3d, file = &quot;Average3D.csv&quot;, row.names = F)</code></pre>
 </div>
 </div>
 
