@@ -40,6 +40,10 @@ Different patients have different proportions on emphysema, so that is why also 
 
 * **sLTP(COPD2);NE = -1:** Spatially-Informed Lung Texture Patterns at follow up.
 
+* **oCPFE:** Obstructive CPFE
+
+* **rCPFE** Restrictive CPFE
+
 * **Key Definitions: NE = No Emphyesema**
 
 
