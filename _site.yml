@@ -7,7 +7,7 @@ navbar:
       href: Resume.html
     - text: Research
       menu:
-      - text: "COPD - Progression of sLTP/QES"
+      - text: "Progression of COPD - A Capstone Project"
         href: COPD_Analysis.html
     - text: Projects
       menu:

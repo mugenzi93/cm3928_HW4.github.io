@@ -14,7 +14,7 @@
 
 <meta name="date" content="2020-10-16" />
 
-<title>COPD_Analysis</title>
+<title>COPD - Analysis</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -293,7 +293,7 @@ $(document).ready(function () {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="COPD_Analysis.html">COPD - Progression of sLTP/QES</a>
+      <a href="COPD_Analysis.html">Progression of COPD - A Capstone Project</a>
     </li>
   </ul>
 </li>
@@ -345,14 +345,16 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">COPD_Analysis</h1>
+<h1 class="title toc-ignore">COPD - Analysis</h1>
 <h4 class="author">Clement Mugenzi</h4>
 <h4 class="date">10/16/2020</h4>
 
 </div>
 
 
-<p>This plot explore the longitudinal progression of emphysema subtypes (sLTPs/QES) over time - from either baseline or any other QES form to after 5 or 6 years later and so on. The dataset is comprised of CT scans from COPD patients.</p>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>This document explore the longitudinal progression of emphysema subtypes (sLTPs/QES) over time - from either baseline or any other QES form to after 5 or 6 years later and so on. The dataset is comprised of CT scans from COPD patients.</p>
 <p>Different patients have different proportions on emphysema, so that is why also different pixels (corresponding to the number of observations) were recorded - What I call multiple measures. In other words, different patients had different number of QES pixels labeled for their lungs.</p>
 <p><strong>Data Description:</strong></p>
 <ul>
@@ -360,12 +362,1608 @@ $(document).ready(function () {
 <li><p><strong>X,Y,Z:</strong> Pixel coordinates</p></li>
 <li><p><strong>sLTP(COPD1);NE = -1:</strong> Baseline Spatially-Informed Lung Texture Patterns, where -1 means ‘No Emphysema’ and where sLTPs span a 1-10 range.</p></li>
 <li><p><strong>sLTP(COPD2);NE = -1:</strong> Spatially-Informed Lung Texture Patterns at follow up.</p></li>
-<li><p><strong>oCPFE:</strong> Obstructive CPFE</p></li>
-<li><p><strong>rCPFE</strong> Restrictive CPFE</p></li>
 <li><p><strong>Key Definitions: NE = No Emphyesema</strong></p></li>
 </ul>
+</div>
+<div id="exploratory-data-analysis" class="section level1">
+<h1>Exploratory Data Analysis</h1>
+<div id="no-emphysema-ne-is-included" class="section level2">
+<h2>No Emphysema (NE) is Included</h2>
+<div id="the-idno-variable" class="section level3">
+<h3>The IDNO variable</h3>
+<p><strong>Number of patients (including those with NE):</strong></p>
+<p>I will count the number of patients by counting distinct IDs.</p>
+<pre><code>##     n
+## 1 126</code></pre>
+<p>There are <strong>126</strong> patients with differing CT scans measurements.</p>
+<p>Next, we explore patients who were eliminated due to the elimination of unwanted <em>multiple lung locations</em> in the dataset. In brief, transitions <strong>from QES to NE</strong> constituted the entirety of the multiple measurements we did not want to include in the research study. Therefore, this research only included valid transitions, meaning <strong>NE to NE, NE to QES, and QES to QES.</strong></p>
+
+</div>
+<div id="basic-statistics" class="section level3">
+<h3>Basic Statistics</h3>
+<table>
+<caption>Descriptive Statistics</caption>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="center">Overall (N=2808544)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">x</td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">- Mean (SD)</td>
+<td align="center">211.70 (114.25)</td>
+</tr>
+<tr class="odd">
+<td align="left">- Median (Q1, Q3)</td>
+<td align="center">237.00 (102.00, 311.00)</td>
+</tr>
+<tr class="even">
+<td align="left">- Min - Max</td>
+<td align="center">21.00 - 462.00</td>
+</tr>
+<tr class="odd">
+<td align="left">y</td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">- Mean (SD)</td>
+<td align="center">132.15 (65.32)</td>
+</tr>
+<tr class="odd">
+<td align="left">- Median (Q1, Q3)</td>
+<td align="center">124.00 (79.00, 180.00)</td>
+</tr>
+<tr class="even">
+<td align="left">- Min - Max</td>
+<td align="center">18.00 - 342.00</td>
+</tr>
+<tr class="odd">
+<td align="left">z</td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">- Mean (SD)</td>
+<td align="center">256.74 (110.92)</td>
+</tr>
+<tr class="odd">
+<td align="left">- Median (Q1, Q3)</td>
+<td align="center">255.00 (169.00, 343.00)</td>
+</tr>
+<tr class="even">
+<td align="left">- Min - Max</td>
+<td align="center">18.00 - 607.00</td>
+</tr>
+<tr class="odd">
+<td align="left">qes_baseline</td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">- NE</td>
+<td align="center">2355152 (83.9%)</td>
+</tr>
+<tr class="odd">
+<td align="left">- Vanishing</td>
+<td align="center">9203 (0.3%)</td>
+</tr>
+<tr class="even">
+<td align="left">- Apical</td>
+<td align="center">80523 (2.9%)</td>
+</tr>
+<tr class="odd">
+<td align="left">- Diffuse</td>
+<td align="center">177548 (6.3%)</td>
+</tr>
+<tr class="even">
+<td align="left">- Senile</td>
+<td align="center">109652 (3.9%)</td>
+</tr>
+<tr class="odd">
+<td align="left">- oCPFE</td>
+<td align="center">41034 (1.5%)</td>
+</tr>
+<tr class="even">
+<td align="left">- rCPFE</td>
+<td align="center">35432 (1.3%)</td>
+</tr>
+<tr class="odd">
+<td align="left">qes_follow_up</td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">- NE</td>
+<td align="center">2146336 (76.4%)</td>
+</tr>
+<tr class="odd">
+<td align="left">- Vanishing</td>
+<td align="center">14798 (0.5%)</td>
+</tr>
+<tr class="even">
+<td align="left">- Apical</td>
+<td align="center">136795 (4.9%)</td>
+</tr>
+<tr class="odd">
+<td align="left">- Diffuse</td>
+<td align="center">218556 (7.8%)</td>
+</tr>
+<tr class="even">
+<td align="left">- Senile</td>
+<td align="center">163094 (5.8%)</td>
+</tr>
+<tr class="odd">
+<td align="left">- oCPFE</td>
+<td align="center">71878 (2.6%)</td>
+</tr>
+<tr class="even">
+<td align="left">- rCPFE</td>
+<td align="center">57087 (2.0%)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p>From this <strong>Table 1.</strong> we can identify descriptive statistics of the 3D coordinates (x,y,z) and also the rarest of QES at both baseline and follow-up.</p></li>
+<li><p>At baseline, two of the rarest QES are <strong>Vanishing Lung</strong> and <strong>Retrictive CPFE</strong> which only appears <strong>1.4%</strong> and <strong>5.4%</strong> of the times respectively.</p></li>
+<li><p>At follow-up, two of the rarest QES are also <strong>Vanishing Lung</strong> and <strong>Restrictive CPFE</strong> which appears <strong>2.2%</strong> and <strong>8.6%</strong> of the times respectively.</p></li>
+<li><p>Another important observation was that the order with respect to prevalence of QES did not change from baseline to follow up where the diffuse QES occured the most followed by Senile then Apical.</p></li>
+</ul>
+
+<table>
+<caption>Descriptive Statistics - Excluding No Emphysema</caption>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="center">Overall (N=453392)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">qes_baseline</td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="left">- Vanishing</td>
+<td align="center">9203 (2.0%)</td>
+</tr>
+<tr class="odd">
+<td align="left">- Apical</td>
+<td align="center">80523 (17.8%)</td>
+</tr>
+<tr class="even">
+<td align="left">- Diffuse</td>
+<td align="center">177548 (39.2%)</td>
+</tr>
+<tr class="odd">
+<td align="left">- Senile</td>
+<td align="center">109652 (24.2%)</td>
+</tr>
+<tr class="even">
+<td align="left">- oCPFE</td>
+<td align="center">41034 (9.1%)</td>
+</tr>
+<tr class="odd">
+<td align="left">- rCPFE</td>
+<td align="center">35432 (7.8%)</td>
+</tr>
+<tr class="even">
+<td align="left">qes_follow_up</td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="left">- Vanishing</td>
+<td align="center">14768 (3.3%)</td>
+</tr>
+<tr class="even">
+<td align="left">- Apical</td>
+<td align="center">122071 (26.9%)</td>
+</tr>
+<tr class="odd">
+<td align="left">- Diffuse</td>
+<td align="center">166596 (36.7%)</td>
+</tr>
+<tr class="even">
+<td align="left">- Senile</td>
+<td align="center">88983 (19.6%)</td>
+</tr>
+<tr class="odd">
+<td align="left">- oCPFE</td>
+<td align="center">29380 (6.5%)</td>
+</tr>
+<tr class="even">
+<td align="left">- rCPFE</td>
+<td align="center">31594 (7.0%)</td>
+</tr>
+</tbody>
+</table>
+<p>The table above represents percent frequencies of transitions from QES to QES, excluding No Emphysema at both baseline and follow up.</p>
+
+<p><strong>Number of measured lung locations per patient (Excluding NE):</strong></p>
+<p>I will use the <em>group_by</em> function to count how many times a particular ID appears, meaning how many times a single patient’s CT scan was taken.</p>
+<p><strong>Table 3: Measured Locations per Patient</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">idno</th>
+<th align="left">multiple_locations</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">4010100</td>
+<td align="left">26,384</td>
+</tr>
+<tr class="even">
+<td align="left">4010700</td>
+<td align="left">14,162</td>
+</tr>
+<tr class="odd">
+<td align="left">4010800</td>
+<td align="left">12,992</td>
+</tr>
+<tr class="even">
+<td align="left">4011000</td>
+<td align="left">32,308</td>
+</tr>
+<tr class="odd">
+<td align="left">4011200</td>
+<td align="left">8,698</td>
+</tr>
+<tr class="even">
+<td align="left">4011700</td>
+<td align="left">13,748</td>
+</tr>
+<tr class="odd">
+<td align="left">4012000</td>
+<td align="left">18,249</td>
+</tr>
+<tr class="even">
+<td align="left">4012200</td>
+<td align="left">15,750</td>
+</tr>
+<tr class="odd">
+<td align="left">4012500</td>
+<td align="left">10,657</td>
+</tr>
+<tr class="even">
+<td align="left">4013200</td>
+<td align="left">12,978</td>
+</tr>
+<tr class="odd">
+<td align="left">4014400</td>
+<td align="left">13,249</td>
+</tr>
+<tr class="even">
+<td align="left">4014800</td>
+<td align="left">10,955</td>
+</tr>
+<tr class="odd">
+<td align="left">4014900</td>
+<td align="left">25,000</td>
+</tr>
+<tr class="even">
+<td align="left">4015000</td>
+<td align="left">12,475</td>
+</tr>
+<tr class="odd">
+<td align="left">4015300</td>
+<td align="left">16,846</td>
+</tr>
+<tr class="even">
+<td align="left">4015500</td>
+<td align="left">12,892</td>
+</tr>
+<tr class="odd">
+<td align="left">4015900</td>
+<td align="left">11,549</td>
+</tr>
+<tr class="even">
+<td align="left">4016100</td>
+<td align="left">15,065</td>
+</tr>
+<tr class="odd">
+<td align="left">4016800</td>
+<td align="left">21,555</td>
+</tr>
+<tr class="even">
+<td align="left">4017200</td>
+<td align="left">17,049</td>
+</tr>
+<tr class="odd">
+<td align="left">4017500</td>
+<td align="left">41,971</td>
+</tr>
+<tr class="even">
+<td align="left">4017600</td>
+<td align="left">36,159</td>
+</tr>
+<tr class="odd">
+<td align="left">4017700</td>
+<td align="left">12,533</td>
+</tr>
+<tr class="even">
+<td align="left">4017900</td>
+<td align="left">12,388</td>
+</tr>
+<tr class="odd">
+<td align="left">4018000</td>
+<td align="left">16,847</td>
+</tr>
+<tr class="even">
+<td align="left">4018700</td>
+<td align="left">12,996</td>
+</tr>
+<tr class="odd">
+<td align="left">4019100</td>
+<td align="left">20,945</td>
+</tr>
+<tr class="even">
+<td align="left">4019300</td>
+<td align="left">16,943</td>
+</tr>
+<tr class="odd">
+<td align="left">4019400</td>
+<td align="left">12,801</td>
+</tr>
+<tr class="even">
+<td align="left">4021300</td>
+<td align="left">12,602</td>
+</tr>
+<tr class="odd">
+<td align="left">4021900</td>
+<td align="left">10,520</td>
+</tr>
+<tr class="even">
+<td align="left">4022100</td>
+<td align="left">29,040</td>
+</tr>
+<tr class="odd">
+<td align="left">4022200</td>
+<td align="left">12,637</td>
+</tr>
+<tr class="even">
+<td align="left">4022300</td>
+<td align="left">6,591</td>
+</tr>
+<tr class="odd">
+<td align="left">4022500</td>
+<td align="left">13,511</td>
+</tr>
+<tr class="even">
+<td align="left">4022600</td>
+<td align="left">11,903</td>
+</tr>
+<tr class="odd">
+<td align="left">4022900</td>
+<td align="left">12,419</td>
+</tr>
+<tr class="even">
+<td align="left">4023000</td>
+<td align="left">28,724</td>
+</tr>
+<tr class="odd">
+<td align="left">4400000</td>
+<td align="left">8,449</td>
+</tr>
+<tr class="even">
+<td align="left">4400100</td>
+<td align="left">77,850</td>
+</tr>
+<tr class="odd">
+<td align="left">4400200</td>
+<td align="left">83,262</td>
+</tr>
+<tr class="even">
+<td align="left">4400300</td>
+<td align="left">102,419</td>
+</tr>
+<tr class="odd">
+<td align="left">4400400</td>
+<td align="left">47,588</td>
+</tr>
+<tr class="even">
+<td align="left">4400500</td>
+<td align="left">97,408</td>
+</tr>
+<tr class="odd">
+<td align="left">4400600</td>
+<td align="left">77,744</td>
+</tr>
+<tr class="even">
+<td align="left">4400700</td>
+<td align="left">61,381</td>
+</tr>
+<tr class="odd">
+<td align="left">4400800</td>
+<td align="left">76,524</td>
+</tr>
+<tr class="even">
+<td align="left">4400900</td>
+<td align="left">83,427</td>
+</tr>
+<tr class="odd">
+<td align="left">4401000</td>
+<td align="left">45,258</td>
+</tr>
+<tr class="even">
+<td align="left">4401100</td>
+<td align="left">51,444</td>
+</tr>
+<tr class="odd">
+<td align="left">4401300</td>
+<td align="left">43,457</td>
+</tr>
+<tr class="even">
+<td align="left">4401400</td>
+<td align="left">31,919</td>
+</tr>
+<tr class="odd">
+<td align="left">4401500</td>
+<td align="left">44,606</td>
+</tr>
+<tr class="even">
+<td align="left">4401600</td>
+<td align="left">46,492</td>
+</tr>
+<tr class="odd">
+<td align="left">4401700</td>
+<td align="left">37,495</td>
+</tr>
+<tr class="even">
+<td align="left">5010100</td>
+<td align="left">13,073</td>
+</tr>
+<tr class="odd">
+<td align="left">5010200</td>
+<td align="left">13,779</td>
+</tr>
+<tr class="even">
+<td align="left">5010400</td>
+<td align="left">12,940</td>
+</tr>
+<tr class="odd">
+<td align="left">5010800</td>
+<td align="left">13,491</td>
+</tr>
+<tr class="even">
+<td align="left">5011100</td>
+<td align="left">14,085</td>
+</tr>
+<tr class="odd">
+<td align="left">5011200</td>
+<td align="left">14,926</td>
+</tr>
+<tr class="even">
+<td align="left">5011300</td>
+<td align="left">11,552</td>
+</tr>
+<tr class="odd">
+<td align="left">5011500</td>
+<td align="left">12,574</td>
+</tr>
+<tr class="even">
+<td align="left">5011900</td>
+<td align="left">14,286</td>
+</tr>
+<tr class="odd">
+<td align="left">5012000</td>
+<td align="left">7,884</td>
+</tr>
+<tr class="even">
+<td align="left">5012200</td>
+<td align="left">14,615</td>
+</tr>
+<tr class="odd">
+<td align="left">5012300</td>
+<td align="left">17,550</td>
+</tr>
+<tr class="even">
+<td align="left">5012600</td>
+<td align="left">18,573</td>
+</tr>
+<tr class="odd">
+<td align="left">5012700</td>
+<td align="left">17,692</td>
+</tr>
+<tr class="even">
+<td align="left">5013100</td>
+<td align="left">14,767</td>
+</tr>
+<tr class="odd">
+<td align="left">5013600</td>
+<td align="left">12,696</td>
+</tr>
+<tr class="even">
+<td align="left">5013700</td>
+<td align="left">18,741</td>
+</tr>
+<tr class="odd">
+<td align="left">5014200</td>
+<td align="left">18,463</td>
+</tr>
+<tr class="even">
+<td align="left">5015800</td>
+<td align="left">13,900</td>
+</tr>
+<tr class="odd">
+<td align="left">5016700</td>
+<td align="left">14,902</td>
+</tr>
+<tr class="even">
+<td align="left">5017600</td>
+<td align="left">30,305</td>
+</tr>
+<tr class="odd">
+<td align="left">5018400</td>
+<td align="left">13,320</td>
+</tr>
+<tr class="even">
+<td align="left">5018700</td>
+<td align="left">12,750</td>
+</tr>
+<tr class="odd">
+<td align="left">5018900</td>
+<td align="left">16,204</td>
+</tr>
+<tr class="even">
+<td align="left">5021800</td>
+<td align="left">13,472</td>
+</tr>
+<tr class="odd">
+<td align="left">5021900</td>
+<td align="left">33,230</td>
+</tr>
+<tr class="even">
+<td align="left">5022000</td>
+<td align="left">9,947</td>
+</tr>
+<tr class="odd">
+<td align="left">5022600</td>
+<td align="left">10,678</td>
+</tr>
+<tr class="even">
+<td align="left">5022800</td>
+<td align="left">13,961</td>
+</tr>
+<tr class="odd">
+<td align="left">7011600</td>
+<td align="left">13,529</td>
+</tr>
+<tr class="even">
+<td align="left">7012200</td>
+<td align="left">19,972</td>
+</tr>
+<tr class="odd">
+<td align="left">7013600</td>
+<td align="left">12,690</td>
+</tr>
+<tr class="even">
+<td align="left">7014000</td>
+<td align="left">17,095</td>
+</tr>
+<tr class="odd">
+<td align="left">7014900</td>
+<td align="left">11,052</td>
+</tr>
+<tr class="even">
+<td align="left">7015400</td>
+<td align="left">34,355</td>
+</tr>
+<tr class="odd">
+<td align="left">7015800</td>
+<td align="left">12,550</td>
+</tr>
+<tr class="even">
+<td align="left">7015900</td>
+<td align="left">19,024</td>
+</tr>
+<tr class="odd">
+<td align="left">7016200</td>
+<td align="left">16,727</td>
+</tr>
+<tr class="even">
+<td align="left">7016400</td>
+<td align="left">9,342</td>
+</tr>
+<tr class="odd">
+<td align="left">7017800</td>
+<td align="left">21,409</td>
+</tr>
+<tr class="even">
+<td align="left">7018400</td>
+<td align="left">10,093</td>
+</tr>
+<tr class="odd">
+<td align="left">7018500</td>
+<td align="left">20,197</td>
+</tr>
+<tr class="even">
+<td align="left">7018600</td>
+<td align="left">20,917</td>
+</tr>
+<tr class="odd">
+<td align="left">7019200</td>
+<td align="left">15,841</td>
+</tr>
+<tr class="even">
+<td align="left">7019300</td>
+<td align="left">16,760</td>
+</tr>
+<tr class="odd">
+<td align="left">7019400</td>
+<td align="left">9,734</td>
+</tr>
+<tr class="even">
+<td align="left">7019500</td>
+<td align="left">20,318</td>
+</tr>
+<tr class="odd">
+<td align="left">7019800</td>
+<td align="left">17,939</td>
+</tr>
+<tr class="even">
+<td align="left">7042100</td>
+<td align="left">15,697</td>
+</tr>
+<tr class="odd">
+<td align="left">7043300</td>
+<td align="left">13,305</td>
+</tr>
+<tr class="even">
+<td align="left">7043900</td>
+<td align="left">13,670</td>
+</tr>
+<tr class="odd">
+<td align="left">7044000</td>
+<td align="left">20,965</td>
+</tr>
+<tr class="even">
+<td align="left">8011100</td>
+<td align="left">18,913</td>
+</tr>
+<tr class="odd">
+<td align="left">8011200</td>
+<td align="left">20,239</td>
+</tr>
+<tr class="even">
+<td align="left">8012300</td>
+<td align="left">18,158</td>
+</tr>
+<tr class="odd">
+<td align="left">8012800</td>
+<td align="left">12,301</td>
+</tr>
+<tr class="even">
+<td align="left">8013600</td>
+<td align="left">18,177</td>
+</tr>
+<tr class="odd">
+<td align="left">8013900</td>
+<td align="left">15,181</td>
+</tr>
+<tr class="even">
+<td align="left">8014200</td>
+<td align="left">17,562</td>
+</tr>
+<tr class="odd">
+<td align="left">8014900</td>
+<td align="left">22,011</td>
+</tr>
+<tr class="even">
+<td align="left">8015200</td>
+<td align="left">12,550</td>
+</tr>
+<tr class="odd">
+<td align="left">8016300</td>
+<td align="left">13,535</td>
+</tr>
+<tr class="even">
+<td align="left">8017000</td>
+<td align="left">13,387</td>
+</tr>
+<tr class="odd">
+<td align="left">8017300</td>
+<td align="left">20,157</td>
+</tr>
+<tr class="even">
+<td align="left">8018400</td>
+<td align="left">19,116</td>
+</tr>
+<tr class="odd">
+<td align="left">8018500</td>
+<td align="left">13,344</td>
+</tr>
+<tr class="even">
+<td align="left">8021400</td>
+<td align="left">12,763</td>
+</tr>
+<tr class="odd">
+<td align="left">8021900</td>
+<td align="left">17,850</td>
+</tr>
+<tr class="even">
+<td align="left">8022500</td>
+<td align="left">14,635</td>
+</tr>
+<tr class="odd">
+<td align="left">8023000</td>
+<td align="left">20,363</td>
+</tr>
+<tr class="even">
+<td align="left">8023100</td>
+<td align="left">19,951</td>
+</tr>
+</tbody>
+</table>
+
+<p><img src="COPD_Analysis_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p>The bar chart above represents the number of pixels measured per patient labeled by the proportion of QES for each patient. We can see that in most of the patients the <strong>NE</strong> is dominant.</p>
+<p><strong>Note:</strong> The x-axis was cleared because patients’ IDs made the plot impossible to read</p>
+
+</div>
+</div>
+<div id="ranking-qes-according-to-occurrence-at-baseline-and-follow-up" class="section level2">
+<h2>Ranking QES according to occurrence at baseline and Follow up</h2>
+<p><img src="COPD_Analysis_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+<p>Both bar charts above depicts QES frequencies at both baseline and follow up. Excluding the No emphysema (NE), the <em>Diffuse</em> QES appears more often while <em>Vanishing Lung</em> QES appears the least.</p>
+</div>
+<div id="sankey-diagram" class="section level2">
+<h2>Sankey Diagram</h2>
+<p>A Sankey diagram is a type of <strong>flow diagram</strong> in which the width of the arrows is proportional to the flow rate. Therefore, this plot illustrates a sankey diagram that represents the transition from baseline QES flowing into QES at follow up. Notice that the transition from No Emphysema to No emphysema or from QES to No Emphysema are not considered as they do not clinically make sense to be looked at.</p>
 <div id="htmlwidget-f37610d900f8c514719e" style="width:672px;height:480px;" class="sankeyNetwork html-widget"></div>
 <script type="application/json" data-for="htmlwidget-f37610d900f8c514719e">{"x":{"links":{"source":[0,0,0,0,0,0,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,4,4,4,4,4,4,5,5,5,5,5,5,6,6,6,6,6,6],"target":[7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12,7,8,9,10,11,12],"value":[30,14724,51960,74111,42498,25493,7549,1545,57,15,13,24,6369,61096,6169,2319,943,3627,760,30522,121251,21694,1955,1366,52,14499,34015,48456,8377,4253,19,4945,4113,13346,14098,4513,19,9464,991,3153,3994,17811]},"nodes":{"name":["NE","Vanishing","Apical","Diffuse","Senile","oCPFE","rCPFE","Vanishing ","Apical ","Diffuse ","Senile ","oCPFE ","rCPFE "],"group":["NE","Vanishing","Apical","Diffuse","Senile","oCPFE","rCPFE","Vanishing ","Apical ","Diffuse ","Senile ","oCPFE ","rCPFE "]},"options":{"NodeID":"name","NodeGroup":"name","LinkGroup":{"name":["NE","Vanishing","Apical","Diffuse","Senile","oCPFE","rCPFE","Vanishing ","Apical ","Diffuse ","Senile ","oCPFE ","rCPFE "]},"colourScale":"d3.scaleOrdinal() .range([\"#FDE725FF\",\"#B4DE2CFF\",\"#6DCD59FF\",\"#35B779FF\",\"#1F9E89FF\",\"#26828EFF\",\"#31688EFF\"])","fontSize":12,"fontFamily":null,"nodeWidth":40,"nodePadding":20,"units":"","margin":{"top":null,"right":null,"bottom":null,"left":null},"iterations":32,"sinksRight":false}},"evals":[],"jsHooks":[]}</script>
+
+</div>
+<div id="plotting-the-3d-coordinates" class="section level2">
+<h2>Plotting the 3D coordinates</h2>
+<p>Below, I explore a 3D plot of randomly selected ID numbers using the x,y,z pixel coordinates in the dataset. Please note that the colors merely represent different locations of the lung measured for this particular patient.</p>
+<p><img src="COPD_Analysis_files/figure-html/one_id-1.png" width="672" /></p>
+<p>The 3D plots explores the patient’s (2 randomly selected patients) emphysema severity. The CT scan shows these patients have a wide ranging emphysema subtype all over their lungs.</p>
+</div>
+<div id="hypothesis-testing-contigency-tables-for-qes---test-of-independence" class="section level2">
+<h2>Hypothesis Testing: Contigency Tables for QES - Test of Independence</h2>
+<p>This test will be used for testing independence or association between QES at baseline and QES at follow up. The question of interest is whether knowledge of one variable’s value provides any information about the value of the other variable, meaning are QES at baseline and follow up independent?</p>
+<p><span class="math display">\[H_0=Baseline\:and\:follow\:up\:QES\:are\:independent.\]</span></p>
+<p><span class="math display">\[Vs\]</span></p>
+<p><span class="math display">\[H_1=Baseline\:and\:follow\:up\:QES\:are\:dependent\:or\:associated.\]</span></p>
+<p>we will then compute the test statistic with the formula below:</p>
+<p><span class="math display">\[\chi^2=\sum_{i=1}^R\sum_{j=1}^C(\frac{(O-E)^2}{E})\sim\chi^2_{(R-1)\times(C-1)}\:where\:df=(R-1)\times(C-1)\]</span></p>
+<p><span class="math display">\[Reject\:H_0:\:if\:\chi^2&gt;\chi^2_{(R-1)\times(C-1),1-\alpha}\]</span></p>
+<p><span class="math display">\[Fail\:to\:Reject\:H_0:\:if\:\chi^2\leq\chi^2_{(R-1)\times(C-1),1-\alpha}\]</span></p>
+<p><strong>Observed Frequencies:</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">NE</th>
+<th align="right">Vanishing</th>
+<th align="right">Apical</th>
+<th align="right">Diffuse</th>
+<th align="right">Senile</th>
+<th align="right">oCPFE</th>
+<th align="right">rCPFE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>NE</td>
+<td align="right">2146336</td>
+<td align="right">30</td>
+<td align="right">14724</td>
+<td align="right">51960</td>
+<td align="right">74111</td>
+<td align="right">42498</td>
+<td align="right">25493</td>
+</tr>
+<tr class="even">
+<td>Vanishing</td>
+<td align="right">0</td>
+<td align="right">7549</td>
+<td align="right">1545</td>
+<td align="right">57</td>
+<td align="right">15</td>
+<td align="right">13</td>
+<td align="right">24</td>
+</tr>
+<tr class="odd">
+<td>Apical</td>
+<td align="right">0</td>
+<td align="right">6369</td>
+<td align="right">61096</td>
+<td align="right">6169</td>
+<td align="right">2319</td>
+<td align="right">943</td>
+<td align="right">3627</td>
+</tr>
+<tr class="even">
+<td>Diffuse</td>
+<td align="right">0</td>
+<td align="right">760</td>
+<td align="right">30522</td>
+<td align="right">121251</td>
+<td align="right">21694</td>
+<td align="right">1955</td>
+<td align="right">1366</td>
+</tr>
+<tr class="odd">
+<td>Senile</td>
+<td align="right">0</td>
+<td align="right">52</td>
+<td align="right">14499</td>
+<td align="right">34015</td>
+<td align="right">48456</td>
+<td align="right">8377</td>
+<td align="right">4253</td>
+</tr>
+<tr class="even">
+<td>oCPFE</td>
+<td align="right">0</td>
+<td align="right">19</td>
+<td align="right">4945</td>
+<td align="right">4113</td>
+<td align="right">13346</td>
+<td align="right">14098</td>
+<td align="right">4513</td>
+</tr>
+<tr class="odd">
+<td>rCPFE</td>
+<td align="right">0</td>
+<td align="right">19</td>
+<td align="right">9464</td>
+<td align="right">991</td>
+<td align="right">3153</td>
+<td align="right">3994</td>
+<td align="right">17811</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Expected Frequencies:</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th></th>
+<th align="right">NE</th>
+<th align="right">Vanishing</th>
+<th align="right">Apical</th>
+<th align="right">Diffuse</th>
+<th align="right">Senile</th>
+<th align="right">oCPFE</th>
+<th align="right">rCPFE</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>NE</td>
+<td align="right">1799846.299</td>
+<td align="right">12409.11280</td>
+<td align="right">114711.7574</td>
+<td align="right">183273.8246</td>
+<td align="right">136765.2279</td>
+<td align="right">60274.5107</td>
+<td align="right">47871.2679</td>
+</tr>
+<tr class="even">
+<td>Vanishing</td>
+<td align="right">7033.086</td>
+<td align="right">48.48989</td>
+<td align="right">448.2481</td>
+<td align="right">716.1614</td>
+<td align="right">534.4243</td>
+<td align="right">235.5289</td>
+<td align="right">187.0619</td>
+</tr>
+<tr class="odd">
+<td>Apical</td>
+<td align="right">61537.015</td>
+<td align="right">424.26943</td>
+<td align="right">3922.0122</td>
+<td align="right">6266.1595</td>
+<td align="right">4676.0236</td>
+<td align="right">2060.7946</td>
+<td align="right">1636.7258</td>
+</tr>
+<tr class="even">
+<td>Diffuse</td>
+<td align="right">135685.132</td>
+<td align="right">935.48661</td>
+<td align="right">8647.7829</td>
+<td align="right">13816.4760</td>
+<td align="right">10310.3293</td>
+<td align="right">4543.9185</td>
+<td align="right">3608.8744</td>
+</tr>
+<tr class="odd">
+<td>Senile</td>
+<td align="right">83797.881</td>
+<td align="right">577.74786</td>
+<td align="right">5340.7906</td>
+<td align="right">8532.9276</td>
+<td align="right">6367.5639</td>
+<td align="right">2806.2820</td>
+<td align="right">2228.8074</td>
+</tr>
+<tr class="even">
+<td>oCPFE</td>
+<td align="right">31358.865</td>
+<td align="right">216.20496</td>
+<td align="right">1998.6320</td>
+<td align="right">3193.1944</td>
+<td align="right">2382.8714</td>
+<td align="right">1050.1676</td>
+<td align="right">834.0649</td>
+</tr>
+<tr class="odd">
+<td>rCPFE</td>
+<td align="right">27077.723</td>
+<td align="right">186.68845</td>
+<td align="right">1725.7769</td>
+<td align="right">2757.2565</td>
+<td align="right">2057.5596</td>
+<td align="right">906.7977</td>
+<td align="right">720.1976</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Chi-squared Test results:</strong></p>
+<pre><code>## 
+##  Pearson&#39;s Chi-squared test
+## 
+## data:  table(copd_wewant$qes_baseline, copd_wewant$qes_follow_up)
+## X-squared = 4712291, df = 36, p-value &lt; 2.2e-16</code></pre>
+<p>Therefore with 36 degrees of freedom (formula provided above), the <strong>Chi-squared</strong> was calculated to be 4.712290910^{6} with a P-value of 0 which is far lower than the significance level of 0.05.</p>
+<p><strong>Conclusion:</strong></p>
+<p><span class="math display">\[\:Since\:\chi^2&gt;\chi^2_{36,0.95}=51\]</span></p>
+<p>We reject the null hypothesis at 0.05 significance level and conclude that there is enough evidence that baseline QES is significantly associated with QES at follow up.</p>
+<p><strong>Note:</strong> Even though a permutation test can only be conducted if anyone of the <strong>Expected</strong> cell counts is less than or equal to 5, I will still conduct a <strong>Fisher’s Exact test</strong> which is a permutation test and check whether the Chi-squared test above approximate the actual sampling distribution.</p>
+</div>
+<div id="fishers-exact-test---a-permutation-test" class="section level2">
+<h2>Fisher’s Exact Test - A Permutation Test</h2>
+<p>The Fisher’s Exact test is a form of Permutation test considered as a sanity check to see if the association between baseline and follow up is from pure random chance. We do this by calculating all possible values of the test statistic under all possible rearrangements of the observed data points. This test is similar to the Chi-square test in terms of hypothesis and interpretation of the results.</p>
+</div>
+</div>
+<div id="model-building---association-of-baseline-and-follow-up-qes" class="section level1">
+<h1>Model Building - Association of Baseline and Follow up QES</h1>
+<p>The dataset below was used in model building. It was constructed from counting the frequencies of each QES transitions from baseline to follow up. By default, the <strong>Apical</strong> is considered as the reference QES category, thus all model interpretations are based on it.</p>
+<p><strong>Table 4: Frequencies of Transitions Between QES</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">qes_baseline</th>
+<th align="left">Diffuse</th>
+<th align="left">NE</th>
+<th align="left">Senile</th>
+<th align="left">Apical</th>
+<th align="left">rCPFE</th>
+<th align="left">oCPFE</th>
+<th align="left">Vanishing</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">NE</td>
+<td align="left">51,960</td>
+<td align="left">2,146,336</td>
+<td align="left">74,111</td>
+<td align="left">14,724</td>
+<td align="left">25,493</td>
+<td align="left">42,498</td>
+<td align="left">30</td>
+</tr>
+<tr class="even">
+<td align="left">Diffuse</td>
+<td align="left">121,251</td>
+<td align="left">0</td>
+<td align="left">21,694</td>
+<td align="left">30,522</td>
+<td align="left">1,366</td>
+<td align="left">1,955</td>
+<td align="left">760</td>
+</tr>
+<tr class="odd">
+<td align="left">Apical</td>
+<td align="left">6,169</td>
+<td align="left">0</td>
+<td align="left">2,319</td>
+<td align="left">61,096</td>
+<td align="left">3,627</td>
+<td align="left">943</td>
+<td align="left">6,369</td>
+</tr>
+<tr class="even">
+<td align="left">Senile</td>
+<td align="left">34,015</td>
+<td align="left">0</td>
+<td align="left">48,456</td>
+<td align="left">14,499</td>
+<td align="left">4,253</td>
+<td align="left">8,377</td>
+<td align="left">52</td>
+</tr>
+<tr class="odd">
+<td align="left">rCPFE</td>
+<td align="left">991</td>
+<td align="left">0</td>
+<td align="left">3,153</td>
+<td align="left">9,464</td>
+<td align="left">17,811</td>
+<td align="left">3,994</td>
+<td align="left">19</td>
+</tr>
+<tr class="even">
+<td align="left">oCPFE</td>
+<td align="left">4,113</td>
+<td align="left">0</td>
+<td align="left">13,346</td>
+<td align="left">4,945</td>
+<td align="left">4,513</td>
+<td align="left">14,098</td>
+<td align="left">19</td>
+</tr>
+<tr class="odd">
+<td align="left">Vanishing</td>
+<td align="left">57</td>
+<td align="left">0</td>
+<td align="left">15</td>
+<td align="left">1,545</td>
+<td align="left">24</td>
+<td align="left">13</td>
+<td align="left">7,549</td>
+</tr>
+</tbody>
+</table>
+<div id="multinomial-log-linear-model-for-qes" class="section level3">
+<h3>Multinomial Log-linear Model for QES</h3>
+<p>Assuming observations are independent, meaning correlation between individual measures per patient is irrelevant in the study, we can model <strong>QES at follow up</strong> (response variable) using the Nominal regression model (from the generalized linear model) that looks at nominal responses (where no order is assigned), which is what our response is.</p>
+<ul>
+<li>The code below also builds the nominal regression model for the association between QES at baseline and QES at follow up. Reference categories for the model will be <strong>Diffuse</strong> for both the QES at baseline variables and QES at follow up.</li>
+</ul>
+<p><strong>Note that any of the categories can be used as the reference category. Regardless of the chosen reference category, the model will fit equally well and achieve the same likelihood.</strong></p>
+<p>This model is flawed in that it does not treat this dataset as longitidinal data. It considers each observation as independent, therefore does not account for within-subject correlations that might be present due to multiple measures taken. It merely studies QES transitions from baseline to follow up.</p>
+<p><strong>Table 5: Model estimates and (Standard Errors) for QES are shown in the table below</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Response</th>
+<th align="left">intercept</th>
+<th align="left">bas_NE</th>
+<th align="left">bas_senile</th>
+<th align="left">bas_apical</th>
+<th align="left">bas_rcpfe</th>
+<th align="left">bas_ocpfe</th>
+<th align="left">bas_vanishing</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">qes_NE</td>
+<td align="left">-8.91 (0.25)</td>
+<td align="left">12.63 (0.25)</td>
+<td align="left">-0.05 (0.54)</td>
+<td align="left">-4.54 (10.64)</td>
+<td align="left">0.2 (2.45)</td>
+<td align="left">-2.61 (4.99)</td>
+<td align="left">-4.26 (0)</td>
+</tr>
+<tr class="even">
+<td align="left">qes_senile</td>
+<td align="left">-1.72 (0.01)</td>
+<td align="left">2.07 (0.01)</td>
+<td align="left">2.08 (0.01)</td>
+<td align="left">0.72 (0.03)</td>
+<td align="left">2.84 (0.04)</td>
+<td align="left">2.91 (0.02)</td>
+<td align="left">0.54 (0.28)</td>
+</tr>
+<tr class="odd">
+<td align="left">qes_apical</td>
+<td align="left">-1.38 (0.01)</td>
+<td align="left">0.12 (0.01)</td>
+<td align="left">0.53 (0.01)</td>
+<td align="left">3.67 (0.01)</td>
+<td align="left">3.61 (0.03)</td>
+<td align="left">1.59 (0.02)</td>
+<td align="left">4.71 (0.14)</td>
+</tr>
+<tr class="even">
+<td align="left">qes_rcpfe</td>
+<td align="left">-4.49 (0.03)</td>
+<td align="left">3.77 (0.03)</td>
+<td align="left">2.4 (0.03)</td>
+<td align="left">3.97 (0.03)</td>
+<td align="left">7.34 (0.04)</td>
+<td align="left">4.59 (0.03)</td>
+<td align="left">3.57 (0.26)</td>
+</tr>
+<tr class="odd">
+<td align="left">qes_ocpfe</td>
+<td align="left">-4.13 (0.02)</td>
+<td align="left">3.93 (0.02)</td>
+<td align="left">2.72 (0.03)</td>
+<td align="left">2.3 (0.04)</td>
+<td align="left">5.5 (0.04)</td>
+<td align="left">5.36 (0.03)</td>
+<td align="left">2.5 (0.34)</td>
+</tr>
+<tr class="even">
+<td align="left">qes_vanishing</td>
+<td align="left">-4.95 (0.03)</td>
+<td align="left">-27.4 (0)</td>
+<td align="left">-1.39 (0.13)</td>
+<td align="left">4.98 (0.04)</td>
+<td align="left">-1.04 (0.63)</td>
+<td align="left">-3.21 (0.93)</td>
+<td align="left">9.92 (0.14)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>QES Model Interpretations:</strong></p>
+<p>We have six indicator/dummy variables all with <em>Diffuse</em> as their reference category:</p>
+<p>X1: No Emphysema at baseline</p>
+<p>X2: Senile QES at baseline</p>
+<p>X3: Apical QES at baseline</p>
+<p>X4: rCPFE QES at baseline</p>
+<p>X5: oCPFE QES at baseline</p>
+<p>X6: Vanishing Lung QES at baseline</p>
+<p><strong>Comparing the NE Vs Diffuse QES at follow up:</strong></p>
+<ul>
+<li><p>The odds ratio of NE is 3.066053210^{5} (95% CI: [1.886983710^{5}, 4.981856710^{5}]) in patients with No Emphysema at baseline.</p></li>
+<li><p>The odds ratio of NE is 0.95 (95% CI: [0.33, 2.73]) in patients with Senile at baseline.</p></li>
+<li><p>The odds ratio of NE is 0.01 (95% CI: [0, 1.206017810^{7}]) in patients with Apical at baseline.</p></li>
+<li><p>The odds ratio of NE is 1.23 (95% CI: [0.01, 148.25]) in patients with rCPFE at baseline.</p></li>
+<li><p>The odds ratio of NE is 0.07 (95% CI: [0, 1283.95]) in patients with oCPFE at baseline.</p></li>
+<li><p>The odds ratio of NE is 0.01 (95% CI: [0.01, 0.01]) in patients with Vanishing Lungs at baseline.</p></li>
+</ul>
+<p><strong>Comparing the Senile Vs Diffuse QES at follow up:</strong></p>
+<ul>
+<li><p>The odds ratio of senile is 7.96 (95% CI: [7.82, 8.11]) in patients with No Emphysema at baseline.</p></li>
+<li><p>The odds ratio of senile is 7.96 (95% CI: [7.81, 8.13]) in patients with Senile at baseline.</p></li>
+<li><p>The odds ratio of senile is 2.05 (95% CI: [1.95, 2.16]) in patients with Apical at baseline.</p></li>
+<li><p>The odds ratio of senile is 17.09 (95% CI: [15.9, 18.37]) in patients with rCPFE at baseline.</p></li>
+<li><p>The odds ratio of senile is 18.3 (95% CI: [17.62, 19.01]) in patients with oCPFE at baseline.</p></li>
+<li><p>The odds ratio of senile is 1.71 (95% CI: [0.98, 2.98]) in patients with Vanishing Lungs at baseline.</p></li>
+</ul>
+<p><strong>Comparing the Apical Vs Diffuse QES at follow up:</strong></p>
+<ul>
+<li><p>The odds ratio of Apical is 1.13 (95% CI: [1.11, 1.16]) in patients with No Emphysema at baseline.</p></li>
+<li><p>The odds ratio of Apical is 1.7 (95% CI: [1.66, 1.74]) in patients with Senile at baseline.</p></li>
+<li><p>The odds ratio of Apical is 39.28 (95% CI: [38.15, 40.43]) in patients with Apical at baseline.</p></li>
+<li><p>The odds ratio of Apical is 37.07 (95% CI: [34.71, 39.58]) in patients with rCPFE at baseline.</p></li>
+<li><p>The odds ratio of Apical is 4.89 (95% CI: [4.68, 5.11]) in patients with oCPFE at baseline.</p></li>
+<li><p>The odds ratio of Apical is 111.43 (95% CI: [84.73, 146.55]) in patients with Vanishing Lungs at baseline.</p></li>
+</ul>
+<p><strong>Comparing the rCPFE Vs Diffuse QES at follow up:</strong></p>
+<ul>
+<li><p>The odds ratio of rCPFE is 43.43 (95% CI: [41.09, 45.91]) in patients with No Emphysema at baseline.</p></li>
+<li><p>The odds ratio of rCPFE is 11.06 (95% CI: [10.39, 11.77]) in patients with Senile at baseline.</p></li>
+<li><p>The odds ratio of rCPFE is 52.94 (95% CI: [49.5, 56.62]) in patients with Apical at baseline.</p></li>
+<li><p>The odds ratio of rCPFE is 1540.63 (95% CI: [1418.44, 1673.34]) in patients with rCPFE at baseline.</p></li>
+<li><p>The odds ratio of rCPFE is 98.83 (95% CI: [92.32, 105.79]) in patients with oCPFE at baseline.</p></li>
+<li><p>The odds ratio of rCPFE is 35.48 (95% CI: [21.38, 58.89]) in patients with Vanishing Lungs at baseline.</p></li>
+</ul>
+<p><strong>Comparing the oCPFE Vs Diffuse QES at follow up:</strong></p>
+<ul>
+<li><p>The odds ratio of oCPFE is 51.01 (95% CI: [48.69, 53.44]) in patients with No Emphysema at baseline.</p></li>
+<li><p>The odds ratio of oCPFE is 15.16 (95% CI: [14.41, 15.95]) in patients with Senile at baseline.</p></li>
+<li><p>The odds ratio of oCPFE is 9.94 (95% CI: [9.17, 10.78]) in patients with Apical at baseline.</p></li>
+<li><p>The odds ratio of oCPFE is 244.03 (95% CI: [224.83, 264.88]) in patients with rCPFE at baseline.</p></li>
+<li><p>The odds ratio of oCPFE is 213.27 (95% CI: [201.5, 225.72]) in patients with oCPFE at baseline.</p></li>
+<li><p>The odds ratio of oCPFE is 12.21 (95% CI: [6.28, 23.76]) in patients with Vanishing Lungs at baseline.</p></li>
+</ul>
+<p><strong>Comparing the Vanishing Lung Vs Diffuse QES at follow up:</strong></p>
+<ul>
+<li><p>The odds ratio of Vanishing is 0 (95% CI: [0, 0]) in patients with No Emphysema at baseline.</p></li>
+<li><p>The odds ratio of Vanishing is 0.25 (95% CI: [0.19, 0.32]) in patients with Senile at baseline.</p></li>
+<li><p>The odds ratio of Vanishing is 144.91 (95% CI: [134.32, 156.33]) in patients with Apical at baseline.</p></li>
+<li><p>The odds ratio of Vanishing is 0.35 (95% CI: [0.1, 1.21]) in patients with rCPFE at baseline.</p></li>
+<li><p>The odds ratio of Vanishing is 0.04 (95% CI: [0.01, 0.25]) in patients with oCPFE at baseline.</p></li>
+<li><p>The odds ratio of Vanishing is 2.02839210^{4} (95% CI: [1.53595910^{4}, 2.67869910^{4}]) in patients with Vanishing Lungs at baseline.</p></li>
+</ul>
+</div>
+</div>
+<div id="model-building---studying-prediction-of-qes" class="section level1">
+<h1>Model Building - Studying Prediction of QES</h1>
+<div id="linear-discriminant-analysis-p-1" class="section level2">
+<h2>Linear Discriminant Analysis (P = 1)</h2>
+<p>The Linear Discriminant Analysis (LDA) algorithm starts by finding directions that maximizes the separation between classes, then use these directions to predict the class of individuals. These directions, called linear discriminants, are a linear combinations of predictor variables.</p>
+<p>LDA generates posterior probabilities that a certain observations belongs to a certain QES categories given the predictor value for that observation. LDA assumes that observations within each QES category come from a <strong>normal distribution</strong> with a category-specific mean vector and a <strong>common covariance matrix for all categories</strong>.</p>
+<pre><code>##       score
+## 1 0.8973472</code></pre>
+<p><strong>Table 8: Model Output of Count of correctly classified Vs misclassfied Responses</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Observed</th>
+<th align="left">Predicted</th>
+<th align="left">Count</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">NE</td>
+<td align="left">NE</td>
+<td align="left">456,149</td>
+</tr>
+<tr class="even">
+<td align="left">Diffuse</td>
+<td align="left">Diffuse</td>
+<td align="left">26,683</td>
+</tr>
+<tr class="odd">
+<td align="left">Apical</td>
+<td align="left">Apical</td>
+<td align="left">13,458</td>
+</tr>
+<tr class="even">
+<td align="left">Diffuse</td>
+<td align="left">NE</td>
+<td align="left">9,755</td>
+</tr>
+<tr class="odd">
+<td align="left">Apical</td>
+<td align="left">Diffuse</td>
+<td align="left">8,808</td>
+</tr>
+<tr class="even">
+<td align="left">Diffuse</td>
+<td align="left">Senile</td>
+<td align="left">7,622</td>
+</tr>
+<tr class="odd">
+<td align="left">Senile</td>
+<td align="left">NE</td>
+<td align="left">7,344</td>
+</tr>
+<tr class="even">
+<td align="left">Apical</td>
+<td align="left">NE</td>
+<td align="left">5,453</td>
+</tr>
+<tr class="odd">
+<td align="left">Senile</td>
+<td align="left">Senile</td>
+<td align="left">5,431</td>
+</tr>
+<tr class="even">
+<td align="left">Apical</td>
+<td align="left">Senile</td>
+<td align="left">3,107</td>
+</tr>
+<tr class="odd">
+<td align="left">rCPFE</td>
+<td align="left">NE</td>
+<td align="left">2,270</td>
+</tr>
+<tr class="even">
+<td align="left">oCPFE</td>
+<td align="left">NE</td>
+<td align="left">2,247</td>
+</tr>
+<tr class="odd">
+<td align="left">Senile</td>
+<td align="left">Diffuse</td>
+<td align="left">2,144</td>
+</tr>
+<tr class="even">
+<td align="left">Vanishing</td>
+<td align="left">Apical</td>
+<td align="left">1,458</td>
+</tr>
+<tr class="odd">
+<td align="left">Diffuse</td>
+<td align="left">Apical</td>
+<td align="left">1,201</td>
+</tr>
+<tr class="even">
+<td align="left">oCPFE</td>
+<td align="left">oCPFE</td>
+<td align="left">1,201</td>
+</tr>
+<tr class="odd">
+<td align="left">Apical</td>
+<td align="left">oCPFE</td>
+<td align="left">1,163</td>
+</tr>
+<tr class="even">
+<td align="left">oCPFE</td>
+<td align="left">Senile</td>
+<td align="left">926</td>
+</tr>
+<tr class="odd">
+<td align="left">Senile</td>
+<td align="left">oCPFE</td>
+<td align="left">844</td>
+</tr>
+<tr class="even">
+<td align="left">rCPFE</td>
+<td align="left">rCPFE</td>
+<td align="left">762</td>
+</tr>
+<tr class="odd">
+<td align="left">Apical</td>
+<td align="left">rCPFE</td>
+<td align="left">757</td>
+</tr>
+<tr class="even">
+<td align="left">rCPFE</td>
+<td align="left">oCPFE</td>
+<td align="left">529</td>
+</tr>
+<tr class="odd">
+<td align="left">Vanishing</td>
+<td align="left">Vanishing</td>
+<td align="left">364</td>
+</tr>
+<tr class="even">
+<td align="left">oCPFE</td>
+<td align="left">Diffuse</td>
+<td align="left">305</td>
+</tr>
+<tr class="odd">
+<td align="left">rCPFE</td>
+<td align="left">Senile</td>
+<td align="left">287</td>
+</tr>
+<tr class="even">
+<td align="left">Senile</td>
+<td align="left">Apical</td>
+<td align="left">284</td>
+</tr>
+<tr class="odd">
+<td align="left">Diffuse</td>
+<td align="left">oCPFE</td>
+<td align="left">218</td>
+</tr>
+<tr class="even">
+<td align="left">rCPFE</td>
+<td align="left">Apical</td>
+<td align="left">199</td>
+</tr>
+<tr class="odd">
+<td align="left">rCPFE</td>
+<td align="left">Diffuse</td>
+<td align="left">194</td>
+</tr>
+<tr class="even">
+<td align="left">Apical</td>
+<td align="left">Vanishing</td>
+<td align="left">171</td>
+</tr>
+<tr class="odd">
+<td align="left">oCPFE</td>
+<td align="left">Apical</td>
+<td align="left">109</td>
+</tr>
+<tr class="even">
+<td align="left">Senile</td>
+<td align="left">rCPFE</td>
+<td align="left">83</td>
+</tr>
+<tr class="odd">
+<td align="left">Vanishing</td>
+<td align="left">Diffuse</td>
+<td align="left">82</td>
+</tr>
+<tr class="even">
+<td align="left">oCPFE</td>
+<td align="left">rCPFE</td>
+<td align="left">72</td>
+</tr>
+<tr class="odd">
+<td align="left">Diffuse</td>
+<td align="left">rCPFE</td>
+<td align="left">11</td>
+</tr>
+<tr class="even">
+<td align="left">Vanishing</td>
+<td align="left">NE</td>
+<td align="left">6</td>
+</tr>
+<tr class="odd">
+<td align="left">Senile</td>
+<td align="left">Vanishing</td>
+<td align="left">5</td>
+</tr>
+<tr class="even">
+<td align="left">Diffuse</td>
+<td align="left">Vanishing</td>
+<td align="left">4</td>
+</tr>
+<tr class="odd">
+<td align="left">rCPFE</td>
+<td align="left">Vanishing</td>
+<td align="left">2</td>
+</tr>
+<tr class="even">
+<td align="left">oCPFE</td>
+<td align="left">Vanishing</td>
+<td align="left">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="prediction-of-percent-number-of-qes-pixels-at-follow-up" class="section level2">
+<h2>Prediction of Percent Number of QES Pixels at Follow up</h2>
+<p><strong>Table 9: DataFrame for number of pixels per subject</strong></p>
+<p>The DataFrame below was used to predict the percent number of Emphysema pixels at follow up as it relates to the individual QES and their count per subject at baseline. I have 7 features and <strong>percent_pixel</strong> as the continuous response variable. There are 118 patients in this dataset as a total of 8 patients (totaling 126 from the orifinal dataset) only experienced the transition from No Emphysema to No Emphysema, therefore, they were eliminated from this modeling section. The percent number of Emphysema pixels at follow up is defined as the number of pixels which resulted into actual QES divided by the total number of recorded pixels, which also includes No Emphysema pixels.80% of the dataset was used to train the model while 20% was used to evaluate model performance.</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">idno</th>
+<th align="right">NE</th>
+<th align="right">Vanishing</th>
+<th align="right">Apical</th>
+<th align="right">Diffuse</th>
+<th align="right">Senile</th>
+<th align="right">oCPFE</th>
+<th align="right">rCPFE</th>
+<th align="right">total_pixel</th>
+<th align="right">qes_pixel</th>
+<th align="right">percent_pixel</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">4010100</td>
+<td align="right">0.64</td>
+<td align="right">0.02</td>
+<td align="right">0.15</td>
+<td align="right">0.04</td>
+<td align="right">0.07</td>
+<td align="right">0.01</td>
+<td align="right">0.08</td>
+<td align="right">26384</td>
+<td align="right">10313</td>
+<td align="right">0.39</td>
+</tr>
+<tr class="even">
+<td align="left">4010700</td>
+<td align="right">1.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">14162</td>
+<td align="right">446</td>
+<td align="right">0.03</td>
+</tr>
+<tr class="odd">
+<td align="left">4010800</td>
+<td align="right">0.99</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.01</td>
+<td align="right">0.00</td>
+<td align="right">12992</td>
+<td align="right">845</td>
+<td align="right">0.07</td>
+</tr>
+<tr class="even">
+<td align="left">4011000</td>
+<td align="right">0.74</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.08</td>
+<td align="right">0.12</td>
+<td align="right">0.05</td>
+<td align="right">0.01</td>
+<td align="right">32308</td>
+<td align="right">15756</td>
+<td align="right">0.49</td>
+</tr>
+<tr class="odd">
+<td align="left">4011200</td>
+<td align="right">1.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">8698</td>
+<td align="right">272</td>
+<td align="right">0.03</td>
+</tr>
+<tr class="even">
+<td align="left">4011700</td>
+<td align="right">1.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">13748</td>
+<td align="right">100</td>
+<td align="right">0.01</td>
+</tr>
+<tr class="odd">
+<td align="left">4012000</td>
+<td align="right">0.18</td>
+<td align="right">0.00</td>
+<td align="right">0.29</td>
+<td align="right">0.26</td>
+<td align="right">0.16</td>
+<td align="right">0.04</td>
+<td align="right">0.08</td>
+<td align="right">18249</td>
+<td align="right">15466</td>
+<td align="right">0.85</td>
+</tr>
+<tr class="even">
+<td align="left">4012200</td>
+<td align="right">0.94</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.02</td>
+<td align="right">0.03</td>
+<td align="right">0.01</td>
+<td align="right">15750</td>
+<td align="right">3774</td>
+<td align="right">0.24</td>
+</tr>
+<tr class="odd">
+<td align="left">4012500</td>
+<td align="right">0.96</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td align="right">0.03</td>
+<td align="right">10657</td>
+<td align="right">633</td>
+<td align="right">0.06</td>
+</tr>
+<tr class="even">
+<td align="left">4013200</td>
+<td align="right">0.99</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">12978</td>
+<td align="right">1755</td>
+<td align="right">0.14</td>
+</tr>
+</tbody>
+</table>
+<p>Since this is a regression problem, I will first check for linear model assumptions such as linearity between features and response or if the response is normally distributed.</p>
+<p><img src="COPD_Analysis_files/figure-html/unnamed-chunk-24-1.png" width="672" /></p>
+<p>As seen on the plot, the linearity assumption is not met, therefore I will explore non-linear models, i.e models that are more flexible such as the Generalized Additive Model (GAM), the Multivariate Adaptive Regression Spline (MARS), and a Tree-based method which will be performed in Python. The (Root) Mean Squared Error will be the evaluation metric. Both GAM and MARS will be 5-fold cross-validated to prevent overfitting and due to the fact that we have limited training examples.</p>
+<div id="generalized-additive-model-gam" class="section level3">
+<h3>Generalized Additive Model (GAM)</h3>
+<p>GAM fits a generalized Additive Model (GAM) to the data, the term ‘GAM’ being take to include any quadratically penalized Generalized Linear Model (GLM) and a variety of other models estimated by a quadratically penalized likelihood type of approach. GAM can be thought of as an extension of the Multiple Linear Regression in that it provides a general framework for extending a standard linear model by allowing non-linear functions of each of the variables, while maintaining <em>additivity</em>. The main limitation of the GAM model is that the model is restricted to be additive. With many variables, important <strong>interaction can be missed</strong>.</p>
+<pre><code>##   select method
+## 2   TRUE GCV.Cp</code></pre>
+<p>This GAM model has a 0.8429968 r-squared.</p>
+<p><strong>Model Evaluation using testing data:</strong></p>
+<pre><code>## [1] 0.02336465</code></pre>
+<p>For model evaluation, the Mean Squared Error for the GAM model was found to be 0.0233647</p>
+</div>
+<div id="multivariate-adaptive-regression-spline-mars" class="section level3">
+<h3>Multivariate Adaptive Regression Spline (MARS)</h3>
+<p>For the Multivariate Adaptive Regression Spline, I will use the caret package since no flexibility is lost at this stage. Two tuning parameters degree of interaction and number of retained terms are defined. With the degree tuning parameter, we are allowed to have the sum of functions and also the product of functions (interaction terms). With the nprune tuning parameter, we can determine how many predictors are allowed in the final model.</p>
+<p><img src="COPD_Analysis_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
+<pre><code>## (Intercept)  h(NE-0.87)  h(0.87-NE) 
+##   0.2649058  -1.8995381   0.8633877</code></pre>
+<p>Thus, this model chose to only include NE and Diffuse as they the most important variables in determining the percent emphysema pixels at follow up. This MARS model has a 0.9042869 r-squared.</p>
+<p><strong>Model Evaluation using testing data:</strong></p>
+<pre><code>## [1] 0.004487725</code></pre>
+<p>For model evaluation, the Mean Squared Error for the MARS model was found to be 0.0044877</p>
+<p>the plot below shows the best cross-validated model between GAM and MARS, which is the model with the lowest cross-validated Root Mean Squared Error.</p>
+<p><img src="COPD_Analysis_files/figure-html/unnamed-chunk-30-1.png" width="672" /></p>
+</div>
+</div>
+</div>
 
 
 

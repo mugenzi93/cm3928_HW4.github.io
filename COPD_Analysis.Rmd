@@ -1,5 +1,5 @@
 ---
-title: "COPD_Analysis"
+title: "COPD - Analysis"
 author: "Clement Mugenzi"
 date: "10/16/2020"
 output: html_document
@@ -17,16 +17,41 @@ knitr::opts_chunk$set(
 
 ```{r, include=FALSE}
 library(tidyverse)
-library(data.table)
 library(ggplot2)
-library(dplyr)
-library(ggalluvial)
 library(pROC)
 library(networkD3)
 library(patchwork)
+library(rgl)
+library(geometry)
+library(alphashape3d)
+library(data.table)
+library(ggplot2)
+library(knitr)
+library(arsenal)
+library(multgee)
+library(plot3D)
+library(scatterplot3d)
+library(sqldf)
+library(dplyr)
+library(nnet)
+library(ggalluvial)
+library(caret)
+library(MASS)
+library(alluvial)
+library(mda)
+library(glmnet)
+library(plotmo)
+library(pls)
+library(ModelMetrics)
+library(splines)
+library(pdp)
+library(earth)
 ```
 
-This plot explore the longitudinal progression of emphysema subtypes (sLTPs/QES) over time - from either baseline or any other QES form to after 5 or 6 years later and so on. The dataset is comprised of CT scans from COPD patients.
+
+# Introduction
+
+This document explore the longitudinal progression of emphysema subtypes (sLTPs/QES) over time - from either baseline or any other QES form to after 5 or 6 years later and so on. The dataset is comprised of CT scans from COPD patients.
 
 Different patients have different proportions on emphysema, so that is why also different pixels (corresponding to the number of observations) were recorded - What I call multiple measures. In other words, different patients had different number of QES pixels labeled for their lungs.
 
@@ -40,50 +65,862 @@ Different patients have different proportions on emphysema, so that is why also 
 
 * **sLTP(COPD2);NE = -1:** Spatially-Informed Lung Texture Patterns at follow up.
 
-* **oCPFE:** Obstructive CPFE
-
-* **rCPFE** Restrictive CPFE
-
 * **Key Definitions: NE = No Emphyesema**
 
 
 
 ```{r}
+copd_df = fread("spatial-temporal_mesa_copd.csv", data.table = F) %>%
+  janitor::clean_names() %>%
+  dplyr::select(-v8,-dice) %>%
+  rename(sLTP_baseline = s_ltp_copd1_ne_1,
+         sLTP_follow_up = s_ltp_copd2_ne_1) %>%
+  mutate(
+    sLTP_baseline = factor(sLTP_baseline, levels = c("-1","1","2","3","4",
+                                                     "5","6","7","8","9","10")),
+    sLTP_follow_up = factor(sLTP_follow_up, levels = c("-1","1","2","3","4",
+                                                        "5","6","7","8","9","10")),
+    x = as.numeric(unlist(x)),
+    y = as.numeric(unlist(y)),
+    z = as.numeric(unlist(z)),
+    qes_baseline = recode(sLTP_baseline, "-1" = "NE", "4" = "Diffuse", "6" = "Diffuse", "7" = "Senile",
+                          "3" = "Apical", "5" = "Apical", "9" = "Apical",
+                          "8" = "oCPFE", "10" = "rCPFE",
+                          "1" = "Vanishing", "2" = "Vanishing"),
+    qes_follow_up = recode(sLTP_follow_up, "-1" = "NE", "4" = "Diffuse", "6" = "Diffuse", "7" = "Senile",
+                          "3" = "Apical", "5" = "Apical", "9" = "Apical",
+                          "8" = "oCPFE", "10" = "rCPFE",
+                          "1" = "Vanishing", "2" = "Vanishing")
+  )
+```
+
+
+# Exploratory Data Analysis
+
+## No Emphysema (NE) is Included
+
+### The IDNO variable
+
+**Number of patients (including those with NE):**
+
+I will count the number of patients by counting distinct IDs.
+
+```{r}
+copd_df %>% 
+  summarise(n = n_distinct(idno))
+```
+
+There are **126** patients with differing CT scans measurements.
+
+
+Next, we explore patients who were eliminated due to the elimination of unwanted *multiple lung locations* in the dataset. In brief, transitions **from QES to NE** constituted the entirety of the multiple measurements we did not want to include in the research study. Therefore, this research only included valid transitions, meaning **NE to NE, NE to QES, and QES to QES.**
+
+```{r}
+# the dataset we want
+copd_wewant = copd_df %>%
+  filter(!(qes_baseline != "NE" & qes_follow_up == "NE")) %>% 
+  mutate(idno = as_factor(idno))
+```
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+### Basic Statistics
+
+```{r, results='asis'}
+# Descriptive stats
+tab1_controls = tableby.control(
+               total = T,
+               test = T,
+               numeric.stats = c("meansd", "medianq1q3", "range"),
+               cat.stats = "countpct",
+               stats.labels = list(
+               meansd = "Mean (SD)",
+               medianq1q3 = "Median (Q1, Q3)",
+               range = "Min - Max",
+               countpct = "N (%)"))
+tab1 = tableby(~ x + y + z + qes_baseline + qes_follow_up,
+                data = copd_wewant, control = tab1_controls)
+summary(tab1, title = 'Descriptive Statistics', digits = 2, text = T)
+```
+
+
+* From this **Table 1.** we can identify descriptive statistics of the 3D coordinates (x,y,z) and also the rarest of QES at both baseline and follow-up.
+
+* At baseline, two of the rarest QES are **Vanishing Lung** and **Retrictive CPFE** which only appears **1.4%** and **5.4%** of the times respectively.
+
+* At follow-up, two of the rarest QES are also **Vanishing Lung** and **Restrictive CPFE** which appears **2.2%** and **8.6%** of the times respectively.
+
+* Another important observation was that the order with respect to prevalence of QES did not change from baseline to follow up where the diffuse QES occured the most followed by Senile then Apical.
+
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+
+```{r, results='asis'}
+# changing the initial dataset (Excluding NE on both sides)
+copd_wewant_no = copd_wewant %>% 
+  filter(qes_baseline != "NE", qes_follow_up != "NE") %>% 
+  mutate(
+    qes_baseline = factor(qes_baseline, levels = c("Vanishing","Apical","Diffuse",
+                                                   "Senile","oCPFE","rCPFE")),
+    qes_follow_up = factor(qes_follow_up, levels = c("Vanishing","Apical","Diffuse",
+                                                     "Senile","oCPFE","rCPFE")))
+# Descriptive stats
+tab1_controls = tableby.control(
+               total = T,
+               test = T,
+               numeric.stats = c("meansd", "medianq1q3", "range"),
+               cat.stats = "countpct",
+               stats.labels = list(
+               meansd = "Mean (SD)",
+               medianq1q3 = "Median (Q1, Q3)",
+               range = "Min - Max",
+               countpct = "N (%)"))
+tab1 = tableby(~ qes_baseline + qes_follow_up,
+                data = copd_wewant_no, control = tab1_controls)
+summary(tab1, title = 'Descriptive Statistics - Excluding No Emphysema', digits = 2, text = T)
+```
+
+The table above represents percent frequencies of transitions from QES to QES, excluding No Emphysema at both baseline and follow up.
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+**Number of measured lung locations per patient (Excluding NE):**
+
+I will use the *group_by* function to count how many times a particular ID appears, meaning how many times a single patient's CT scan was taken. 
+
+**Table 3: Measured Locations per Patient**
+```{r}
+copd_wewant %>% 
+  group_by(idno) %>% 
+  summarise(multiple_locations = n()) %>%
+  mutate_at("multiple_locations", funs(prettyNum(., big.mark = ","))) %>%
+  kable()
+```
+
+
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+```{r}
+copd_wewant %>% 
+  ggplot(aes(idno, fill = qes_baseline)) +
+  scale_y_log10() +
+   geom_bar() +
+  labs(
+    x = "Number of Patients",
+    caption = "Figure 1. Number of Pixels per Patient"
+  ) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+```
+
+The bar chart above represents the number of pixels measured per patient labeled by the proportion of QES for each patient. We can see that in most of the patients the **NE** is dominant.
+
+**Note:** The x-axis was cleared because patients' IDs made the plot impossible to read
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+
+## Ranking QES according to occurrence at baseline and Follow up
+
+```{r}
+# ranking QES at baseline
+rank_baseline = sqldf("SELECT qes_baseline, COUNT(qes_baseline) AS bas_num
+                      FROM copd_wewant
+                      GROUP BY qes_baseline
+                      ORDER BY bas_num DESC")
+p1 = rank_baseline %>% 
+  rename(`QES at Baseline` = "qes_baseline") %>%
+  mutate(
+    `QES at Baseline` = fct_inorder(`QES at Baseline`)) %>% 
+  ggplot(aes(`QES at Baseline`, bas_num, fill = `QES at Baseline`)) + 
+  geom_bar(stat = "identity") + 
+  scale_y_log10(breaks = c(0,10,100,1000,10000, 100000)) +
+  labs(
+    y = "Baseline Count",
+    caption = "Figure 2. Frequencies of NE and QES at Baseline"
+  ) +
+  theme_bw() +
+  theme(legend.position = "none")
+
+# ranking QES at follow up
+rank_follow_up = sqldf("SELECT qes_follow_up, COUNT(qes_follow_up) AS follow_num
+                       FROM copd_wewant
+                       GROUP BY qes_follow_up
+                       ORDER BY follow_num DESC")
+
+p2 = rank_follow_up %>%
+  rename(`QES at follow up` = "qes_follow_up") %>%
+  mutate(
+    `QES at follow up` = fct_inorder(`QES at follow up`)) %>% 
+  ggplot(aes(`QES at follow up`, follow_num, fill = `QES at follow up`)) +
+  geom_bar(stat = "identity") + 
+  scale_y_log10(breaks = c(0,10,100,1000,10000, 100000)) +
+  labs(
+    y = "Follow up Count",
+    caption = "Figure 3. Frequencies of NE and QES at Follow Up"
+  ) +
+  theme_bw() +
+  theme(legend.position = "none")
+
+p1 / p2
+```
+
+Both bar charts above depicts QES frequencies at both baseline and follow up. Excluding the No emphysema (NE), the *Diffuse* QES appears more often while *Vanishing Lung* QES appears the least.
+
+
+## Sankey Diagram
+
+A Sankey diagram is a type of **flow diagram** in which the width of the arrows is proportional to the flow rate. Therefore, this plot illustrates a sankey diagram that represents the transition from baseline QES flowing into QES at follow up. Notice that the transition from No Emphysema to No emphysema or from QES to No Emphysema are not considered as they do not clinically make sense to be looked at.
+
+```{r}
 # importing the dataset
 sankey_df = read.csv("Data/data_sankey.csv")
 sankey_df = sankey_df %>% 
-  select(-X) %>% 
+  dplyr::select(-X) %>% 
   mutate(
     source = as.character(source),
     target = as.character(target),
     value = as.numeric(value)
   )
-sankey_df$target <- paste(sankey_df$target, " ", sep="")
+sankey_df$target = paste(sankey_df$target, " ", sep = "")
 
 # From these flows we need to create a node data frame: it lists every entities involved in the flow
-nodes = data.frame(name=c(as.character(sankey_df$source), as.character(sankey_df$target)) %>% unique())
+nodes = data.frame(name = c(as.character(sankey_df$source), as.character(sankey_df$target)) %>% unique())
  
 # With networkD3, connection must be provided using id, not using real name like in the links dataframe.. So we need to reformat it.
-sankey_df$IDsource=match(sankey_df$source, nodes$name)-1 
-sankey_df$IDtarget=match(sankey_df$target, nodes$name)-1
+sankey_df$IDsource = match(sankey_df$source, nodes$name) - 1 
+sankey_df$IDtarget = match(sankey_df$target, nodes$name) - 1
 
 # prepare colour scale
-ColourScal ='d3.scaleOrdinal() .range(["#FDE725FF","#B4DE2CFF","#6DCD59FF","#35B779FF","#1F9E89FF","#26828EFF","#31688EFF"])'
+ColourScal = 'd3.scaleOrdinal() .range(["#FDE725FF","#B4DE2CFF","#6DCD59FF","#35B779FF","#1F9E89FF","#26828EFF","#31688EFF"])'
 
 # Make the Network
 sankeyNetwork(Links = sankey_df, Nodes = nodes,
                      Source = "IDsource", Target = "IDtarget",
                      Value = "value", NodeID = "name", iterations = 32, 
-              sinksRight=FALSE, colourScale=ColourScal, 
-              nodeWidth=40, fontSize=12, nodePadding = 20, LinkGroup = nodes)
+              sinksRight = FALSE, colourScale = ColourScal, 
+              nodeWidth = 40, fontSize = 12, nodePadding = 20, LinkGroup = nodes)
+```
+
+
+
+```{r, results='asis', echo=FALSE}
+cat("\\newpage")
+```
+
+
+## Plotting the 3D coordinates
+
+Below, I explore a 3D plot of randomly selected ID numbers using the x,y,z pixel coordinates in the dataset. Please note that the colors merely represent different locations of the lung measured for this particular patient.
+
+```{r one_id}
+p1 = copd_wewant[1:4] %>% 
+  filter(idno == "4010100") %>% 
+  scatterplot3d(main = "Figure 5. 3D Plot of a Randomly Selected Patient")
+```
+
+
+The 3D plots explores the patient's (2 randomly selected patients) emphysema severity. The CT scan shows these patients have a wide ranging emphysema subtype all over their lungs.
+
+
+
+## Hypothesis Testing: Contigency Tables for QES - Test of Independence
+
+This test will be used for testing independence or association between QES at baseline and QES at follow up. The question of interest is whether knowledge of one variable's value provides any information about the value of the other variable, meaning are QES at baseline and follow up independent?
+
+$$H_0=Baseline\:and\:follow\:up\:QES\:are\:independent.$$
+
+$$Vs$$
+
+$$H_1=Baseline\:and\:follow\:up\:QES\:are\:dependent\:or\:associated.$$
+
+we will then compute the test statistic with the formula below:
+
+$$\chi^2=\sum_{i=1}^R\sum_{j=1}^C(\frac{(O-E)^2}{E})\sim\chi^2_{(R-1)\times(C-1)}\:where\:df=(R-1)\times(C-1)$$
+
+$$Reject\:H_0:\:if\:\chi^2>\chi^2_{(R-1)\times(C-1),1-\alpha}$$
+
+$$Fail\:to\:Reject\:H_0:\:if\:\chi^2\leq\chi^2_{(R-1)\times(C-1),1-\alpha}$$
+
+**Observed Frequencies:**
+
+```{r}
+obs_df = table(copd_wewant$qes_baseline,copd_wewant$qes_follow_up)
+obs_df %>% kable()
+```
+
+
+```{r, results='hide'}
+test = chisq.test(table(copd_wewant$qes_baseline,copd_wewant$qes_follow_up))
+test
+```
+
+**Expected Frequencies:**
+
+```{r}
+exp_df = test$expected
+exp_df %>% kable()
+```
+
+**Chi-squared Test results:**
+
+```{r}
+test = chisq.test(table(copd_wewant$qes_baseline,copd_wewant$qes_follow_up))
+test
+```
+
+
+Therefore with 36 degrees of freedom (formula provided above), the **Chi-squared** was calculated to be `r test$statistic` with a P-value of `r test$p.value` which is far lower than the significance level of 0.05.
+
+**Conclusion:** 
+
+$$\:Since\:\chi^2>\chi^2_{36,0.95}=51$$
+
+We reject the null hypothesis at 0.05 significance level and conclude that there is enough evidence that baseline QES is significantly associated with QES at follow up.
+
+**Note:** Even though a permutation test can only be conducted if anyone of the **Expected** cell counts is less than or equal to 5, I will still conduct a **Fisher's Exact test** which is a permutation test and check whether the Chi-squared test above approximate the actual sampling distribution.
+
+## Fisher's Exact Test - A Permutation Test
+
+The Fisher's Exact test is a form of Permutation test considered as a sanity check to see if the association between baseline and follow up is from pure random chance. We do this by calculating all possible values of the test statistic under all possible rearrangements of the observed data points. This test is similar to the Chi-square test in terms of hypothesis and interpretation of the results. 
+
+
+
+
+
+# Model Building - Association of Baseline and Follow up QES
+
+The dataset below was used in model building. It was constructed from counting the frequencies of each QES transitions from baseline to follow up. By default, the **Apical** is considered as the reference QES category, thus all model interpretations are based on it.
+
+**Table 4: Frequencies of Transitions Between QES**
+
+```{r qes_freq_right}
+mult_qes_right = tibble(qes_baseline = c("NE", "Diffuse", "Apical", "Senile", 
+                                    "rCPFE", "oCPFE", "Vanishing"),
+                   Diffuse = c(51960,121251,6169,34015,991,4113,57),
+                   NE = c(2146336,0,0,0,0,0,0),
+                   Senile = c(74111,21694,2319,48456,3153,13346,15),
+                   Apical = c(14724,30522,61096,14499,9464,4945,1545),
+                   rCPFE = c(25493,1366,3627,4253,17811,4513,24),
+                   oCPFE = c(42498,1955,943,8377,3994,14098,13),
+                   Vanishing = c(30,760,6369,52,19,19,7549)) %>%
+  mutate(qes_baseline = factor(qes_baseline, levels = c("Diffuse","NE","Senile","Apical",
+                                                        "rCPFE","oCPFE","Vanishing")))
+
+mult_qes_right %>%
+  mutate_at(c("Apical","Diffuse","Senile","rCPFE","oCPFE","Vanishing","NE"), funs(prettyNum(., big.mark = ","))) %>%
+  kable()
+```
+
+
+```{r qes_freq}
+# grouping by qes at baseline and counting the frequencies
+# copd_wewant %>%
+  # filter(qes_baseline == "Vanishing" & qes_follow_up == "Vanishing")
+
+# creating the dataframe
+mult_qes = tibble(qes_baseline = c("NE", "Diffuse", "Apical", "Senile", 
+                                    "rCPFE", "oCPFE", "Vanishing"),
+                   Diffuse = c(51960,121251,6169,34015,991,4113,57),
+                   NE = c(2146336,0,0,0,0,0,0),
+                   Senile = c(74111,21694,2319,48456,3153,13346,15),
+                   Apical = c(14724,30522,61096,14499,9464,4945,1545),
+                   rCPFE = c(25493,1366,3627,4253,17811,4513,24),
+                   oCPFE = c(42498,1955,943,8377,3994,14098,13),
+                   Vanishing = c(30,760,6369,52,19,19,7549)) %>%
+  mutate(qes_baseline = factor(qes_baseline, levels = c("Diffuse","NE","Senile","Apical",
+                                                        "rCPFE","oCPFE","Vanishing")))
+```
+
+
+
+### Multinomial Log-linear Model for QES
+
+Assuming observations are independent, meaning correlation between individual measures per patient is irrelevant in the study, we can model **QES at follow up** (response variable) using the Nominal regression model (from the generalized linear model) that looks at nominal responses (where no order is assigned), which is what our response is.
+
+
+* The code below also builds the nominal regression model for the association between QES at baseline and QES at follow up. Reference categories for the model will be **Diffuse** for both the QES at baseline variables and QES at follow up. 
+
+**Note that any of the categories can be used as the reference category. Regardless of the chosen reference category, the model will fit equally well and achieve the same likelihood.**
+
+```{r qes_nom, message=FALSE, warning=FALSE, include=FALSE}
+# Defining the response variable
+qes_diffuse = mult_qes$Diffuse
+qes_NE = mult_qes$NE
+qes_senile = mult_qes$Senile
+qes_apical = mult_qes$Apical
+qes_rcpfe = mult_qes$rCPFE
+qes_ocpfe = mult_qes$oCPFE
+qes_vanishing = mult_qes$Vanishing
+# the one predictor variable is qes_baseline
+# Building the model
+qes_nom = multinom(cbind(qes_diffuse, qes_NE, qes_senile, qes_apical,
+                          qes_rcpfe, qes_ocpfe, qes_vanishing)~qes_baseline,
+                    data = mult_qes)
+qes_sum = summary(qes_nom)
+```
+
+This model is flawed in that it does not treat this dataset as longitidinal data. It considers each observation as independent, therefore does not account for within-subject correlations that might be present due to multiple measures taken. It merely studies QES transitions from baseline to follow up.
+
+
+**Table 5: Model estimates and (Standard Errors) for QES are shown in the table below**
+
+
+```{r qes_conf}
+# confidence intervals for each QES at follow up
+ci_qes_nom = confint(qes_nom)
+
+ci_qes_NE = ci_qes_nom[,,"qes_NE"] %>% 
+  as.tibble() %>% 
+  rename(ci_lb = "2.5 %",
+         ci_ub = "97.5 %") %>% 
+  mutate(Response = "qes_NE",
+         term = c("ci_intercept", "ci_NE", "ci_senile", 
+                  "ci_apical", "ci_rcpfe", "ci_ocpfe", 
+                  "ci_vanishing"))
+
+ci_qes_senile = ci_qes_nom[,,"qes_senile"] %>% 
+  as.tibble() %>% 
+  rename(ci_lb = "2.5 %",
+         ci_ub = "97.5 %") %>%
+  mutate(Response = "qes_senile",
+         term = c("ci_intercept", "ci_NE", "ci_senile", 
+                  "ci_apical", "ci_rcpfe", "ci_ocpfe", 
+                  "ci_vanishing"))
+
+ci_qes_apical = ci_qes_nom[,,"qes_apical"] %>% 
+  as.tibble() %>% 
+  rename(ci_lb = "2.5 %",
+         ci_ub = "97.5 %") %>% 
+  mutate(Response = "qes_apical",
+         term = c("ci_intercept", "ci_NE", "ci_senile", 
+                  "ci_apical", "ci_rcpfe", "ci_ocpfe", 
+                  "ci_vanishing"))
+
+ci_qes_rCPFE = ci_qes_nom[,,"qes_rcpfe"] %>% 
+  as.tibble() %>% 
+  rename(ci_lb = "2.5 %",
+         ci_ub = "97.5 %") %>% 
+  mutate(Response = "qes_rcpfe",
+         term = c("ci_intercept", "ci_NE", "ci_senile", 
+                  "ci_apical", "ci_rcpfe", "ci_ocpfe", 
+                  "ci_vanishing"))
+
+ci_qes_oCPFE = ci_qes_nom[,,"qes_ocpfe"] %>% 
+  as.tibble() %>% 
+  rename(ci_lb = "2.5 %",
+         ci_ub = "97.5 %") %>% 
+  mutate(Response = "qes_ocpfe",
+         term = c("ci_intercept", "ci_NE", "ci_senile", 
+                  "ci_apical", "ci_rcpfe", "ci_ocpfe", 
+                  "ci_vanishing"))
+
+ci_qes_vanishing = ci_qes_nom[,,"qes_vanishing"] %>% 
+  as.tibble() %>% 
+  rename(ci_lb = "2.5 %",
+         ci_ub = "97.5 %") %>% 
+  mutate(Response = "qes_vanishing",
+         term = c("ci_intercept", "ci_NE", "ci_senile", 
+                  "ci_apical", "ci_rcpfe", "ci_ocpfe", 
+                  "ci_vanishing"))
+
+
+# Dealing with standard errors
+
+qes_sum$standard.errors %>% 
+  as.tibble() %>% 
+  mutate(Response = c("qes_NE","qes_senile", "qes_apical", "qes_rcpfe", 
+                   "qes_ocpfe", "qes_vanishing")) %>%
+  rename("se_intercept" = "(Intercept)",
+         "se_NE" = qes_baselineNE,
+         "se_senile" = qes_baselineSenile,
+         "se_apical" = qes_baselineApical,
+         "se_rcpfe" = qes_baselinerCPFE,
+         "se_ocpfe" = qes_baselineoCPFE,
+         "se_vanishing" = qes_baselineVanishing) %>% 
+  cbind(., coefficients(qes_nom)) %>%
+  rename("intercept" = "(Intercept)",
+         "bas_NE" = qes_baselineNE,
+         "bas_senile" = qes_baselineSenile,
+         "bas_apical" = qes_baselineApical,
+         "bas_rcpfe" = qes_baselinerCPFE,
+         "bas_ocpfe" = qes_baselineoCPFE,
+         "bas_vanishing" = qes_baselineVanishing) %>%
+  mutate(intercept = paste0(round(intercept,2)," (", 
+                            round(se_intercept,2), ")"),
+         bas_NE = paste0(round(bas_NE,2)," (", 
+                              round(se_NE,2),")"),
+         bas_senile = paste0(round(bas_senile,2)," (", 
+                         round(se_senile,2),")"),
+         bas_apical = paste0(round(bas_apical,2)," (", 
+                            round(se_apical,2),")"),
+         bas_rcpfe = paste0(round(bas_rcpfe,2)," (", 
+                            round(se_rcpfe,2),")"),
+         bas_ocpfe = paste0(round(bas_ocpfe,2)," (", 
+                             round(se_ocpfe,2),")"),
+         bas_vanishing = paste0(round(bas_vanishing,2)," (", 
+                                round(se_vanishing,2),")")) %>% 
+  dplyr::select(Response, intercept, bas_NE, bas_senile, bas_apical, bas_rcpfe,
+         bas_ocpfe, bas_vanishing) %>% 
+  kable()
+
+# Goodness of fit 
+pihat = predict(qes_nom, type = "probs")
+m = rowSums(mult_qes[,2:8])
+res_pearson = (mult_qes[, 2:8] - pihat * m) / sqrt(pihat * m) # pearson residual
+
+# Goodness of fit
+G_stat = sum(res_pearson^2) # Generalized pearson Chi-Squared
+pval_G = 1 - pchisq(G_stat, qes_nom$edf)
+```
+
+
+
+**QES Model Interpretations:**
+
+We have six indicator/dummy variables all with *Diffuse* as their reference category:
+
+X1: No Emphysema at baseline
+
+X2: Senile QES at baseline
+
+X3: Apical QES at baseline
+
+X4: rCPFE QES at baseline
+
+X5: oCPFE QES at baseline
+
+X6: Vanishing Lung QES at baseline
+
+
+**Comparing the NE Vs Diffuse QES at follow up:**
+
+* The odds ratio of NE is `r round(exp(coefficients(qes_nom)[1,2]),2)` (95% CI: [`r round(exp(ci_qes_NE[2,1]), 2)`, `r round(exp(ci_qes_NE[2,2]), 2)`]) in patients with No Emphysema at baseline.
+
+* The odds ratio of NE is `r round(exp(coefficients(qes_nom)[1,3]),2)` (95% CI: [`r round(exp(ci_qes_NE[3,1]), 2)`, `r round(exp(ci_qes_NE[3,2]), 2)`]) in patients with Senile at baseline.
+
+* The odds ratio of NE is `r round(exp(coefficients(qes_nom)[1,4]),2)` (95% CI: [`r round(exp(ci_qes_NE[4,1]), 2)`, `r round(exp(ci_qes_NE[4,2]), 2)`]) in patients with Apical at baseline.
+
+* The odds ratio of NE is `r round(exp(coefficients(qes_nom)[1,5]),2)` (95% CI: [`r round(exp(ci_qes_NE[5,1]), 2)`, `r round(exp(ci_qes_NE[5,2]), 2)`]) in patients with rCPFE at baseline.
+
+* The odds ratio of NE is `r round(exp(coefficients(qes_nom)[1,6]),2)` (95% CI: [`r round(exp(ci_qes_NE[6,1]), 2)`, `r round(exp(ci_qes_NE[6,2]), 2)`]) in patients with oCPFE at baseline.
+
+* The odds ratio of NE is `r round(exp(coefficients(qes_nom)[1,7]),2)` (95% CI: [`r round(exp(ci_qes_NE[7,1]), 2)`, `r round(exp(ci_qes_NE[7,2]), 2)`]) in patients with Vanishing Lungs at baseline.
+
+
+**Comparing the Senile Vs Diffuse QES at follow up:**
+
+* The odds ratio of senile is `r round(exp(coefficients(qes_nom)[2,2]),2)` (95% CI: [`r round(exp(ci_qes_senile[2,1]), 2)`, `r round(exp(ci_qes_senile[2,2]), 2)`]) in patients with No Emphysema at baseline.
+
+* The odds ratio of senile is `r round(exp(coefficients(qes_nom)[2,3]),2)` (95% CI: [`r round(exp(ci_qes_senile[3,1]), 2)`, `r round(exp(ci_qes_senile[3,2]), 2)`]) in patients with Senile at baseline.
+
+* The odds ratio of senile is `r round(exp(coefficients(qes_nom)[2,4]),2)` (95% CI: [`r round(exp(ci_qes_senile[4,1]), 2)`, `r round(exp(ci_qes_senile[4,2]), 2)`]) in patients with Apical at baseline.
+
+* The odds ratio of senile is `r round(exp(coefficients(qes_nom)[2,5]),2)` (95% CI: [`r round(exp(ci_qes_senile[5,1]), 2)`, `r round(exp(ci_qes_senile[5,2]), 2)`]) in patients with rCPFE at baseline.
+
+* The odds ratio of senile is `r round(exp(coefficients(qes_nom)[2,6]),2)` (95% CI: [`r round(exp(ci_qes_senile[6,1]), 2)`, `r round(exp(ci_qes_senile[6,2]), 2)`]) in patients with oCPFE at baseline.
+
+* The odds ratio of senile is `r round(exp(coefficients(qes_nom)[2,7]),2)` (95% CI: [`r round(exp(ci_qes_senile[7,1]), 2)`, `r round(exp(ci_qes_senile[7,2]), 2)`]) in patients with Vanishing Lungs at baseline.
+
+
+**Comparing the Apical Vs Diffuse QES at follow up:**
+
+* The odds ratio of Apical is `r round(exp(coefficients(qes_nom)[3,2]),2)` (95% CI: [`r round(exp(ci_qes_apical[2,1]), 2)`, `r round(exp(ci_qes_apical[2,2]), 2)`]) in patients with No Emphysema at baseline.
+
+* The odds ratio of Apical is `r round(exp(coefficients(qes_nom)[3,3]),2)` (95% CI: [`r round(exp(ci_qes_apical[3,1]), 2)`, `r round(exp(ci_qes_apical[3,2]), 2)`]) in patients with Senile at baseline.
+
+* The odds ratio of Apical is `r round(exp(coefficients(qes_nom)[3,4]),2)` (95% CI: [`r round(exp(ci_qes_apical[4,1]), 2)`, `r round(exp(ci_qes_apical[4,2]), 2)`]) in patients with Apical at baseline.
+
+* The odds ratio of Apical is `r round(exp(coefficients(qes_nom)[3,5]),2)` (95% CI: [`r round(exp(ci_qes_apical[5,1]), 2)`, `r round(exp(ci_qes_apical[5,2]), 2)`]) in patients with rCPFE at baseline.
+
+* The odds ratio of Apical is `r round(exp(coefficients(qes_nom)[3,6]),2)` (95% CI: [`r round(exp(ci_qes_apical[6,1]), 2)`, `r round(exp(ci_qes_apical[6,2]), 2)`]) in patients with oCPFE at baseline.
+
+* The odds ratio of Apical is `r round(exp(coefficients(qes_nom)[3,7]),2)` (95% CI: [`r round(exp(ci_qes_apical[7,1]), 2)`, `r round(exp(ci_qes_apical[7,2]), 2)`]) in patients with Vanishing Lungs at baseline.
+
+
+**Comparing the rCPFE Vs Diffuse QES at follow up:**
+
+* The odds ratio of rCPFE is `r round(exp(coefficients(qes_nom)[4,2]),2)` (95% CI: [`r round(exp(ci_qes_rCPFE[2,1]), 2)`, `r round(exp(ci_qes_rCPFE[2,2]), 2)`]) in patients with No Emphysema at baseline.
+
+* The odds ratio of rCPFE is `r round(exp(coefficients(qes_nom)[4,3]),2)` (95% CI: [`r round(exp(ci_qes_rCPFE[3,1]), 2)`, `r round(exp(ci_qes_rCPFE[3,2]), 2)`]) in patients with Senile at baseline.
+
+* The odds ratio of rCPFE is `r round(exp(coefficients(qes_nom)[4,4]),2)` (95% CI: [`r round(exp(ci_qes_rCPFE[4,1]), 2)`, `r round(exp(ci_qes_rCPFE[4,2]), 2)`]) in patients with Apical at baseline.
+
+* The odds ratio of rCPFE is `r round(exp(coefficients(qes_nom)[4,5]),2)` (95% CI: [`r round(exp(ci_qes_rCPFE[5,1]), 2)`, `r round(exp(ci_qes_rCPFE[5,2]), 2)`]) in patients with rCPFE at baseline.
+
+* The odds ratio of rCPFE is `r round(exp(coefficients(qes_nom)[4,6]),2)` (95% CI: [`r round(exp(ci_qes_rCPFE[6,1]), 2)`, `r round(exp(ci_qes_rCPFE[6,2]), 2)`]) in patients with oCPFE at baseline.
+
+* The odds ratio of rCPFE is `r round(exp(coefficients(qes_nom)[4,7]),2)` (95% CI: [`r round(exp(ci_qes_rCPFE[7,1]), 2)`, `r round(exp(ci_qes_rCPFE[7,2]), 2)`]) in patients with Vanishing Lungs at baseline.
+
+
+**Comparing the oCPFE Vs Diffuse QES at follow up:**
+
+* The odds ratio of oCPFE is `r round(exp(coefficients(qes_nom)[5,2]),2)` (95% CI: [`r round(exp(ci_qes_oCPFE[2,1]), 2)`, `r round(exp(ci_qes_oCPFE[2,2]), 2)`]) in patients with No Emphysema at baseline.
+
+* The odds ratio of oCPFE is `r round(exp(coefficients(qes_nom)[5,3]),2)` (95% CI: [`r round(exp(ci_qes_oCPFE[3,1]), 2)`, `r round(exp(ci_qes_oCPFE[3,2]), 2)`]) in patients with Senile at baseline.
+
+* The odds ratio of oCPFE is `r round(exp(coefficients(qes_nom)[5,4]),2)` (95% CI: [`r round(exp(ci_qes_oCPFE[4,1]), 2)`, `r round(exp(ci_qes_oCPFE[4,2]), 2)`]) in patients with Apical at baseline.
+
+* The odds ratio of oCPFE is `r round(exp(coefficients(qes_nom)[5,5]),2)` (95% CI: [`r round(exp(ci_qes_oCPFE[5,1]), 2)`, `r round(exp(ci_qes_oCPFE[5,2]), 2)`]) in patients with rCPFE at baseline.
+
+* The odds ratio of oCPFE is `r round(exp(coefficients(qes_nom)[5,6]),2)` (95% CI: [`r round(exp(ci_qes_oCPFE[6,1]), 2)`, `r round(exp(ci_qes_oCPFE[6,2]), 2)`]) in patients with oCPFE at baseline.
+
+* The odds ratio of oCPFE is `r round(exp(coefficients(qes_nom)[5,7]),2)` (95% CI: [`r round(exp(ci_qes_oCPFE[7,1]), 2)`, `r round(exp(ci_qes_oCPFE[7,2]), 2)`]) in patients with Vanishing Lungs at baseline.
+
+
+**Comparing the Vanishing Lung Vs Diffuse QES at follow up:**
+
+* The odds ratio of Vanishing is `r round(exp(coefficients(qes_nom)[6,2]),2)` (95% CI: [`r round(exp(ci_qes_vanishing[2,1]), 2)`, `r round(exp(ci_qes_vanishing[2,2]), 2)`]) in patients with No Emphysema at baseline.
+
+* The odds ratio of Vanishing is `r round(exp(coefficients(qes_nom)[6,3]),2)` (95% CI: [`r round(exp(ci_qes_vanishing[3,1]), 2)`, `r round(exp(ci_qes_vanishing[3,2]), 2)`]) in patients with Senile at baseline.
+
+* The odds ratio of Vanishing is `r round(exp(coefficients(qes_nom)[6,4]),2)` (95% CI: [`r round(exp(ci_qes_vanishing[4,1]), 2)`, `r round(exp(ci_qes_vanishing[4,2]), 2)`]) in patients with Apical at baseline.
+
+* The odds ratio of Vanishing is `r round(exp(coefficients(qes_nom)[6,5]),2)` (95% CI: [`r round(exp(ci_qes_vanishing[5,1]), 2)`, `r round(exp(ci_qes_vanishing[5,2]), 2)`]) in patients with rCPFE at baseline.
+
+* The odds ratio of Vanishing is `r round(exp(coefficients(qes_nom)[6,6]),2)` (95% CI: [`r round(exp(ci_qes_vanishing[6,1]), 2)`, `r round(exp(ci_qes_vanishing[6,2]), 2)`]) in patients with oCPFE at baseline.
+
+* The odds ratio of Vanishing is `r round(exp(coefficients(qes_nom)[6,7]),2)` (95% CI: [`r round(exp(ci_qes_vanishing[7,1]), 2)`, `r round(exp(ci_qes_vanishing[7,2]), 2)`]) in patients with Vanishing Lungs at baseline.
+
+
+
+# Model Building - Studying Prediction of QES
+
+## Linear Discriminant Analysis (P = 1)
+
+The Linear Discriminant Analysis (LDA) algorithm starts by finding directions that maximizes the separation between classes, then use these directions to predict the class of individuals. These directions, called linear discriminants, are a linear combinations of predictor variables.
+
+LDA generates posterior probabilities that a certain observations belongs to a certain QES categories given the predictor value for that observation. LDA assumes that observations within each QES category come from a **normal distribution** with a category-specific mean vector and a **common covariance matrix for all categories**.
+
+```{r qes_lda}
+# splitting dataset
+training = copd_wewant[1:2246835,]
+testing = copd_wewant[2246836:2808544,]
+
+# LDA using MASS
+lda.fit = lda(qes_follow_up~qes_baseline, data = training)
+
+# evaluate the test set performance using ROC
+lda.pred = data.frame(predict(lda.fit, newdata = testing))
+lda.pred = cbind(testing, lda.pred)
+
+# lda model accuracy
+lda.pred %>% 
+  summarise(score = mean(class == qes_follow_up))
+```
+
+
+**Table 8: Model Output of Count of correctly classified Vs misclassfied Responses**
+```{r}
+# visualization
+lda.pred %>%
+  count(class, qes_follow_up) %>%
+  rename(Predicted = class, Observed = qes_follow_up, Count = n) %>% 
+  dplyr::select(Observed, Predicted, Count) %>%
+  group_by(Observed, Predicted) %>%
+  arrange(-Count) %>%
+  mutate_at(c("Count"), funs(prettyNum(., big.mark = ","))) %>%
+  kable()
+```
+
+
+
+## Prediction of Percent Number of QES Pixels at Follow up
+
+**Table 9: DataFrame for number of pixels per subject**
+
+The DataFrame below was used to predict the percent number of Emphysema pixels at follow up as it relates to the individual QES and their count per subject at baseline. I have 7 features and **percent_pixel** as the continuous response variable. There are 118 patients in this dataset as a total of 8 patients (totaling 126 from the orifinal dataset) only experienced the transition from No Emphysema to No Emphysema, therefore, they were eliminated from this modeling section. The percent number of Emphysema pixels at follow up is defined as the number of pixels which resulted into actual QES divided by the total number of recorded pixels, which also includes No Emphysema pixels.80% of the dataset was used to train the model while 20% was used to evaluate model performance.
+ 
+```{r}
+# total number of QES + NE
+qes_ne = copd_wewant %>%
+  dplyr::select(-c(x:sLTP_follow_up)) %>%
+  group_by(idno) %>%
+  summarise(total_pixel = n())
+qes_ne = qes_ne %>% 
+  filter(!(idno %in% c("4021300","5012200","5022600","7011600",
+                    "7016400","7017800","7018400","8021400")))
+
+# total number of QES
+qes_df = copd_wewant %>%
+  filter(qes_follow_up != "NE") %>% 
+  dplyr::select(-c(x:sLTP_follow_up)) %>%
+  group_by(idno) %>%
+  summarise(qes_pixel = n())
+
+# Number of unique QES per patient
+uni_df = copd_wewant %>%
+  dplyr::select(-c(x:sLTP_follow_up)) %>%
+  group_by(idno, qes_baseline) %>%
+  summarise(uni = n()) %>%
+  pivot_wider(
+    names_from = "qes_baseline",
+    values_from = "uni") %>%
+  mutate(
+    Vanishing = replace_na(Vanishing,0),
+    Apical = replace_na(Apical,0),
+    Diffuse = replace_na(Diffuse,0),
+    Senile = replace_na(Senile,0),
+    oCPFE = replace_na(oCPFE,0),
+    rCPFE = replace_na(rCPFE,0)
+  )
+uni_df = uni_df %>%
+  as.tibble() %>% 
+  filter(!(idno %in% c("4021300","5012200","5022600","7011600",
+                    "7016400","7017800","7018400","8021400")))
+
+# combining both dataframes then normalize
+volume_total = 
+  left_join(uni_df, qes_ne, by = "idno") %>% 
+  mutate(total_pixel = as.numeric(total_pixel)) %>%
+  mutate(
+    NE = round(NE/total_pixel, 2),
+    Vanishing = round(Vanishing/total_pixel, 2),
+    Apical = round(Apical/total_pixel, 2),
+    Diffuse = round(Diffuse/total_pixel, 2),
+    Senile = round(Senile/total_pixel, 2),
+    oCPFE = round(oCPFE/total_pixel, 2),
+    rCPFE = round(rCPFE/total_pixel, 2))
+
+# combining with total qes column then calculating response variable
+volume_df = 
+  left_join(volume_total, qes_df, by = "idno") %>% 
+  mutate(
+    percent_pixel = round(qes_pixel/total_pixel, 2)
+  )
+
+
+volume_df2 = volume_df %>% head(10)
+volume_df2 %>% kable()
 ```
 
 
 
 
+```{r}
+# changing the dataset
+volume_df1 = volume_df %>% as.tibble() %>% 
+  dplyr::select(-c(idno,total_pixel,qes_pixel))
+
+# splitting the dataset
+training = volume_df1[1:94,]
+testing = volume_df1[95:118,]
+# matrix of predictors for training
+x = model.matrix(percent_pixel~.,training)[,-1]
+# vector of response 
+y = training$percent_pixel
+
+# matrix of predictors for testing
+x2 = model.matrix(percent_pixel~.,testing)[,-1]
+# vector of response 
+y2 = testing$percent_pixel
+```
+
+
+Since this is a regression problem, I will first check for linear model assumptions such as linearity between features and response or if the response is normally distributed.
+
+```{r}
+theme1 <- trellis.par.get()
+theme1$plot.symbol$col <- rgb(.2, .4, .2, .5)
+theme1$plot.symbol$pch <- 16
+theme1$plot.line$col <- rgb(.8, .1, .1, 1)
+theme1$plot.line$lwd <- 2
+theme1$strip.background$col <- rgb(.0, .2, .6, .2)
+trellis.par.set(theme1)
+featurePlot(x, y, plot = "scatter", labels = c("","Y"),
+            type = c("p"), layout = c(4, 2))
+```
+
+As seen on the plot, the linearity assumption is not met, therefore I will explore non-linear models, i.e models that are more flexible such as the Generalized Additive Model (GAM), the Multivariate Adaptive Regression Spline (MARS), and a Tree-based method which will be performed in Python. The (Root) Mean Squared Error will be the evaluation metric. Both GAM and MARS will be 5-fold cross-validated to prevent overfitting and due to the fact that we have limited training examples.
+
+
+### Generalized Additive Model (GAM)
+
+GAM fits a generalized Additive Model (GAM) to the data, the term 'GAM' being take to include any quadratically penalized Generalized Linear Model (GLM) and a variety of other models estimated by a quadratically penalized likelihood type of approach. GAM can be thought of as an extension of the Multiple Linear Regression in that it provides a general framework for extending a standard linear model by allowing non-linear functions of each of the variables, while maintaining *additivity*. The main limitation of the GAM model is that the model is restricted to be additive. With many variables, important **interaction can be missed**.
+
+```{r}
+# fitting a GAM model
+ctrl1 = trainControl(method = "repeatedcv", number = 5)
+
+set.seed(2)
+gam.fit = train(x, y,
+                method = "gam",
+                tuneGrid = data.frame(method = "GCV.Cp", select = c(TRUE,FALSE)),
+                trControl = ctrl1)
+gam.fit$bestTune
+```
+
+This GAM model has a `r gam.fit$results$Rsquared[1]` r-squared.
+
+**Model Evaluation using testing data:**
+
+```{r}
+# Predicting solubilty from the test dataset
+predict_gam = predict(gam.fit, newdata = x2)
+
+# TEST ERROR
+mse(y2, predict_gam)
+```
+
+For model evaluation, the Mean Squared Error for the GAM model was found to be `r mse(y2, predict_gam)`
+
+### Multivariate Adaptive Regression Spline (MARS)
+
+For the Multivariate Adaptive Regression Spline, I will use the caret package since no flexibility is lost at this stage. Two tuning parameters degree of interaction and number of retained terms are defined. With the degree tuning parameter, we are allowed to have the sum of functions and also the product of functions (interaction terms). With the nprune tuning parameter, we can determine how many predictors are allowed in the final model.
+
+```{r}
+# fitting a MARS model
+mars_grid = expand.grid(degree = 1:2, # 1: sum of functions and 2: product of functions
+                        nprune = 2:7) # How many predictors are allowed in the final model
+
+set.seed(2)
+mars.fit = train(x, y,
+                 method = "earth",
+                 tuneGrid = mars_grid,
+                 trControl = ctrl1)
+ggplot(mars.fit)
+```
 
 
 
+
+```{r}
+coef(mars.fit$finalModel)
+```
+
+Thus, this model chose to only include NE and Diffuse as they the most important variables in determining the percent emphysema pixels at follow up. This MARS model has a `r mars.fit$finalModel$rsq` r-squared.
+
+**Model Evaluation using testing data:**
+
+```{r}
+# Predicting solubilty from the test dataset
+predict_mars = predict(mars.fit, newdata = x2)
+
+# TEST ERROR
+mse(y2, predict_mars)
+```
+
+For model evaluation, the Mean Squared Error for the MARS model was found to be `r mse(y2, predict_mars)`
+
+the plot below shows the best cross-validated model between GAM and MARS, which is the model with the lowest cross-validated Root Mean Squared Error.
+
+```{r}
+bwplot(resamples(list(mars = mars.fit,
+                      gam = gam.fit)), metric = "RMSE")
+```
 
 
 
