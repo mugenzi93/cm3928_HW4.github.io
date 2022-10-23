@@ -11,7 +11,7 @@ output:
 ![](images/clement.jpg)
 
 
-I am an ambitious and dynamic scientist, working on a Master of Science degree in Biostatistics at Columbia Mailman School of Public Health. 
+I am an ambitious and dynamic scientist with a Master of Science degree in Biostatistics from Columbia Mailman School of Public Health. 
 
 During my undergraduate education in Chemistry at the University of Central Arkansas, I served in different professional and research roles. As a result, I have a wide range of experience working at academic institutions, small companies (start ups), and research labs. 
 
@@ -28,7 +28,7 @@ During the summer of 2020, I was privileged to work with [Andrew Laine, PhD](htt
 
 I am a proactive learner, always seeking out challenging opportunities with an ultimate purpose to grow personally and professionally. 
 
-I am also an aspiring data scientist, constantly looking to get involved in challenging projects in order to apply my analytical problem-solving skills and translate big picture ideas into tangible goals.
+I am also a data scientist, constantly looking to get involved in challenging projects in order to apply my analytical problem-solving skills and translate big picture ideas into tangible goals.
 
 Do not hesitate to reach out via email or cell phone for possible collaboration on machine learning projects or Data Science opportunities.
 
