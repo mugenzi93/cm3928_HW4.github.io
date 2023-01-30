@@ -24,6 +24,11 @@ During the summer of 2020, I was privileged to work with [Andrew Laine, PhD](htt
 * Use supervised learning methods such as Multivariate Adaptive Regression Splines (MARS) and Extreme Gradient Boosting (XGBoost) models to predict the percentage emphysema pixels we would expect at follow up.
 
 
+Currently, I am part of the wider Analytics & Behavior Change team at CVS health where I am building predictive models to identify Medicaid members most at risk of adverse events such as high healthcare costs, emergency visits, and inpatient admissions.
+
+I am also leveraging Causal Inference and statistical learning methodologies to measure the effectiveness of care management programs and communicating findings to stakeholders for program improvement through better member targeting.
+
+
 **Side Note:**
 
 I am a proactive learner, always seeking out challenging opportunities with an ultimate purpose to grow personally and professionally. 
