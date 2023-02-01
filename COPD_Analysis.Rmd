@@ -5,13 +5,7 @@ date: "10/16/2020"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-	echo = FALSE,
-	message = FALSE,
-	warning = FALSE
-)
-```
+
 
 
 
@@ -19,19 +13,21 @@ knitr::opts_chunk$set(
 library(tidyverse)
 library(ggplot2)
 library(pROC)
+library(htmltools)
+library(htmlwidgets)
 library(networkD3)
 library(patchwork)
-library(rgl)
+#library(rgl)
 library(geometry)
-library(alphashape3d)
+#library(alphashape3d)
 library(data.table)
 library(ggplot2)
 library(knitr)
 library(arsenal)
 library(multgee)
-library(plot3D)
+#library(plot3D)
 library(scatterplot3d)
-library(sqldf)
+#library(sqldf)
 library(dplyr)
 library(nnet)
 library(ggalluvial)
@@ -68,9 +64,8 @@ Different patients have different proportions on emphysema, so that is why also 
 * **Key Definitions: NE = No Emphyesema**
 
 
-
 ```{r}
-copd_df = fread("spatial-temporal_mesa_copd.csv", data.table = F) %>%
+copd_df = fread("Data/spatial-temporal_mesa_copd.csv", data.table = F) %>%
   janitor::clean_names() %>%
   dplyr::select(-v8,-dice) %>%
   rename(sLTP_baseline = s_ltp_copd1_ne_1,
@@ -93,6 +88,8 @@ copd_df = fread("spatial-temporal_mesa_copd.csv", data.table = F) %>%
                           "1" = "Vanishing", "2" = "Vanishing")
   )
 ```
+
+
 
 
 # Exploratory Data Analysis
@@ -236,11 +233,17 @@ cat("\\newpage")
 ## Ranking QES according to occurrence at baseline and Follow up
 
 ```{r}
-# ranking QES at baseline
-rank_baseline = sqldf("SELECT qes_baseline, COUNT(qes_baseline) AS bas_num
-                      FROM copd_wewant
-                      GROUP BY qes_baseline
-                      ORDER BY bas_num DESC")
+rank_baseline = copd_wewant %>% 
+  group_by(qes_baseline) %>% 
+  summarise(bas_num = n()) %>% 
+  arrange(desc(bas_num))
+
+# # ranking QES at baseline
+# rank_baseline = sqldf("SELECT qes_baseline, COUNT(qes_baseline) AS bas_num
+#                       FROM copd_wewant
+#                       GROUP BY qes_baseline
+#                       ORDER BY bas_num DESC")
+
 p1 = rank_baseline %>% 
   rename(`QES at Baseline` = "qes_baseline") %>%
   mutate(
@@ -256,10 +259,15 @@ p1 = rank_baseline %>%
   theme(legend.position = "none")
 
 # ranking QES at follow up
-rank_follow_up = sqldf("SELECT qes_follow_up, COUNT(qes_follow_up) AS follow_num
-                       FROM copd_wewant
-                       GROUP BY qes_follow_up
-                       ORDER BY follow_num DESC")
+rank_follow_up = copd_wewant %>% 
+  group_by(qes_follow_up) %>% 
+  summarise(follow_num = n()) %>% 
+  arrange(desc(follow_num))
+
+# rank_follow_up = sqldf("SELECT qes_follow_up, COUNT(qes_follow_up) AS follow_num
+#                        FROM copd_wewant
+#                        GROUP BY qes_follow_up
+#                        ORDER BY follow_num DESC")
 
 p2 = rank_follow_up %>%
   rename(`QES at follow up` = "qes_follow_up") %>%

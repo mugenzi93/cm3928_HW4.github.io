@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
@@ -16,24 +15,38 @@
 
 <title>Titanic</title>
 
-<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/header-attrs-2.20/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
-<style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
 <script type="text/javascript">
 if (window.hljs) {
   hljs.configure({languages: []});
@@ -46,32 +59,8 @@ if (window.hljs) {
 
 
 
-<style type="text/css">
-h1 {
-  font-size: 34px;
-}
-h1.title {
-  font-size: 38px;
-}
-h2 {
-  font-size: 30px;
-}
-h3 {
-  font-size: 24px;
-}
-h4 {
-  font-size: 18px;
-}
-h5 {
-  font-size: 16px;
-}
-h6 {
-  font-size: 12px;
-}
-.table th:not([align]) {
-  text-align: left;
-}
-</style>
+
+
 
 
 
@@ -81,10 +70,6 @@ h6 {
   max-width: 940px;
   margin-left: auto;
   margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
 }
 img {
   max-width:100%;
@@ -101,40 +86,16 @@ button.code-folding-btn:focus {
 summary {
   display: list-item;
 }
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
 </style>
 
 
 <style type="text/css">
-/* padding for bootstrap navbar */
-body {
-  padding-top: 60px;
-  padding-bottom: 40px;
-}
-/* offset scroll position for anchor links (for fixed navbar)  */
-.section h1 {
-  padding-top: 65px;
-  margin-top: -65px;
-}
-.section h2 {
-  padding-top: 65px;
-  margin-top: -65px;
-}
-.section h3 {
-  padding-top: 65px;
-  margin-top: -65px;
-}
-.section h4 {
-  padding-top: 65px;
-  margin-top: -65px;
-}
-.section h5 {
-  padding-top: 65px;
-  margin-top: -65px;
-}
-.section h6 {
-  padding-top: 65px;
-  margin-top: -65px;
-}
 .dropdown-submenu {
   position: relative;
 }
@@ -162,7 +123,7 @@ body {
   margin-right: -10px;
 }
 .dropdown-submenu:hover>a:after {
-  border-left-color: #ffffff;
+  border-left-color: #adb5bd;
 }
 .dropdown-submenu.pull-left {
   float: none;
@@ -174,7 +135,7 @@ body {
 }
 </style>
 
-<script>
+<script type="text/javascript">
 // manage active state of menu based on current page
 $(document).ready(function () {
   // active menu anchor
@@ -184,11 +145,28 @@ $(document).ready(function () {
     href = "index.html";
   var menuAnchor = $('a[href="' + href + '"]');
 
-  // mark it active
-  menuAnchor.parent().addClass('active');
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
 
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
 });
 </script>
 
@@ -200,13 +178,12 @@ $(document).ready(function () {
   max-height: 500px;
   min-height: 44px;
   overflow-y: auto;
-  background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
 
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
   font-family: 'Glyphicons Halflings';
   display: inline-block;
   padding: 10px;
@@ -214,16 +191,9 @@ $(document).ready(function () {
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "&#xe258;";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
+  content: "\e258";
   font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
+  border: none;
 }
 
 .tabset-dropdown > .nav-tabs > li.active {
@@ -236,6 +206,7 @@ $(document).ready(function () {
   border: none;
   display: inline-block;
   border-radius: 4px;
+  background-color: transparent;
 }
 
 .tabset-dropdown > .nav-tabs.nav-tabs-open > li {
@@ -266,7 +237,7 @@ $(document).ready(function () {
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
@@ -282,7 +253,7 @@ $(document).ready(function () {
   <a href="Resume.html">Resume</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Research
      
     <span class="caret"></span>
@@ -294,7 +265,7 @@ $(document).ready(function () {
   </ul>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Projects
      
     <span class="caret"></span>
@@ -309,13 +280,13 @@ $(document).ready(function () {
   </ul>
 </li>
 <li>
-  <a href="mailto:&lt;cm3928@cumc.columbia.edu&gt;">
+  <a href="mailto:&lt;cm3928@caa.columbia.edu&gt;">
     <span class="fa fa-envelope fa-lg"></span>
      
   </a>
 </li>
 <li>
-  <a href="https://www.linkedin.com/in/clement-mugenzi-1076a4106/">
+  <a href="https://www.linkedin.com/in/cl%C3%A9ment-mugenzi-1076a4106/">
     <span class="fa fa-linkedin fa-lg"></span>
      
   </a>
@@ -326,18 +297,12 @@ $(document).ready(function () {
      
   </a>
 </li>
-<li>
-  <a href="https://twitter.com/ClementMug">
-    <span class="fa fa-twitter fa-lg"></span>
-     
-  </a>
-</li>
       </ul>
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<div class="fluid-row" id="header">
+<div id="header">
 
 
 
@@ -350,7 +315,15 @@ $(document).ready(function () {
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>This titanic project is based on the infamous sinking of Titanic in 1912, a tragedy that led to <code>1,502</code> people dying out of <code>2,224</code> passengers. Datasets provided include the train dataset with <code>891</code> passengers whose survival fate is known and a test dataset with <code>418</code> passengers whose survival fate is unknown. I will first start by loading both datasets then combine them to do some feature engineering then use machine learning tools to predict what the survival fate for the passengers in the test dataset would have been.</p>
+<p>This titanic project is based on the infamous sinking of Titanic in
+1912, a tragedy that led to <code>1,502</code> people dying out of
+<code>2,224</code> passengers. Datasets provided include the train
+dataset with <code>891</code> passengers whose survival fate is known
+and a test dataset with <code>418</code> passengers whose survival fate
+is unknown. I will first start by loading both datasets then combine
+them to do some feature engineering then use machine learning tools to
+predict what the survival fate for the passengers in the test dataset
+would have been.</p>
 <div id="loading-the-dataset" class="section level2">
 <h2>Loading the Dataset</h2>
 <pre class="r"><code># First, we will load the train dataset.
@@ -365,15 +338,18 @@ f_test =
 Titanic = 
   bind_rows(f_train, f_test) %&gt;% 
   rename(gender = &quot;sex&quot;)</code></pre>
-<p>After loading and combining both datasets, it is better to highlight what kind of dataset I will be working with.</p>
-<p>Some of the variables important to highlight include name, passengerID, gender, age, and each individual’s survival status.</p>
+<p>After loading and combining both datasets, it is better to highlight
+what kind of dataset I will be working with.</p>
+<p>Some of the variables important to highlight include name,
+passengerID, gender, age, and each individual’s survival status.</p>
 </div>
 </div>
 <div id="feature-engineering" class="section level1">
 <h1>Feature Engineering</h1>
 <div id="summary-of-missing-values" class="section level2">
 <h2>Summary of missing values</h2>
-<p>The code chunk below summarises how many missing values we have per column.</p>
+<p>The code chunk below summarises how many missing values we have per
+column.</p>
 <pre class="r"><code>  Titanic %&gt;%
     gather(key = &quot;key&quot;, value = &quot;val&quot;) %&gt;%
     mutate(is.missing = is.na(val)) %&gt;%
@@ -384,7 +360,8 @@ Titanic =
     arrange(desc(num.missing)) %&gt;%
     rename(&quot;Missing Values&quot; = &quot;num.missing&quot;, &quot;Variable&quot; = &quot;key&quot;) %&gt;% 
   knitr::kable()</code></pre>
-<pre><code>## `summarise()` regrouping output by &#39;key&#39; (override with `.groups` argument)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;key&#39;. You
+## can override using the `.groups` argument.</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -415,11 +392,16 @@ Titanic =
 </tr>
 </tbody>
 </table>
-<p>We will not worry about the survived variable since all missing values correspond to the value we are trying to predict, which is the survival fate of persons in the test dataset.</p>
+<p>We will not worry about the survived variable since all missing
+values correspond to the value we are trying to predict, which is the
+survival fate of persons in the test dataset.</p>
 </div>
 <div id="defining-factor-variables" class="section level2">
 <h2>Defining Factor Variables</h2>
-<p>The code chunk below converts appropriate variables to factor variables. With cabin having a total of multiple missing values, I will just replace all of them with letter <strong>U</strong> which stands for <strong>Unknown</strong>.</p>
+<p>The code chunk below converts appropriate variables to factor
+variables. With cabin having a total of multiple missing values, I will
+just replace all of them with letter <strong>U</strong> which stands for
+<strong>Unknown</strong>.</p>
 <pre class="r"><code>titanic =
   Titanic %&gt;%
   rename(survival = survived) %&gt;%
@@ -435,21 +417,35 @@ Titanic =
                                            &quot;Queenstown&quot;)),
     survival = factor(survival, levels = c(&quot;Died&quot;, &quot;Survived&quot;)),
     pclass = factor(pclass, levels = c(&quot;1st&quot;, &quot;2nd&quot;, &quot;3rd&quot;)))</code></pre>
-<p>This is a dirty dataset and we either need to drop the rows with NaN values or fill in the gaps by leveraging the data in the dataset to estimate what those values could have been. We will choose the latter and try to estimate those values and fill in the gaps rather than lose observations.</p>
+<p>This is a dirty dataset and we either need to drop the rows with NaN
+values or fill in the gaps by leveraging the data in the dataset to
+estimate what those values could have been. We will choose the latter
+and try to estimate those values and fill in the gaps rather than lose
+observations.</p>
 </div>
 <div id="creating-a-family-variable" class="section level2">
 <h2>Creating a Family Variable</h2>
-<p>We all know that family usually have the same last name, therefore I will group families according to their last names to make it easier to create the family variable.</p>
+<p>We all know that family usually have the same last name, therefore I
+will group families according to their last names to make it easier to
+create the family variable.</p>
 <pre class="r"><code># Finally, grab surname from passenger name
 titanic$lastname = sapply(titanic$name,  
                       function(x) strsplit(x, split = &#39;[,.]&#39;)[[1]][1])</code></pre>
-<p>Since we have variables quantifying the number of family members present for a particular passenger, I will use those to create a brand new <code>Family</code> variable which can help us measure the likelihood a passenger will survive given the amount of family members they have on board with them (since family members usually have a tendency to not leave their people behind).</p>
+<p>Since we have variables quantifying the number of family members
+present for a particular passenger, I will use those to create a brand
+new <code>Family</code> variable which can help us measure the
+likelihood a passenger will survive given the amount of family members
+they have on board with them (since family members usually have a
+tendency to not leave their people behind).</p>
 <pre class="r"><code># Creating a Family variable including the passenger themselves.
 titanic$famsize = titanic$sib_sp + titanic$parch + 1
 
 # Creating a Family variable
 titanic$family = paste(titanic$lastname, titanic$famsize, sep = &quot;_&quot;)</code></pre>
-<p>Thus, using the above created <code>Family</code> variable, I can visualize the association between family size and survival of a passenger. Note that the largest family was composed of <strong>11</strong> people.</p>
+<p>Thus, using the above created <code>Family</code> variable, I can
+visualize the association between family size and survival of a
+passenger. Note that the largest family was composed of
+<strong>11</strong> people.</p>
 <pre class="r"><code># Use ggplot2 to visualize the relationship between family size &amp; survival
 ggplot(titanic[1:891,], aes(x = famsize, fill = survival)) +
   geom_bar(stat = &#39;count&#39;, position = &#39;dodge&#39;) +
@@ -457,8 +453,10 @@ ggplot(titanic[1:891,], aes(x = famsize, fill = survival)) +
   labs(x = &#39;Family Size&#39;) +
   theme_few()</code></pre>
 <p><img src="Titanic_files/figure-html/unnamed-chunk-6-1.png" width="90%" /></p>
-<p>And as expected, the larger the family gets the less likely an individual would have survived.</p>
-<p>We can also visualize the relationship between <code>Age</code> and <code>Survival</code></p>
+<p>And as expected, the larger the family gets the less likely an
+individual would have survived.</p>
+<p>We can also visualize the relationship between <code>Age</code> and
+<code>Survival</code></p>
 <pre class="r"><code># We&#39;ll look at the relationship between age &amp; survival by gender.
 ggplot(titanic[1:891,], aes(age, fill = survival)) + 
   geom_histogram(position = &quot;dodge&quot;, binwidth = 5) + 
@@ -468,19 +466,48 @@ ggplot(titanic[1:891,], aes(age, fill = survival)) +
     x = &quot;Age&quot;) +
   theme_few()</code></pre>
 <p><img src="Titanic_files/figure-html/unnamed-chunk-7-1.png" width="90%" /></p>
-<p>It is clear that the <code>Female</code> gender was likely to survive especially for female aged between 20-40 years old. This can be due to a lot of factors such as that mothers might have been more vulnerable, and thus were more likely to be rescued along with their young ones. On the male side, males in the <code>20-40</code> age group were more likely to die compared to males in other age groups because these men might have been involved in the rescuing other groups such as mothers, their kids, and the elderly.</p>
+<p>It is clear that the <code>Female</code> gender was likely to survive
+especially for female aged between 20-40 years old. This can be due to a
+lot of factors such as that mothers might have been more vulnerable, and
+thus were more likely to be rescued along with their young ones. On the
+male side, males in the <code>20-40</code> age group were more likely to
+die compared to males in other age groups because these men might have
+been involved in the rescuing other groups such as mothers, their kids,
+and the elderly.</p>
 </div>
 <div id="cleaning-names" class="section level2">
 <h2>Cleaning Names</h2>
-<p>With the following code chunk, we will determine what different name titles we have and their distribution according to gender.</p>
+<p>With the following code chunk, we will determine what different name
+titles we have and their distribution according to gender.</p>
 <pre class="r"><code># I will extract titles from the name variable
 titanic$titles = gsub(&#39;(.*, )|(\\..*)&#39;, &#39;&#39;, titanic$name)
 table(titanic$gender, titanic$titles) %&gt;% 
   knitr::kable()</code></pre>
-<table>
+<table style="width:100%;">
+<colgroup>
+<col width="6%" />
+<col width="4%" />
+<col width="3%" />
+<col width="3%" />
+<col width="4%" />
+<col width="2%" />
+<col width="8%" />
+<col width="4%" />
+<col width="5%" />
+<col width="6%" />
+<col width="4%" />
+<col width="4%" />
+<col width="3%" />
+<col width="3%" />
+<col width="3%" />
+<col width="2%" />
+<col width="3%" />
+<col width="3%" />
+<col width="12%" />
+</colgroup>
 <thead>
 <tr class="header">
-<th></th>
+<th align="left"></th>
 <th align="right">Capt</th>
 <th align="right">Col</th>
 <th align="right">Don</th>
@@ -503,7 +530,7 @@ table(titanic$gender, titanic$titles) %&gt;%
 </thead>
 <tbody>
 <tr class="odd">
-<td>Male</td>
+<td align="left">Male</td>
 <td align="right">1</td>
 <td align="right">4</td>
 <td align="right">1</td>
@@ -524,7 +551,7 @@ table(titanic$gender, titanic$titles) %&gt;%
 <td align="right">0</td>
 </tr>
 <tr class="even">
-<td>Female</td>
+<td align="left">Female</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -546,7 +573,8 @@ table(titanic$gender, titanic$titles) %&gt;%
 </tr>
 </tbody>
 </table>
-<p>Let’s now define all these different name titles as rare titles (for those titles which are really rare).</p>
+<p>Let’s now define all these different name titles as rare titles (for
+those titles which are really rare).</p>
 <div id="distribution-of-titles-by-gender" class="section level3">
 <h3>Distribution of Titles by Gender</h3>
 <pre class="r"><code># Titles with very low cell counts to be combined to &quot;rare&quot; level
@@ -581,7 +609,8 @@ titanic %&gt;%
     Mr = replace_na(Mr, 0),
     Mrs = replace_na(Mrs, 0)) %&gt;% 
   knitr::kable()</code></pre>
-<pre><code>## `summarise()` regrouping output by &#39;titles&#39; (override with `.groups` argument)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;titles&#39;.
+## You can override using the `.groups` argument.</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -617,7 +646,9 @@ titanic %&gt;%
   summarise(
     median_age = median(age, na.rm = T)) %&gt;% 
   knitr::kable()</code></pre>
-<pre><code>## `summarise()` regrouping output by &#39;gender&#39;, &#39;pclass&#39; (override with `.groups` argument)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;gender&#39;,
+## &#39;pclass&#39;. You can override using the `.groups`
+## argument.</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -720,12 +751,20 @@ titanic %&gt;%
 </tr>
 </tbody>
 </table>
-<p>The table above gives us a short summary of how we should go about replacing all the missing age values. And as expected, those passengers with title name <strong>Master</strong> or <strong>Miss</strong> tend to be younger than those with title names <strong>Mrs</strong> or <strong>Mr.</strong> It also looks like there is an age variability among passenger class (Pclass) where older passengers tend to be in the more luxurious 1st class.</p>
+<p>The table above gives us a short summary of how we should go about
+replacing all the missing age values. And as expected, those passengers
+with title name <strong>Master</strong> or <strong>Miss</strong> tend to
+be younger than those with title names <strong>Mrs</strong> or
+<strong>Mr.</strong> It also looks like there is an age variability
+among passenger class (Pclass) where older passengers tend to be in the
+more luxurious 1st class.</p>
 </div>
 </div>
 <div id="creating-a-mother-and-status-variable" class="section level2">
 <h2>Creating a mother and status Variable</h2>
-<p>To make it more interesting, I am going to create a <code>mother</code> variable to see whether being a mother or child is associated with survival.</p>
+<p>To make it more interesting, I am going to create a
+<code>mother</code> variable to see whether being a mother or child is
+associated with survival.</p>
 <p>let us create the <code>mother</code> variable.</p>
 <pre class="r"><code># Adding Mother variable
 titanic$mother = &#39;Not Mother&#39;
@@ -752,22 +791,33 @@ table(titanic$mother, titanic$survival)</code></pre>
 <h1>Missingness</h1>
 <div id="the-age-variable" class="section level2">
 <h2>The Age variable</h2>
-<p>There are <strong>263</strong> missing age values. We will use a technique of replacing the missing age values using a model that predicts age based on other variables. I will use the <strong>Multivariate Imputation by Chained Equations (Mice)</strong> package to predict what missing age values would have been based on other variables.</p>
-<p>After running this mice model, I am worried that it might have compromised my original titanic dataset. So let use some visualization to see if nothing changed.</p>
+<p>There are <strong>263</strong> missing age values. We will use a
+technique of replacing the missing age values using a model that
+predicts age based on other variables. I will use the
+<strong>Multivariate Imputation by Chained Equations (Mice)</strong>
+package to predict what missing age values would have been based on
+other variables.</p>
+<p>After running this mice model, I am worried that it might have
+compromised my original titanic dataset. So let use some visualization
+to see if nothing changed.</p>
 <pre class="r"><code>par(mfrow = c(1,2))
 hist(titanic$age, freq = F, main = &#39;Age: Original Data&#39;, 
   col = &#39;darkgreen&#39;, ylim = c(0,0.04))
 hist(tit_output$age, freq = F, main = &#39;Age: MICE Output&#39;, 
   col = &#39;lightgreen&#39;, ylim = c(0,0.04))</code></pre>
 <p><img src="Titanic_files/figure-html/unnamed-chunk-14-1.png" width="90%" /></p>
-<p>Now that everything looks good, let us replace all the missing age values using the mice model I just built.</p>
+<p>Now that everything looks good, let us replace all the missing age
+values using the mice model I just built.</p>
 <pre class="r"><code>titanic$age = tit_output$age
 sum(is.na(titanic$age))</code></pre>
 <pre><code>## [1] 0</code></pre>
 </div>
 <div id="the-embarked-variable" class="section level2">
 <h2>The Embarked variable</h2>
-<p>Here, I will just replace the 2 missing values based on on the amount of money they paid to embark (fare variable). We can easily visualize this by plotting the embarked, fare, and passenger class (Pclass) variables on the boxplot.</p>
+<p>Here, I will just replace the 2 missing values based on on the amount
+of money they paid to embark (fare variable). We can easily visualize
+this by plotting the embarked, fare, and passenger class (Pclass)
+variables on the boxplot.</p>
 <pre class="r"><code># Get rid of our missing passenger IDs
 embark_fare = titanic %&gt;%
   filter(passenger_id != 62 &amp; passenger_id != 830)
@@ -780,7 +830,10 @@ ggplot(embark_fare, aes(x = embarked, y = fare, fill = factor(pclass))) +
   scale_y_continuous(labels = dollar_format()) +
   theme_few()</code></pre>
 <p><img src="Titanic_files/figure-html/unnamed-chunk-16-1.png" width="90%" /></p>
-<p>Therefore, looking at the plot, we can safely conclude that both passengers embarked from the <strong>Cherbourg</strong> port, so I will replace both missing values with the corresponding port of embarkment.</p>
+<p>Therefore, looking at the plot, we can safely conclude that both
+passengers embarked from the <strong>Cherbourg</strong> port, so I will
+replace both missing values with the corresponding port of
+embarkment.</p>
 <pre class="r"><code>titanic$embarked[c(62, 830)] = &#39;Cherbourg&#39;
 sum(is.na(titanic$embarked))</code></pre>
 <pre><code>## [1] 0</code></pre>
@@ -798,17 +851,22 @@ sum(is.na(titanic$embarked))</code></pre>
     x = &quot;Fare&quot;) +
   theme_few()</code></pre>
 <p><img src="Titanic_files/figure-html/unnamed-chunk-18-1.png" width="90%" /></p>
-<p>Therefore, I will replace the missing value with the median of the <strong>3rd</strong> passenger class.</p>
+<p>Therefore, I will replace the missing value with the median of the
+<strong>3rd</strong> passenger class.</p>
 <pre class="r"><code>titanic$fare[1044] = 
   median(titanic[titanic$pclass == &quot;3rd&quot; &amp; titanic$embarked == &quot;Southampton&quot;, ]$fare, 
          na.rm = TRUE)
 sum(is.na(titanic$fare))</code></pre>
 <pre><code>## [1] 0</code></pre>
-<p>After this step, the final <code>Titanic</code> dataset should be cleaned without missing values and necessary variables for the <code>Prediction</code> stage.</p>
+<p>After this step, the final <code>Titanic</code> dataset should be
+cleaned without missing values and necessary variables for the
+<code>Prediction</code> stage.</p>
 </div>
-<div id="splitting-the-dataset-for-model-building" class="section level2">
+<div id="splitting-the-dataset-for-model-building"
+class="section level2">
 <h2>Splitting the Dataset for model building</h2>
-<p>I will split the <code>Titanic</code> dataset back to the <code>Train</code> and <code>Test</code> datasets.</p>
+<p>I will split the <code>Titanic</code> dataset back to the
+<code>Train</code> and <code>Test</code> datasets.</p>
 <pre class="r"><code>titanic = titanic %&gt;%
   dplyr::select(-c(&quot;name&quot;, &quot;ticket&quot;, &quot;family&quot;, &quot;lastname&quot;, &quot;cabin&quot;))
 
@@ -827,7 +885,9 @@ test_df = test_data[,-c(1,2)]</code></pre>
 <h1>Model Building</h1>
 <div id="logistic-model" class="section level2">
 <h2>Logistic Model</h2>
-<p>I can also fit a logistic regression using caret. This is to compare the cross-validation performance with other models, rather than tuning the model.</p>
+<p>I can also fit a logistic regression using caret. This is to compare
+the cross-validation performance with other models, rather than tuning
+the model.</p>
 <pre class="r"><code># set up training control
 ctrl1 = trainControl(method = &quot;repeatedcv&quot;, # 10 fold cross validation
                     number = 5, # do 5 repetition of cv
@@ -844,7 +904,10 @@ model.glm = train(x = train_df,
 </div>
 <div id="random-forest-model" class="section level2">
 <h2>Random Forest Model</h2>
-<p>Next, I will optimize a randomForest by tunning it first to determine the right number of trees and number of features to be selected at each split, the right combination of which will result in the highest model accuracy.</p>
+<p>Next, I will optimize a randomForest by tunning it first to determine
+the right number of trees and number of features to be selected at each
+split, the right combination of which will result in the highest model
+accuracy.</p>
 <pre class="r"><code># set up training control
 ctrl = trainControl(method = &quot;repeatedcv&quot;, # 10 fold cross validation
                     number = 5, # do 5 repetition of cv
@@ -868,15 +931,24 @@ ggplot(rf.fit, highlight = TRUE)</code></pre>
 <pre class="r"><code># the besttune
 rf.fit$bestTune</code></pre>
 <pre><code>##   mtry splitrule min.node.size
-## 7    3      gini             1</code></pre>
-<p>This randomForest model was tuned and optimized, resulting in the highest <strong>Accuracy</strong> of 0.8737395 over the optimization range.</p>
+## 9    3      gini             3</code></pre>
+<p>This randomForest model was tuned and optimized, resulting in the
+highest <strong>Accuracy</strong> of 0.8743305 over the optimization
+range.</p>
 <p><strong>Variable Importance for RandomForest model:</strong></p>
 <p><img src="Titanic_files/figure-html/variable%20importance-1.png" width="90%" /></p>
-<p>This figure shows a graphical representation of the variable importance in the <code>titanic</code> data. We see the mean decrease in Gini index for each variable, relative to the largest. The variables with the largest mean decrease in Gini index are <code>titles</code>, <code>fare</code>, and <code>gender</code>.</p>
+<p>This figure shows a graphical representation of the variable
+importance in the <code>titanic</code> data. We see the mean decrease in
+Gini index for each variable, relative to the largest. The variables
+with the largest mean decrease in Gini index are <code>titles</code>,
+<code>fare</code>, and <code>gender</code>.</p>
 </div>
 <div id="gradient-boosting-model" class="section level2">
 <h2>Gradient Boosting Model</h2>
-<p>Finally, I will optimize a Gradient Boosting by tunning it first to determine the right number of trees, the right depth of those trees, and the right learning rate since Gradient boosting learns slowlt. The right combination of which will result in the highest model accuracy.</p>
+<p>Finally, I will optimize a Gradient Boosting by tunning it first to
+determine the right number of trees, the right depth of those trees, and
+the right learning rate since Gradient boosting learns slowlt. The right
+combination of which will result in the highest model accuracy.</p>
 <pre class="r"><code># Use the expand.grid to specify the search space
 grid = expand.grid(n.trees = c(4000,5000), # number of trees to fit
                         interaction.depth = 2:8, # depth of variable interaction
@@ -895,31 +967,33 @@ gbm.fit = train(x = train_df, y = train_data$survival,
 summary(gbm.fit$finalModel, las = 2, cex.names = 0.6)</code></pre>
 <p><img src="Titanic_files/figure-html/unnamed-chunk-23-1.png" width="90%" /></p>
 <pre><code>##               var    rel.inf
-## titles     titles 28.4135623
-## fare         fare 25.6998068
-## age           age 19.2172177
-## pclass     pclass 10.3343600
-## gender     gender  5.0496190
-## famsize   famsize  4.9398755
-## embarked embarked  3.1762330
-## sib_sp     sib_sp  1.8770233
-## parch       parch  0.9231021
-## mother     mother  0.3692001</code></pre>
+## fare         fare 28.0619689
+## age           age 23.8162597
+## titles     titles 22.3472818
+## pclass     pclass  8.8760407
+## gender     gender  5.4656710
+## famsize   famsize  4.2101260
+## embarked embarked  3.1737306
+## sib_sp     sib_sp  2.4585550
+## parch       parch  1.2668645
+## mother     mother  0.3235018</code></pre>
 <pre class="r"><code># looking at the tuning results
 gbm.fit$bestTune</code></pre>
 <pre><code>##    n.trees interaction.depth shrinkage n.minobsinnode
-## 34    5000                 4     0.005              1</code></pre>
+## 42    5000                 8     0.005              1</code></pre>
 <pre class="r"><code># plot the performance of the training models
 plot(gbm.fit)</code></pre>
 <p><img src="Titanic_files/figure-html/unnamed-chunk-23-2.png" width="90%" /></p>
 </div>
-<div id="model-selection-based-on-cross-validation" class="section level2">
+<div id="model-selection-based-on-cross-validation"
+class="section level2">
 <h2>Model Selection based on Cross Validation</h2>
 <pre class="r"><code>resamp = resamples(list(logistic = model.glm, rf = rf.fit, gbm = gbm.fit))
 # Visualizing ROC
 bwplot(resamp, metric = &quot;ROC&quot;)</code></pre>
 <p><img src="Titanic_files/figure-html/unnamed-chunk-24-1.png" width="90%" /></p>
-<p>As shown in the boxplot, the RandomForest model is the optimal model followed by the logistic and Gradient Boosting.</p>
+<p>As shown in the boxplot, the RandomForest model is the optimal model
+followed by the logistic and Gradient Boosting.</p>
 </div>
 </div>
 <div id="prediction" class="section level1">
@@ -936,8 +1010,17 @@ write.csv(solution, file = &#39;rf_modelPred.csv&#39;, row.names = F)</code></pr
 </div>
 <div id="conclusion" class="section level1">
 <h1>Conclusion</h1>
-<p>In this classification problem, I optimized a RandomForest and Gradient Boosting models then compared them to a logistic model, where the RandomForest proved to be the optimal model with a 87% accuracy. I approached this problem by conducting feature engineering to leverage original variables provided to me. I created the <code>titles</code> variable from the <code>name</code> variable, which was found to be the most important of all. Obviously this problem can be approached in different ways, different models could be used, and certainly different predictor variables could be created from the existing ones.</p>
-<p><strong>Note:</strong> Please check my github account for datasets used and the predicted dataset created from this project.</p>
+<p>In this classification problem, I optimized a RandomForest and
+Gradient Boosting models then compared them to a logistic model, where
+the RandomForest proved to be the optimal model with a 87% accuracy. I
+approached this problem by conducting feature engineering to leverage
+original variables provided to me. I created the <code>titles</code>
+variable from the <code>name</code> variable, which was found to be the
+most important of all. Obviously this problem can be approached in
+different ways, different models could be used, and certainly different
+predictor variables could be created from the existing ones.</p>
+<p><strong>Note:</strong> Please check my github account for datasets
+used and the predicted dataset created from this project.</p>
 </div>
 
 
@@ -949,7 +1032,7 @@ write.csv(solution, file = &#39;rf_modelPred.csv&#39;, row.names = F)</code></pr
 
 // add bootstrap table styles to pandoc tables
 function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
 }
 $(document).ready(function () {
   bootstrapStylePandocTables();
@@ -967,7 +1050,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
   $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
+    $(this).parent().toggleClass('nav-tabs-open');
   });
 });
 </script>
