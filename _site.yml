@@ -1,29 +1,32 @@
-name: "Yay internet!"
+name: "My Profile"
 output_dir: "."
 navbar:
   title: "Home"
   right:
-    - text: "Resume"
-      href: Resume.html
-    - text: Research
-      menu:
-      - text: "Progression of COPD - A Capstone Project"
-        href: COPD_Analysis.html
-    - text: Projects
-      menu:
-      - text: "Titanic"
-        href: Titanic.html
-      - text: "Green Taxi - Percentage Tip"
-        href: GreenTaxi.html
-    - icon: fa-envelope fa-lg
-      href: mailto:<cm3928@caa.columbia.edu>
-    - icon: fa-linkedin fa-lg
-      href: https://www.linkedin.com/in/cl%C3%A9ment-mugenzi-1076a4106/
-    - icon: fa-github fa-lg
-      href: http://github.com/mugenzi93/
+  - text: "Resume"
+    href: Resume.html
+  - text: Research
+    menu:
+    - text: "Progression of COPD - A Capstone Project"
+      href: COPD_Analysis.html
+  - text: Projects
+    menu:
+    - text: "Titanic"
+      href: Titanic.html
+    - text: "Green Taxi - Percentage Tip"
+      href: GreenTaxi.html
+  - icon: fa-envelope fa-lg
+    href: mailto:<cm3928@caa.columbia.edu>
+  - icon: fa-linkedin fa-lg
+    href: https://www.linkedin.com/in/cl%C3%A9ment-mugenzi-1076a4106/
+  - icon: fa-github fa-lg
+    href: http://github.com/mugenzi93/
 output:
   html_document:
-    theme: flatly
+    theme: journal
+    toc: yes
+    toc_float:
+      collapsed: true
     
     
     
