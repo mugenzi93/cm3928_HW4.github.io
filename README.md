@@ -1,2 +1,2 @@
-# mugenzi93.github.io
-Personal Website
+# Personal Website
+A place where I share my personal and professional journey.

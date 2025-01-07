@@ -29,7 +29,7 @@ During the summer of 2020, I was privileged to work with [Andrew Laine, PhD](htt
 
 Currently, I am part of the wider Analytics & Behavior Change team at CVS health where I am building predictive models to identify Medicaid members most at risk of adverse events such as high healthcare costs, emergency visits, and inpatient admissions.
 
-I am also leveraging Causal Inference and statistical learning methodologies to measure the effectiveness of care management programs and communicating findings to stakeholders for program improvement through better member targeting.
+I am also leveraging Causal Inference and statistical learning methodologies to measure the effectiveness of care management programs and communicate findings to stakeholders for program improvement through better member targeting.
 
 
 # Side Note

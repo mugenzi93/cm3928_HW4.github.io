@@ -1,7 +1,11 @@
 ---
 title: "About me"
-output: html_document
+output: 
+  html_document:
+    theme: journal
+    toc: no
+    toc_float:
+      collapsed: no
 ---
-
 
 <iframe src="Documents/resume_2.pdf" width="100%" height="1000px">
