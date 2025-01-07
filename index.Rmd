@@ -3,16 +3,14 @@ title: "Clément Mugenzi"
 output: 
   html_document:
     theme: journal
-    toc: yes
+    toc: no
     toc_float:
-      collapsed: true
+      collapsed: no
 ---
 
 
 ![](images/clement.jpg)
 
-
-# Introduction
 
 I am an ambitious and dynamic scientist with a Master of Science degree in Biostatistics from Columbia Mailman School of Public Health. 
 
@@ -32,7 +30,7 @@ Currently, I am part of the wider Analytics & Behavior Change team at CVS health
 I am also leveraging Causal Inference and statistical learning methodologies to measure the effectiveness of care management programs and communicate findings to stakeholders for program improvement through better member targeting.
 
 
-# Side Note
+**Side Note:**
 
 I am a proactive learner, always seeking out challenging opportunities with an ultimate purpose to grow personally and professionally. 
 
