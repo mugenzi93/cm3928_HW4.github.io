@@ -12,9 +12,9 @@ output:
 ![](images/clement.jpg)
 
 
-I am an ambitious and dynamic scientist with a Master of Science degree in Biostatistics from Columbia Mailman School of Public Health. 
+I am an ambitious and dynamic scientist with a Master of Science degree in Biostatistics from Columbia University Mailman School of Public Health. 
 
-During my undergraduate education in Chemistry at the University of Central Arkansas, I served in different professional and research roles. As a result, I have a wide range of experience working at academic institutions, small companies (start ups), and research labs. 
+During my undergraduate education in Chemistry at the University of Central Arkansas, I served in different professional and research roles. As a result, I have a wide range of experience working at academic institutions, research labs, as well as small and large companies.
 
 During the summer of 2020, I was privileged to work with [Andrew Laine, PhD](https://www.bme.columbia.edu/faculty/andrew-laine) and [Elsa Angelini, PhD](https://www.imperial.ac.uk/people/e.angelini) in their research lab: [Heffner Biomedical Imaging Lab](https://hbil.bme.columbia.edu/). My goal in this research was to analyze segmented Computed Tomography (CT) images from COPD patients to:
 
